@@ -10,6 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ejb.embeddable.EJBContainer;
 import javax.naming.Context;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -49,7 +50,7 @@ public class UserApplicationServiceBeanTest {
     @Test
     public void getUser() throws Exception {
         // given
-        User user = new User(new UserId("abc"), "name");
+        User user = new User(new UserId("abc"), "name", asList(Role.BOARD_MEMBER));
         when(userRepository.getUser(any(UserId.class))).thenReturn(user);
 
         // when

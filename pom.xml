@@ -37,6 +37,12 @@
                 <artifactId>club-manager-commons</artifactId>
                 <version>${version}</version>
             </dependency>
+            <!-- own dependencies -->
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-identity</artifactId>
+                <version>${version}</version>
+            </dependency>
 
             <!-- 3rd party -->
             <dependency>
