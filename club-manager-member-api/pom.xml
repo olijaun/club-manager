@@ -9,31 +9,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-member</artifactId>
-    <name>club-manager-member</name>
+    <artifactId>club-manager-member-api</artifactId>
+    <name>club-manager-member-api</name>
 
-    <packaging>ejb</packaging>
+    <packaging>war</packaging>
 
     <dependencies>
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-identity</artifactId>
+            <artifactId>club-manager-member</artifactId>
             <type>ejb</type>
         </dependency>
 
         <!-- 3rd party -->
-        <dependency>
-            <groupId>com.googlecode.libphonenumber</groupId>
-            <artifactId>libphonenumber</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>

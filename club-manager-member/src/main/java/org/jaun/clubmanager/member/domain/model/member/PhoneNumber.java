@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model;
+package org.jaun.clubmanager.member.domain.model.member;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;

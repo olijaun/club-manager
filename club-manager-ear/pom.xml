@@ -11,5 +11,58 @@
 
     <artifactId>club-manager-ear</artifactId>
 
+    <packaging>ear</packaging>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-identity</artifactId>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-member</artifactId>
+            <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-member-api</artifactId>
+            <type>war</type>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <displayName>Club Manager Application</displayName>
+                    <modules>
+                        <ejbModule>
+                            <groupId>org.jaun.club-manager</groupId>
+                            <artifactId>club-manager-identity</artifactId>
+                            <!--<bundleFilename>club-manager-identity.jar</bundleFilename>-->
+                        </ejbModule>
+                        <ejbModule>
+                            <groupId>org.jaun.club-manager</groupId>
+                            <artifactId>club-manager-member</artifactId>
+                            <!--<bundleFilename>club-manager-member.jar</bundleFilename>-->
+                        </ejbModule>
+                        <webModule>
+                            <groupId>org.jaun.club-manager</groupId>
+                            <artifactId>club-manager-member-api</artifactId>
+                            <!--<bundleFilename>club-manager-member-api.war</bundleFilename>-->
+                            <contextRoot>club-manager-member</contextRoot>
+                        </webModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
