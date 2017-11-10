@@ -1,11 +1,9 @@
-package org.jaun.clubmanager.domain.model;
+package org.jaun.clubmanager.identity.domain.model;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

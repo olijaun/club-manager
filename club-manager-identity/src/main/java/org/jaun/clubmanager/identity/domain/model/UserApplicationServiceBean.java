@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.domain.model;
+package org.jaun.clubmanager.identity.domain.model;
 
 import javax.ejb.*;
 

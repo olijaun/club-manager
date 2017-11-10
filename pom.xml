@@ -57,6 +57,12 @@
                 <version>23.4-jre</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.googlecode.libphonenumber</groupId>
+                <artifactId>libphonenumber</artifactId>
+                <version>8.8.5</version>
+            </dependency>
+
             <!-- testing stuff -->
             <dependency>
                 <groupId>junit</groupId>

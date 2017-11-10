@@ -11,5 +11,25 @@
 
     <artifactId>club-manager-member</artifactId>
 
+    <packaging>ejb</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-commons</artifactId>
+        </dependency>
+
+        <!-- 3rd party -->
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

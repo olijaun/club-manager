@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.domain.model;
+package org.jaun.clubmanager.identity.domain.model;
 
 import javax.ejb.Stateless;
 
@@ -6,6 +6,6 @@ import javax.ejb.Stateless;
 public class InMemoryMockUserRepository implements UserRepository {
 
     public User getUser(UserId id) {
-        return new User(new UserId("userA"), "Mr. A");
+        return new User(new UserId(id.getValue()), "Mr. A");
     }
 }
