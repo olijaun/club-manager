@@ -4,7 +4,7 @@ import org.jaun.clubmanager.domain.model.commons.Id;
 
 public class CollaboratorId extends Id {
 
-    protected CollaboratorId(String value) {
+    public CollaboratorId(String value) {
         super(value);
     }
 }

@@ -18,6 +18,9 @@
         <ear-plugin-version>2.9</ear-plugin-version>
         <compiler-plugin-version>3.1</compiler-plugin-version>
 
+        <version.wildfly.swarm>2017.11.0</version.wildfly.swarm>
+
+
         <!-- dependency versions -->
         <javaee-api-version>7.0</javaee-api-version>
 
@@ -83,6 +86,15 @@
                 <version>8.8.5</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.wildfly.swarm</groupId>
+                <artifactId>bom-all</artifactId>
+                <version>${version.wildfly.swarm}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+
             <!-- testing stuff -->
             <dependency>
                 <groupId>junit</groupId>
@@ -102,6 +114,7 @@
 
     <!-- Plugin management -->
     <build>
+
         <pluginManagement>
             <plugins>
                 <!-- compiler plugin -->
@@ -130,6 +143,12 @@
                     <configuration>
                         <ejbVersion>${ejb-spec-version}</ejbVersion>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.wildfly.plugins</groupId>
+                    <artifactId>wildfly-maven-plugin</artifactId>
+                    <version>1.1.0.Alpha8</version>
                 </plugin>
 
                 <!-- war plugin -skinny wars mode! -->

@@ -1,34 +1,36 @@
 package org.jaun.clubmanager.member.rest;
 
-public class MemberDTO {
-    private String memberId;
-    private String memberFirstName;
-    private String memberLastName;
+import java.io.Serializable;
 
-    public String getMemberId() {
-        return memberId;
+public class MemberDTO implements Serializable {
+    private String id;
+    private String firstName;
+    private String lastName;
+
+    public String getId() {
+        return id;
     }
 
-    public MemberDTO setMemberId(String memberId) {
-        this.memberId = memberId;
+    public MemberDTO setId(String id) {
+        this.id = id;
         return this;
     }
 
-    public String getMemberFirstName() {
-        return memberFirstName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public MemberDTO setMemberFirstName(String memberFirstName) {
-        this.memberFirstName = memberFirstName;
+    public MemberDTO setFirstName(String firstName) {
+        this.firstName = firstName;
         return this;
     }
 
-    public String getMemberLastName() {
-        return memberLastName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public MemberDTO setMemberLastName(String memberLastName) {
-        this.memberLastName = memberLastName;
+    public MemberDTO setLastName(String lastName) {
+        this.lastName = lastName;
         return this;
     }
 }

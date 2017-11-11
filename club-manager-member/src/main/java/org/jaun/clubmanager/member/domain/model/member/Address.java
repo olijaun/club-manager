@@ -49,7 +49,7 @@ public class Address extends ValueObject {
             return this;
         }
 
-        public Builder plz(int plz) {
+        public Builder zip(int plz) {
             this.plz = plz;
             return this;
         }

@@ -9,9 +9,9 @@ public class MemberConverter {
 
     public static MemberDTO toMemberDTO(Member in) {
         MemberDTO out = new MemberDTO();
-        out.setMemberId(in.getId().getValue());
-        out.setMemberFirstName(in.getFirstName());
-        out.setMemberLastName(in.getLastName());
+        out.setId(in.getId().getValue());
+        out.setFirstName(in.getFirstName());
+        out.setLastName(in.getLastName());
         return out;
     }
 
