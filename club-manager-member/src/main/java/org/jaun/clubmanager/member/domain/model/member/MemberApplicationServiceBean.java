@@ -1,7 +1,5 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
-import org.jaun.clubmanager.member.domain.model.collaboration.Admin;
-import org.jaun.clubmanager.member.domain.model.collaboration.CollaboratorId;
 import org.jaun.clubmanager.member.domain.model.collaboration.CollaboratorService;
 
 import javax.ejb.*;
