@@ -1,8 +1,9 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
-import javax.ejb.Stateless;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Stateless
+@Service
 public class InMemoryMockMemberRepository implements MemberRepository {
 
     public Member getMember(MemberId id) {

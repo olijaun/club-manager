@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.rest;
+package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
 import java.util.Collection;

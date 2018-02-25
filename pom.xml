@@ -6,28 +6,19 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.0.RC2</version>
+        <relativePath/>
+        <!--  lookup parent from repository  -->
+    </parent>
     <properties>
-        <!--  encoding-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--java version -->
-        <java-version>1.8</java-version>
-
-        <!-- plugin versions -->
-        <ejb-plugin-version>2.3</ejb-plugin-version>
-        <war-plugin-version>2.4</war-plugin-version>
-        <ear-plugin-version>2.9</ear-plugin-version>
-        <compiler-plugin-version>3.1</compiler-plugin-version>
-
-        <version.wildfly.swarm>2017.11.0</version.wildfly.swarm>
-
-
-        <!-- dependency versions -->
-        <javaee-api-version>7.0</javaee-api-version>
-
-        <!-- EJB spec version -->
-        <ejb-spec-version>3.2</ejb-spec-version>
-
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
         <junit-version>4.12</junit-version>
+        <compiler-plugin-version>3.1</compiler-plugin-version>
     </properties>
 
     <dependencyManagement>
@@ -38,36 +29,28 @@
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-commons</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-identity</artifactId>
-                <version>${version}</version>
-                <type>ejb</type>
+                <version>${project.version}</version>
+                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-member</artifactId>
-                <version>${version}</version>
-                <type>ejb</type>
-            </dependency>
-            <dependency>
-                <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-member-api</artifactId>
-                <version>${version}</version>
-                <type>war</type>
+                <version>${project.version}</version>
+                <type>jar</type>
             </dependency>
 
             <!-- 3rd party -->
             <dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-api</artifactId>
-                <version>${javaee-api-version}</version>
-                <scope>provided</scope>
+                <groupId>javax.mail</groupId>
+                <artifactId>javax.mail-api</artifactId>
+                <version>1.5.5</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -84,14 +67,6 @@
                 <groupId>com.googlecode.libphonenumber</groupId>
                 <artifactId>libphonenumber</artifactId>
                 <version>8.8.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>bom-all</artifactId>
-                <version>${version.wildfly.swarm}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
 
 
@@ -123,69 +98,56 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${compiler-plugin-version}</version>
                     <configuration>
-                        <source>${java-version}</source>
-                        <target>${java-version}</target>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-ear-plugin</artifactId>
-                    <version>2.7</version>
-                </plugin>
-
-                <!-- ejb plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-ejb-plugin</artifactId>
-                    <version>${ejb-plugin-version}</version>
-                    <configuration>
-                        <ejbVersion>${ejb-spec-version}</ejbVersion>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>1.1.0.Alpha8</version>
-                </plugin>
-
-                <!-- war plugin -skinny wars mode! -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>${war-plugin-version}</version>
-                    <configuration>
-                        <failOnMissingWebXml>false</failOnMissingWebXml>
-                        <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
-                        <archive>
-                            <manifest>
-                                <addClasspath>true</addClasspath>
-                                <classpathPrefix>lib/</classpathPrefix>
-                            </manifest>
-                        </archive>
-                        <webResources>
-                            <resource>
-                                <filtering>true</filtering>
-                                <directory>src/main/webapp</directory>
-                                <includes>
-                                    <include>**/web.xml</include>
-                                </includes>
-                            </resource>
-                        </webResources>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
     <modules>
         <module>club-manager-commons</module>
         <module>club-manager-identity</module>
         <module>club-manager-member</module>
-        <module>club-manager-member-api</module>
-        <module>club-manager-ear</module>
     </modules>
 
 </project>

@@ -5,15 +5,8 @@ import org.jaun.clubmanager.identity.domain.model.User;
 import org.jaun.clubmanager.identity.domain.model.UserApplicationServiceBean;
 import org.jaun.clubmanager.identity.domain.model.UserId;
 
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-
-@Stateless
-@Local(CollaboratorService.class)
 public class LocalBeanCollaboratorService implements CollaboratorService {
 
-    @EJB
     private UserApplicationServiceBean userApplicationServiceBean;
 
     @Override

@@ -1,18 +1,14 @@
 package org.jaun.clubmanager.identity.domain.model;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.ejb.embeddable.EJBContainer;
-import javax.naming.Context;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -27,25 +23,6 @@ public class UserApplicationServiceBeanTest {
 
     @InjectMocks
     private UserApplicationServiceBean userApplicationServiceBean;
-
-    /**
-     * This test takes about ab minute on my machine. EJBContainer seems to be pretty useless to me. But it's here to show that is possible...
-     */
-    @Ignore
-    @Test
-    public void getUser_ejbContainer() throws Exception {
-        // given
-        EJBContainer ejbContainer = EJBContainer.createEJBContainer();
-
-        Context context = ejbContainer.getContext();
-        UserApplicationServiceBean userApplicationServiceBean = (UserApplicationServiceBean) context.lookup("java:global/classes/UserApplicationServiceBean");
-
-        // when
-        User user = userApplicationServiceBean.getUser(new UserId("abc"));
-
-        // then
-        assertNotNull(user);
-    }
 
     @Test
     public void getUser() throws Exception {

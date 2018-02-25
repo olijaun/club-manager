@@ -1,11 +1,11 @@
-package org.jaun.clubmanager.member.rest;
+package org.jaun.clubmanager.member.application.resource;
 
+import org.jaun.clubmanager.member.application.MemberApplicationServiceBean;
 import org.jaun.clubmanager.member.domain.model.member.Member;
-import org.jaun.clubmanager.member.domain.model.member.MemberApplicationServiceBean;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -14,11 +14,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
 
+@Component
 @Path("/members")
-@Stateless
 public class MemberResource {
 
-    @EJB
+    @Autowired
     private MemberApplicationServiceBean memberApplicationService;
 
     @GET

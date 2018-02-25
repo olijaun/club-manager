@@ -12,7 +12,7 @@
     <artifactId>club-manager-identity</artifactId>
     <name>club-manager-identity</name>
 
-    <packaging>ejb</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
 
@@ -23,24 +23,6 @@
         </dependency>
 
         <!-- 3rd party -->
-        <dependency>
-            <groupId>org.glassfish.embedded</groupId>
-            <artifactId>maven-embedded-glassfish-plugin</artifactId>
-            <scope>test</scope>
-            <version>4.1.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.main.extras</groupId>
-            <artifactId>glassfish-embedded-all</artifactId>
-            <scope>test</scope>
-            <version>5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-        </dependency>
 
         <!-- testing stuff -->
         <dependency>
@@ -54,14 +36,5 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ejb-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
