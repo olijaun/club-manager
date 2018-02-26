@@ -1,25 +1,41 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
+import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.Entity;
+import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
+import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 
 import static java.util.Objects.requireNonNull;
 
-public class Member extends Entity<MemberId> {
+public class Member extends EventSourcingAggregate<MemberId> {
 
-    private final MemberId id;
-    private final String firstName;
-    private final String lastName;
-    private final Address address;
-    private final PhoneNumber phone;
-    private final EmailAddress emailAddress;
+    private MemberId id;
+    private String firstName;
+    private String lastName;
+    private Address address;
+    private PhoneNumber phone;
+    private EmailAddress emailAddress;
 
-    public Member(MemberId id, String firstName, String lastName, Address address, PhoneNumber phone, EmailAddress emailAddress) {
-        this.id = requireNonNull(id);
-        this.firstName = requireNonNull(firstName);
-        this.lastName = requireNonNull(lastName);
-        this.address = requireNonNull(address);
-        this.phone = phone;
-        this.emailAddress = emailAddress;
+    public Member(MemberId id, String firstName, String lastName) {
+        apply(new MemberCreatedEvent(id, firstName, lastName));
+    }
+
+    public Member(EventStream<Member> eventStream) {
+        replayEvents(eventStream);
+    }
+
+    protected void mutate(MemberCreatedEvent event) {
+        this.id = requireNonNull(event.getMemberId());
+        this.firstName = requireNonNull(event.getFirstName());
+        this.lastName = requireNonNull(event.getLastName());
+    }
+
+    @Override
+    protected void mutate(DomainEvent event) {
+        if(event instanceof MemberCreatedEvent) {
+            mutate((MemberCreatedEvent)event);
+        }
     }
 
     public MemberId getId() {
@@ -54,12 +70,9 @@ public class Member extends Entity<MemberId> {
         private MemberId id;
         private String firstName;
         private String lastName;
-        private Address address;
-        private PhoneNumber phone;
-        private EmailAddress emailAddress;
 
         public Member build() {
-            return new Member(id, firstName, lastName, address, phone, emailAddress);
+            return new Member(id, firstName, lastName);
         }
 
         public Builder id(MemberId id) {
@@ -74,21 +87,6 @@ public class Member extends Entity<MemberId> {
 
         public Builder lastName(String lastName) {
             this.lastName = lastName;
-            return this;
-        }
-
-        public Builder address(Address address) {
-            this.address = address;
-            return this;
-        }
-
-        public Builder phone(PhoneNumber phone) {
-            this.phone = phone;
-            return this;
-        }
-
-        public Builder emailAddress(EmailAddress emailAddress) {
-            this.emailAddress = emailAddress;
             return this;
         }
     }

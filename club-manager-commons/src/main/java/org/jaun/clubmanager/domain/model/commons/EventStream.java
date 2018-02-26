@@ -1,18 +1,18 @@
 package org.jaun.clubmanager.domain.model.commons;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class EventStream<T extends Aggregate<?>> {
-    private final ArrayList<DomainEvent> eventList;
+    private final List<DomainEvent> eventList;
     private final StreamId streamId;
 
-    public EventStream(ArrayList<DomainEvent> eventList, StreamId streamId) {
+    public EventStream(StreamId streamId, List<DomainEvent> eventList) {
         this.eventList = eventList;
         this.streamId = streamId;
     }
 
-    public ArrayList<DomainEvent> getEventList() {
+    public List<DomainEvent> getEventList() {
         return eventList;
     }
 

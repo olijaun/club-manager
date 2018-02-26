@@ -1,22 +1,17 @@
 package org.jaun.clubmanager.member.infra.repository;
 
 
-import com.github.msemys.esjc.AllEventsSlice;
-import com.github.msemys.esjc.EventData;
-import com.github.msemys.esjc.EventStore;
-import com.github.msemys.esjc.Position;
+import com.github.msemys.esjc.*;
 import com.google.gson.Gson;
 import org.jaun.clubmanager.domain.model.commons.*;
 
-import javax.inject.Inject;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
 public abstract class AbstractGenericRepository<T extends EventSourcingAggregate<I>, I extends Id> implements GenericRepository<T, I> {
 
-    @Inject
     private EventStore eventStore;
     private Gson gson = new Gson();
 
@@ -24,12 +19,19 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
 
     protected abstract T toAggregate(EventStream<T> eventStream);
 
+    public AbstractGenericRepository() {
+        this.eventStore = EventStoreBuilder.newBuilder()
+                .singleNodeAddress("127.0.0.1", 1113)
+                .userCredentials("admin", "changeit")
+                .build();
+    }
+
     public void save(T m) throws ConcurrencyException {
 
-        Integer expectedVersion = m.getVersion() - m.getChanges().size();
+        Long expectedVersion = (long)m.getVersion() - m.getChanges().size();
 
         if (expectedVersion == -1) {
-            expectedVersion = null;
+            expectedVersion = ExpectedVersion.ANY;
         }
 
         if (m.hasChanges()) {
@@ -41,24 +43,15 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
     public T get(I id) {
 
         StreamId streamId = new StreamId(id, getAggregateName());
+        // TODO: max value? batchSize?
+        List<DomainEvent> domainEventList = eventStore.streamAllEventsForward(Position.START, 4096, false) //
+                .map(e -> toObject(e)).collect(Collectors.toList());
 
-        List<EventData> eventDataList = null;
-        try {
-            eventStore.readAllEventsForward(Position.START, Integer.MAX_VALUE, false).thenAccept(e ->
-                    e.events.forEach(i -> toObject(i))
-                            new String(i.originalEvent().data))));
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IllegalStateException(e);
-        }
-
-        List<EventData> eventDataList = eventStore.readAllEventsForward(streamId.getValue(), 1, false);
-
-        if (eventDataList.isEmpty()) {
+        if (domainEventList.isEmpty()) {
             return null;
         }
 
-        List<DomainEvent> eventList = eventDataList.stream().map(this::toObject).collect(Collectors.toList());
-        return toAggregate(new EventStream(streamId, eventList));
+        return toAggregate(new EventStream<T>(streamId, domainEventList));
     }
 
 
@@ -73,7 +66,7 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
 
             return EventData.newBuilder() //
                     .eventId(event.getEventId().getUuid()) //
-                    .type(event.getEventType().name()) // TODO
+                    .type(event.getEventType().getName()) //
                     .jsonData(gson.toJson(event)).build();
 
         } catch (RuntimeException e) {
@@ -81,16 +74,26 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
         }
     }
 
-
-    private DomainEvent toObject(EventData eventData) {
+    private DomainEvent toObject(ResolvedEvent resolvedEvent) {
 
         try {
-            return gson.fromJson(eventData.getPayload(), getEventClass(eventData.getEventType()));
-        } catch (RuntimeException e) {
-            throw new IllegalStateException("could not deserialize event string to object: " + eventData.getEventType(), e);
+            return gson.fromJson(new String(resolvedEvent.event.data, "UTF-8"), getEventClass(resolvedEvent.event.eventType));
+            // getEventClass(resolvedEvent.event.eventType));
+        } catch (RuntimeException | UnsupportedEncodingException e) {
+            throw new IllegalStateException("could not deserialize event string to object: " + resolvedEvent.event.eventType, e);
         }
     }
 
-    protected abstract Class<? extends DomainEvent> getEventClass(EventType eventType);
+
+//    private DomainEvent toObject(EventData eventData) {
+//
+//        try {
+//            return gson.fromJson(eventData.getPayload(), getEventClass(EventType.A));
+//        } catch (RuntimeException e) {
+//            throw new IllegalStateException("could not deserialize event string to object: " + eventData.getEventType(), e);
+//        }
+//    }
+
+    protected abstract Class<? extends DomainEvent> getEventClass(String eventTypeAsString);
 
 }
