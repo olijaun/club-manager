@@ -43,9 +43,15 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
     public T get(I id) {
 
         StreamId streamId = new StreamId(id, getAggregateName());
-        // TODO: max value? batchSize?
-        List<DomainEvent> domainEventList = eventStore.streamEventsForward(streamId.getValue(), 0, 4096, false) //
-                .map(e -> toObject(e)).collect(Collectors.toList());
+
+        List<DomainEvent> domainEventList = null;
+        try {
+            domainEventList = eventStore.streamEventsForward(streamId.getValue(), 0, 4096, false) //
+                    .map(e -> toObject(e)).collect(Collectors.toList());
+
+        } catch (Exception e) {
+            return null;
+        }
 
         if (domainEventList.isEmpty()) {
             return null;

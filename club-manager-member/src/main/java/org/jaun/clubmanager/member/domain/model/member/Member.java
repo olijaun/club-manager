@@ -5,6 +5,7 @@ import org.jaun.clubmanager.domain.model.commons.Entity;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.NameChangedEvent;
 
 import static java.util.Objects.requireNonNull;
 
@@ -31,11 +32,24 @@ public class Member extends EventSourcingAggregate<MemberId> {
         this.lastName = requireNonNull(event.getLastName());
     }
 
+    protected void mutate(NameChangedEvent event) {
+        this.id = requireNonNull(event.getMemberId());
+        this.firstName = requireNonNull(event.getFirstName());
+        this.lastName = requireNonNull(event.getLastName());
+    }
+
     @Override
     protected void mutate(DomainEvent event) {
         if(event instanceof MemberCreatedEvent) {
             mutate((MemberCreatedEvent)event);
+        } else if(event instanceof NameChangedEvent) {
+            mutate((NameChangedEvent)event);
         }
+    }
+
+    public Member setName(String firstName, String lastName) {
+        apply(new NameChangedEvent(id, firstName, lastName));
+        return this;
     }
 
     public MemberId getId() {

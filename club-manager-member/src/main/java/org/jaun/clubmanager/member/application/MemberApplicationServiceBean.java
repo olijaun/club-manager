@@ -21,7 +21,13 @@ public class MemberApplicationServiceBean {
 
     public Member getMember(MemberId id) {
 
-        Member member = new Member(id, "oliver", "jaun");
+        Member member = memberRepository.get(id);
+
+        if(member == null) {
+            member = new Member(id, "oliver", "jaun");
+        }
+
+        member.setName("gugus", "jaun");
 
         try {
             memberRepository.save(member);
@@ -29,7 +35,7 @@ public class MemberApplicationServiceBean {
             e.printStackTrace();
         }
 
-        return memberRepository.get(id);
+        return member;
     }
 
     public Collection<Member> getMembers() {
