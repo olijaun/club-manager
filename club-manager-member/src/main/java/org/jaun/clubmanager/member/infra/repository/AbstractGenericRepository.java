@@ -28,7 +28,7 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
 
     public void save(T m) throws ConcurrencyException {
 
-        Long expectedVersion = (long)m.getVersion() - m.getChanges().size();
+        Long expectedVersion = (long) m.getVersion() - m.getChanges().size();
 
         if (expectedVersion == -1) {
             expectedVersion = ExpectedVersion.ANY;
@@ -44,7 +44,7 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
 
         StreamId streamId = new StreamId(id, getAggregateName());
         // TODO: max value? batchSize?
-        List<DomainEvent> domainEventList = eventStore.streamAllEventsForward(Position.START, 4096, false) //
+        List<DomainEvent> domainEventList = eventStore.streamEventsForward(streamId.getValue(), 0, 4096, false) //
                 .map(e -> toObject(e)).collect(Collectors.toList());
 
         if (domainEventList.isEmpty()) {
@@ -77,7 +77,7 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
     private DomainEvent toObject(ResolvedEvent resolvedEvent) {
 
         try {
-            return gson.fromJson(new String(resolvedEvent.event.data, "UTF-8"), getEventClass(resolvedEvent.event.eventType));
+            return gson.fromJson(new String(resolvedEvent.event.data, "UTF-8"), getEventClass(() -> resolvedEvent.event.eventType));
             // getEventClass(resolvedEvent.event.eventType));
         } catch (RuntimeException | UnsupportedEncodingException e) {
             throw new IllegalStateException("could not deserialize event string to object: " + resolvedEvent.event.eventType, e);
@@ -94,6 +94,6 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
 //        }
 //    }
 
-    protected abstract Class<? extends DomainEvent> getEventClass(String eventTypeAsString);
+    protected abstract Class<? extends DomainEvent> getEventClass(EventType eventType);
 
 }

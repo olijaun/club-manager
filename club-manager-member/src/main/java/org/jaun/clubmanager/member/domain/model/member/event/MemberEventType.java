@@ -3,8 +3,6 @@ package org.jaun.clubmanager.member.domain.model.member.event;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 public enum MemberEventType implements EventType {

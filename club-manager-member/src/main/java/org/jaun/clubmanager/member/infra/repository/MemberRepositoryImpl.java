@@ -2,6 +2,7 @@ package org.jaun.clubmanager.member.infra.repository;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
@@ -24,9 +25,9 @@ public class MemberRepositoryImpl extends AbstractGenericRepository<Member, Memb
     }
 
     @Override
-    protected Class<? extends DomainEvent> getEventClass(String eventTypeAsString) {
+    protected Class<? extends DomainEvent> getEventClass(EventType evenType) {
         return Stream.of(MemberEventType.values())
-                .filter(et -> et.getName().equals(eventTypeAsString))
+                .filter(et -> et.getName().equals(evenType.getName()))
                 .map(MemberEventType::getEventClass)
                 .findFirst()
                 .get();

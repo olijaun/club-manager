@@ -4,7 +4,7 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 
-public class MemberCreatedEvent extends DomainEvent {
+public class MemberCreatedEvent extends DomainEvent<MemberEventType> {
 
     private final MemberId memberId;
     private final String firstName;

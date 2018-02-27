@@ -1,7 +1,6 @@
 package org.jaun.clubmanager.domain.model.commons;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
