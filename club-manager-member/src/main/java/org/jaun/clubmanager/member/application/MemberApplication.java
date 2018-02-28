@@ -1,5 +1,6 @@
 package org.jaun.clubmanager.member.application;
 
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +17,9 @@ public class MemberApplication {
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+
+        ctx.getBean(HazelcastMemberProjection.class);
+
         return args -> {
 
 //            System.out.println("Let's inspect the beans provided by Spring Boot:");

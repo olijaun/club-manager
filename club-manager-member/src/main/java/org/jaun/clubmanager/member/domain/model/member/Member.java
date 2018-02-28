@@ -19,7 +19,8 @@ public class Member extends EventSourcingAggregate<MemberId> {
     private EmailAddress emailAddress;
 
     public Member(MemberId id, String firstName, String lastName) {
-        apply(new MemberCreatedEvent(id, firstName, lastName));
+        apply(new MemberCreatedEvent(id));
+        setName(firstName, lastName);
     }
 
     public Member(EventStream<Member> eventStream) {
@@ -28,8 +29,6 @@ public class Member extends EventSourcingAggregate<MemberId> {
 
     protected void mutate(MemberCreatedEvent event) {
         this.id = requireNonNull(event.getMemberId());
-        this.firstName = requireNonNull(event.getFirstName());
-        this.lastName = requireNonNull(event.getLastName());
     }
 
     protected void mutate(NameChangedEvent event) {

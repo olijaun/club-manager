@@ -3,6 +3,8 @@ package org.jaun.clubmanager.member.domain.model.member.event;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 
+import static java.util.Objects.requireNonNull;
+
 public class NameChangedEvent extends DomainEvent<MemberEventType> {
 
     private final MemberId memberId;
@@ -11,9 +13,9 @@ public class NameChangedEvent extends DomainEvent<MemberEventType> {
 
     public NameChangedEvent(MemberId memberId, String firstName, String lastName) {
         super(MemberEventType.NAME_CHANGED);
-        this.memberId = memberId;
+        this.memberId = requireNonNull(memberId);
         this.firstName = firstName;
-        this.lastName = lastName;
+        this.lastName = requireNonNull(lastName);
     }
 
     public MemberId getMemberId() {

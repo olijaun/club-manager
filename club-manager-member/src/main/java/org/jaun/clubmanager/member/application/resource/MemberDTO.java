@@ -3,18 +3,8 @@ package org.jaun.clubmanager.member.application.resource;
 import java.io.Serializable;
 
 public class MemberDTO implements Serializable {
-    private String id;
     private String firstName;
     private String lastName;
-
-    public String getId() {
-        return id;
-    }
-
-    public MemberDTO setId(String id) {
-        this.id = id;
-        return this;
-    }
 
     public String getFirstName() {
         return firstName;
