@@ -18,7 +18,8 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        ctx.getBean(HazelcastMemberProjection.class);
+        HazelcastMemberProjection bean = ctx.getBean(HazelcastMemberProjection.class);
+        bean.startSubscription();
 
         return args -> {
 

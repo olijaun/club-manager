@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 
 @Component
 @Path("/members")
@@ -38,9 +39,9 @@ public class MemberResource {
 //
 //        MembersDTO membersDTO = MemberConverter.toMembersDTO(members);
 
-        projection.query();
+        Collection<MemberDTO> memberDTOS = projection.find(firstName, lastName);
 
-        return Response.ok().build(); //.entity(membersDTO).build();
+        return Response.ok(memberDTOS).build(); //.entity(membersDTO).build();
     }
 
     @POST

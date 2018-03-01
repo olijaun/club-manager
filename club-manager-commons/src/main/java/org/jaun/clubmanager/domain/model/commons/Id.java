@@ -1,10 +1,11 @@
 package org.jaun.clubmanager.domain.model.commons;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
-public abstract class Id extends ValueObject {
+public abstract class Id extends ValueObject implements Serializable {
     private final String value;
 
     protected Id(String value) {
