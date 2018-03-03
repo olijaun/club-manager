@@ -1,8 +1,10 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
 import org.jaun.clubmanager.domain.model.commons.Entity;
+import org.jaun.clubmanager.member.domain.model.member.MemberId;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import static java.util.Objects.requireNonNull;
 
@@ -18,6 +20,8 @@ public class Membership extends Entity<MembershipId> {
     private final int year;
     private final Type type;
     private LocalDate dateOfPayment;
+
+    private Collection<MemberId> members;
 
     public Membership(MembershipId id, int year, Type type) {
         this.id = requireNonNull(id);

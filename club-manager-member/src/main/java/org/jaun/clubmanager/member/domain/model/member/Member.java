@@ -51,6 +51,10 @@ public class Member extends EventSourcingAggregate<MemberId> {
         return this;
     }
 
+    public void subscribeTo() {
+
+    }
+
     public MemberId getId() {
         return id;
     }

@@ -102,8 +102,6 @@ public class HazelcastMemberProjection {
 
     public Collection<MemberDTO> find(String firstName, String lastName) {
 
-        //Predicate sqlQuery = new SqlPredicate("active AND age BETWEEN 18 AND 21)");
-
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 
         if (firstName != null) {
@@ -115,12 +113,7 @@ public class HazelcastMemberProjection {
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
 
-//        Collection<User> result1 = users.values(sqlQuery);
-        Collection<MemberDTO> result2 = members.values(criteriaQuery);
-//
-//        System.out.println(result1);
-//        System.out.println(result2);
-        return result2;
+        return members.values(criteriaQuery);
     }
 
     private DomainEvent toObject(ResolvedEvent resolvedEvent) {
