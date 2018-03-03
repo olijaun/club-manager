@@ -1,12 +1,11 @@
-package org.jaun.clubmanager.member.domain.model.member.event;
+package org.jaun.clubmanager.member.domain.model.contact.event;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
-import org.jaun.clubmanager.member.domain.model.member.PhoneNumber;
 
 import static java.util.Objects.requireNonNull;
 
-public enum MemberEventType implements EventType {
+public enum ContactEventType implements EventType {
     MEMBER_CREATED("MemberCreated", MemberCreatedEvent.class),
     NAME_CHANGED("NameChanged", NameChangedEvent.class),
     ADDRESS_CHANGED("AddressChanged", AddressChangedEvent.class),
@@ -15,7 +14,7 @@ public enum MemberEventType implements EventType {
     private final String name;
     private final Class<? extends DomainEvent> eventClass;
 
-    MemberEventType(String name, Class<? extends DomainEvent> eventClass) {
+    ContactEventType(String name, Class<? extends DomainEvent> eventClass) {
         this.name = requireNonNull(name);
         this.eventClass = requireNonNull(eventClass);
     }

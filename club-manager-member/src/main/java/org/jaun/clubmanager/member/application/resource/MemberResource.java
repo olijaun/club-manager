@@ -1,10 +1,9 @@
 package org.jaun.clubmanager.member.application.resource;
 
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.member.Member;
-import org.jaun.clubmanager.member.domain.model.member.MemberId;
-import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.contact.Contact;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
@@ -21,7 +20,7 @@ import java.util.Collection;
 public class MemberResource {
 
     @Autowired
-    private MemberRepository memberRepository;
+    private ContactRepository contactRepository;
 
     @Autowired
     private MembershipTypeRepository membershipTypeRepository;
@@ -35,18 +34,18 @@ public class MemberResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("members")
-    public Response searchMembers(@QueryParam("firstName") String firstName, @QueryParam("lastName")String lastName) {
+    public Response searchMembers(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName) {
 
-//        Member member = memberRepository.get(new MemberId(memberId));
-//        if(member == null) {
+//        Contact contact = contactRepository.get(new ContactId(memberId));
+//        if(contact == null) {
 //            throw new NotFoundException();
 //        }
 //
-//        MemberDTO memberDTO = MemberConverter.toMemberDTO(member);
+//        MemberDTO memberDTO = ContactConverter.toContactDTO(contact);
 //
-//        Collection<Member> members = memberApplicationService.getMembers();
+//        Collection<Contact> members = memberApplicationService.getMembers();
 //
-//        MembersDTO membersDTO = MemberConverter.toMembersDTO(members);
+//        MembersDTO membersDTO = ContactConverter.toMembersDTO(members);
 
         Collection<MemberDTO> memberDTOS = projection.find(firstName, lastName);
 
@@ -59,10 +58,10 @@ public class MemberResource {
     @Path("members")
     public Response createMember(MemberDTO memberDTO) {
 
-        Member member = MemberConverter.toMember(memberDTO);
+        Contact member = ContactConverter.toMember(memberDTO);
 
         try {
-            memberRepository.save(member);
+            contactRepository.save(member);
         } catch (ConcurrencyException e) {
             throw new IllegalStateException(e);
         }
@@ -76,12 +75,12 @@ public class MemberResource {
     @Path("members/{member-id}")
     public Response getMember(@PathParam("member-id") String memberId) {
 
-        Member member = memberRepository.get(new MemberId(memberId));
-        if(member == null) {
+        Contact contact = contactRepository.get(new ContactId(memberId));
+        if (contact == null) {
             throw new NotFoundException();
         }
 
-        MemberDTO memberDTO = MemberConverter.toMemberDTO(member);
+        MemberDTO memberDTO = ContactConverter.toContactDTO(contact);
         return Response.ok().entity(memberDTO).build();
     }
 

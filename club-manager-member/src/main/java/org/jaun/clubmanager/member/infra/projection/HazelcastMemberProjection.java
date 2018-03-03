@@ -13,9 +13,9 @@ import com.hazelcast.query.Predicates;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
-import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.member.event.MemberEventType;
-import org.jaun.clubmanager.member.domain.model.member.event.NameChangedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
+import org.jaun.clubmanager.member.domain.model.contact.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -48,25 +48,25 @@ public class HazelcastMemberProjection {
     };
 
     private void update(DomainEvent event) {
-        if (event.getEventType().is(MemberEventType.MEMBER_CREATED)) {
+        if (event.getEventType().is(ContactEventType.MEMBER_CREATED)) {
 
             MemberCreatedEvent memberCreatedEvent = (MemberCreatedEvent) event;
 
             MemberDTO memberDTO = new MemberDTO();
-            memberDTO.setMemberId(memberCreatedEvent.getMemberId().getValue());
+            memberDTO.setMemberId(memberCreatedEvent.getContactId().getValue());
 
-            members.put(memberCreatedEvent.getMemberId().getValue(), memberDTO);
+            members.put(memberCreatedEvent.getContactId().getValue(), memberDTO);
 
-        } else if (event.getEventType().is(MemberEventType.NAME_CHANGED)) {
+        } else if (event.getEventType().is(ContactEventType.NAME_CHANGED)) {
 
             NameChangedEvent nameChangedEvent = (NameChangedEvent) event;
 
-            MemberDTO memberDTO = members.get(nameChangedEvent.getMemberId().getValue());
+            MemberDTO memberDTO = members.get(nameChangedEvent.getContactId().getValue());
             memberDTO.setFirstName(nameChangedEvent.getFirstName());
             memberDTO.setLastName(nameChangedEvent.getLastName());
             members.flush();
 
-            members.put(nameChangedEvent.getMemberId().getValue(), memberDTO);
+            members.put(nameChangedEvent.getContactId().getValue(), memberDTO);
         }
     }
 
@@ -95,7 +95,7 @@ public class HazelcastMemberProjection {
         CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder()
                 .resolveLinkTos(true).build();
 
-        CatchUpSubscription catchupSubscription = eventStore.subscribeToStreamFrom("$ce-member", null, settings, listener);
+        CatchUpSubscription catchupSubscription = eventStore.subscribeToStreamFrom("$ce-contact", null, settings, listener);
 
         //eventStore.subscribeToAll()
     }
@@ -127,9 +127,9 @@ public class HazelcastMemberProjection {
     }
 
     protected Class<? extends DomainEvent> getEventClass(EventType evenType) {
-        return Stream.of(MemberEventType.values())
+        return Stream.of(ContactEventType.values())
                 .filter(et -> et.getName().equals(evenType.getName()))
-                .map(MemberEventType::getEventClass)
+                .map(ContactEventType::getEventClass)
                 .findFirst()
                 .get();
     }

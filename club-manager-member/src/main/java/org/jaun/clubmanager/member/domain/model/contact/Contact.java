@@ -1,38 +1,37 @@
-package org.jaun.clubmanager.member.domain.model.member;
+package org.jaun.clubmanager.member.domain.model.contact;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.domain.model.commons.Entity;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
-import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.member.event.NameChangedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 
 import static java.util.Objects.requireNonNull;
 
-public class Member extends EventSourcingAggregate<MemberId> {
+public class Contact extends EventSourcingAggregate<ContactId> {
 
-    private MemberId id;
+    private ContactId id;
     private String firstName;
     private String lastName;
     private Address address;
     private PhoneNumber phone;
     private EmailAddress emailAddress;
 
-    public Member(MemberId id, String firstName, String lastName) {
+    public Contact(ContactId id, String firstName, String lastName) {
         apply(new MemberCreatedEvent(id));
         setName(firstName, lastName);
     }
 
-    public Member(EventStream<Member> eventStream) {
+    public Contact(EventStream<Contact> eventStream) {
         replayEvents(eventStream);
     }
 
     protected void mutate(MemberCreatedEvent event) {
-        this.id = requireNonNull(event.getMemberId());
+        this.id = requireNonNull(event.getContactId());
     }
 
     protected void mutate(NameChangedEvent event) {
-        this.id = requireNonNull(event.getMemberId());
+        this.id = requireNonNull(event.getContactId());
         this.firstName = requireNonNull(event.getFirstName());
         this.lastName = requireNonNull(event.getLastName());
     }
@@ -46,7 +45,7 @@ public class Member extends EventSourcingAggregate<MemberId> {
         }
     }
 
-    public Member setName(String firstName, String lastName) {
+    public Contact setName(String firstName, String lastName) {
         apply(new NameChangedEvent(id, firstName, lastName));
         return this;
     }
@@ -55,7 +54,7 @@ public class Member extends EventSourcingAggregate<MemberId> {
 
     }
 
-    public MemberId getId() {
+    public ContactId getId() {
         return id;
     }
 
@@ -84,15 +83,15 @@ public class Member extends EventSourcingAggregate<MemberId> {
     }
 
     public static class Builder {
-        private MemberId id;
+        private ContactId id;
         private String firstName;
         private String lastName;
 
-        public Member build() {
-            return new Member(id, firstName, lastName);
+        public Contact build() {
+            return new Contact(id, firstName, lastName);
         }
 
-        public Builder id(MemberId id) {
+        public Builder id(ContactId id) {
             this.id = id;
             return this;
         }

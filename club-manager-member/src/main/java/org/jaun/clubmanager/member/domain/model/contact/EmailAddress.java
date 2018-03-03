@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model.member;
+package org.jaun.clubmanager.member.domain.model.contact;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;

@@ -7,8 +7,6 @@ public class MembershipApplicationService {
     private MembershipRepository membershipRepository;
 
     public void recordPayment(MembershipId membershipId, LocalDate dateOfPayment) {
-        Membership membership = membershipRepository.getMembership(membershipId);
-        membership.recordPayment(dateOfPayment);
-        membershipRepository.store(membership);
+        // TODO
     }
 }

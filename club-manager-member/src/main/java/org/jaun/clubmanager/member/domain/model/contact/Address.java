@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model.member;
+package org.jaun.clubmanager.member.domain.model.contact;
 
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
