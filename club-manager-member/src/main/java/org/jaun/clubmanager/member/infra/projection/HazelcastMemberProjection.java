@@ -12,7 +12,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
-import org.jaun.clubmanager.member.application.resource.MemberDTO;
+import org.jaun.clubmanager.member.application.resource.ContactDTO;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 @Service
 public class HazelcastMemberProjection {
 
-    private final IMap<String, MemberDTO> members;
+    private final IMap<String, ContactDTO> members;
 
     private Gson gson = new Gson();
 
@@ -52,21 +52,21 @@ public class HazelcastMemberProjection {
 
             ContactCreatedEvent contactCreatedEvent = (ContactCreatedEvent) event;
 
-            MemberDTO memberDTO = new MemberDTO();
-            memberDTO.setMemberId(contactCreatedEvent.getContactId().getValue());
+            ContactDTO contactDTO = new ContactDTO();
+            contactDTO.setContactId(contactCreatedEvent.getContactId().getValue());
 
-            members.put(contactCreatedEvent.getContactId().getValue(), memberDTO);
+            members.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
 
         } else if (event.getEventType().is(ContactEventType.NAME_CHANGED)) {
 
             NameChangedEvent nameChangedEvent = (NameChangedEvent) event;
 
-            MemberDTO memberDTO = members.get(nameChangedEvent.getContactId().getValue());
-            memberDTO.setFirstName(nameChangedEvent.getFirstName());
-            memberDTO.setLastName(nameChangedEvent.getLastName());
+            ContactDTO contactDTO = members.get(nameChangedEvent.getContactId().getValue());
+            contactDTO.setFirstName(nameChangedEvent.getFirstName());
+            contactDTO.setLastName(nameChangedEvent.getLastName());
             members.flush();
 
-            members.put(nameChangedEvent.getContactId().getValue(), memberDTO);
+            members.put(nameChangedEvent.getContactId().getValue(), contactDTO);
         }
     }
 
@@ -100,7 +100,7 @@ public class HazelcastMemberProjection {
         //eventStore.subscribeToAll()
     }
 
-    public Collection<MemberDTO> find(String firstName, String lastName) {
+    public Collection<ContactDTO> find(String firstName, String lastName) {
 
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 

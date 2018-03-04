@@ -124,4 +124,8 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         apply(new MembershipPeriodSubscriptionDefinitionAddedEvent(id, subscriptionDefinitionId, membershipTypeId, name, amount, currency, maxSubscribers));
 
     }
+
+    public Collection<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
 }

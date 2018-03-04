@@ -2,18 +2,18 @@ package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
 
-public class MemberDTO implements Serializable {
+public class ContactDTO implements Serializable {
 
-    private String memberId;
+    private String contactId;
     private String firstName;
     private String lastName;
 
-    public String getMemberId() {
-        return memberId;
+    public String getContactId() {
+        return contactId;
     }
 
-    public MemberDTO setMemberId(String memberId) {
-        this.memberId = memberId;
+    public ContactDTO setContactId(String memberId) {
+        this.contactId = memberId;
         return this;
     }
 
@@ -21,7 +21,7 @@ public class MemberDTO implements Serializable {
         return firstName;
     }
 
-    public MemberDTO setFirstName(String firstName) {
+    public ContactDTO setFirstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
@@ -30,7 +30,7 @@ public class MemberDTO implements Serializable {
         return lastName;
     }
 
-    public MemberDTO setLastName(String lastName) {
+    public ContactDTO setLastName(String lastName) {
         this.lastName = lastName;
         return this;
     }

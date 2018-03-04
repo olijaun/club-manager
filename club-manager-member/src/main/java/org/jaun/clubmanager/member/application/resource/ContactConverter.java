@@ -6,24 +6,23 @@ import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.stream.Collectors;
 
 public class ContactConverter {
 
-    public static MemberDTO toContactDTO(Contact in) {
+    public static ContactDTO toContactDTO(Contact in) {
         if (in == null) {
             return null;
         }
-        MemberDTO out = new MemberDTO();
+        ContactDTO out = new ContactDTO();
         out.setFirstName(in.getFirstName());
         out.setLastName(in.getLastName());
         return out;
     }
 
-    public static Contact toMember(MemberDTO in) {
+    public static Contact toContact(ContactDTO in) {
         if (in == null) {
             return null;
         }
@@ -44,10 +43,10 @@ public class ContactConverter {
         return period;
     }
 
-    public static MembersDTO toMembersDTO(Collection<Contact> members) {
-        MembersDTO membersDTO = new MembersDTO();
-        membersDTO.setMembers(members.stream().map(ContactConverter::toContactDTO).collect(Collectors.toList()));
-        return membersDTO;
+    public static ContactsDTO toMembersDTO(Collection<Contact> members) {
+        ContactsDTO contactsDTO = new ContactsDTO();
+        contactsDTO.setMembers(members.stream().map(ContactConverter::toContactDTO).collect(Collectors.toList()));
+        return contactsDTO;
     }
 
     public static Currency toCurrency(String currencyCode) {

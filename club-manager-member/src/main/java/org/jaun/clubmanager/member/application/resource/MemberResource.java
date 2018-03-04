@@ -13,8 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Currency;
-import java.util.Locale;
 
 @Component
 @Path("/")
@@ -34,32 +34,32 @@ public class MemberResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("members")
-    public Response searchMembers(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName) {
+    @Path("contacts")
+    public Response searchContacts(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName) {
 
 //        Contact contact = contactRepository.get(new ContactId(memberId));
 //        if(contact == null) {
 //            throw new NotFoundException();
 //        }
 //
-//        MemberDTO memberDTO = ContactConverter.toContactDTO(contact);
+//        ContactDTO memberDTO = ContactConverter.toContactDTO(contact);
 //
 //        Collection<Contact> members = memberApplicationService.getMembers();
 //
-//        MembersDTO membersDTO = ContactConverter.toMembersDTO(members);
+//        ContactsDTO membersDTO = ContactConverter.toMembersDTO(members);
 
-        Collection<MemberDTO> memberDTOS = projection.find(firstName, lastName);
+        Collection<ContactDTO> contactDTOS = projection.find(firstName, lastName);
 
-        return Response.ok(memberDTOS).build(); //.entity(membersDTO).build();
+        return Response.ok(contactDTOS).build(); //.entity(membersDTO).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("members")
-    public Response createMember(MemberDTO memberDTO) {
+    @Path("contacts")
+    public Response createContact(ContactDTO contactDTO) {
 
-        Contact member = ContactConverter.toMember(memberDTO);
+        Contact member = ContactConverter.toContact(contactDTO);
 
         try {
             contactRepository.save(member);
@@ -73,16 +73,16 @@ public class MemberResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("members/{member-id}")
-    public Response getMember(@PathParam("member-id") String memberId) {
+    @Path("contacts/{contacts-id}")
+    public Response getContact(@PathParam("contacts-id") String memberId) {
 
         Contact contact = contactRepository.get(new ContactId(memberId));
         if (contact == null) {
             throw new NotFoundException();
         }
 
-        MemberDTO memberDTO = ContactConverter.toContactDTO(contact);
-        return Response.ok().entity(memberDTO).build();
+        ContactDTO contactDTO = ContactConverter.toContactDTO(contact);
+        return Response.ok().entity(contactDTO).build();
     }
 
     @GET
@@ -141,10 +141,38 @@ public class MemberResource {
         return Response.ok(period.getId().getValue()).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("membership-periods/{id}/subscriptions")
+    public Response addSubscription(@PathParam("id") String membershipPeriodIdString, SubscriptionDTO subscriptionDTO) {
+
+        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodIdString));
+
+        if (period == null) {
+            throw new NotFoundException(membershipPeriodIdString);
+        }
+
+        Contact contact = contactRepository.get(new ContactId(subscriptionDTO.getSubscriberId()));
+        if (contact == null) {
+            throw new BadRequestException("contact does not exist: " + subscriptionDTO.getSubscriberId());
+        }
+
+        period.subscribe(contact.getId(), Collections.emptyList(), new SubscriptionDefinitionId(subscriptionDTO.getSubscriptionDefinitionId()));
+
+        try {
+            membershipPeriodRepository.save(period);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok(period.getId().getValue()).build();
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("membership-periods/{id}")
-    public Response getMembershipPeriod(@PathParam("id")String membershipPeriodId) {
+    public Response getMembershipPeriod(@PathParam("id") String membershipPeriodId) {
 
         MembershipPeriod p = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodId));
 
