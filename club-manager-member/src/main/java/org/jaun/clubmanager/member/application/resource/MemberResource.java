@@ -4,10 +4,7 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodRepository;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.membership.*;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +13,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
+import java.util.Currency;
+import java.util.Locale;
 
 @Component
 @Path("/")
@@ -111,6 +110,46 @@ public class MemberResource {
         return Response.ok(period.getId().getValue()).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("membership-periods/{id}/definitions")
+    public Response addSubscriptionDefinition(@PathParam("id") String membershipPeriodIdString, SubscriptionDefinitionDTO defDTO) {
+
+        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodIdString));
+
+        if (period == null) {
+            throw new NotFoundException(membershipPeriodIdString);
+        }
+
+        MembershipType membershipType = membershipTypeRepository.get(new MembershipTypeId(defDTO.getMembershipTypeId()));
+
+        if (membershipType == null) {
+            throw new BadRequestException("membership type does not exist: " + defDTO.getMembershipTypeId());
+        }
+
+        Currency currency = ContactConverter.toCurrency(defDTO.getCurrency());
+
+        period.addDefinition(SubscriptionDefinitionId.random(SubscriptionDefinitionId::new), membershipType.getId(), defDTO.getName(), defDTO.getAmount(), currency, defDTO.getMaxSubscribers());
+
+        try {
+            membershipPeriodRepository.save(period);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok(period.getId().getValue()).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("membership-periods/{id}")
+    public Response getMembershipPeriod(@PathParam("id")String membershipPeriodId) {
+
+        MembershipPeriod p = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodId));
+
+        return Response.ok(p).build(); //.entity(membershipPeriodRepository.getAll()).build();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

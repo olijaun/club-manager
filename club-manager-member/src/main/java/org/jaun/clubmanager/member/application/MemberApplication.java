@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(scanBasePackages = {
-        "org.jaun.clubmanager.contact"})
+        "org.jaun.clubmanager.member"})
 public class MemberApplication {
 
     public static void main(String[] args) {

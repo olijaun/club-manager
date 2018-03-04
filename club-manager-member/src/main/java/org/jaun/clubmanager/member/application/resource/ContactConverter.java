@@ -8,6 +8,7 @@ import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collection;
+import java.util.Currency;
 import java.util.stream.Collectors;
 
 public class ContactConverter {
@@ -37,9 +38,7 @@ public class ContactConverter {
         LocalDate startDate = LocalDate.parse(in.getStartDate());
         LocalDate endDate = LocalDate.parse(in.getEndDate());
 
-        Period p = Period.between(startDate, endDate);
-
-        MembershipPeriod period = new MembershipPeriod(MembershipPeriodId.random(MembershipPeriodId::new), p);
+        MembershipPeriod period = new MembershipPeriod(MembershipPeriodId.random(MembershipPeriodId::new), startDate, endDate);
         period.updateMetadata(in.getName(), in.getDescription());
 
         return period;
@@ -49,5 +48,9 @@ public class ContactConverter {
         MembersDTO membersDTO = new MembersDTO();
         membersDTO.setMembers(members.stream().map(ContactConverter::toContactDTO).collect(Collectors.toList()));
         return membersDTO;
+    }
+
+    public static Currency toCurrency(String currencyCode) {
+        return Currency.getInstance(currencyCode);
     }
 }

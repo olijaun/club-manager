@@ -1,13 +1,6 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.Subscription;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinition;
-
 import java.io.Serializable;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MembershipPeriodDTO implements Serializable {
 

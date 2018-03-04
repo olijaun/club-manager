@@ -10,13 +10,16 @@ import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPerio
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionAddedEvent;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionDefinitionAddedEvent;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 
 public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId> {
 
     private MembershipPeriodId id;
-    private Period period;
+    private LocalDate start;
+    private LocalDate end;
     private String name;
     private String description;
 
@@ -24,9 +27,9 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
 
     private List<Subscription> subscriptions = new ArrayList<>();
 
-    public MembershipPeriod(MembershipPeriodId id, Period period) {
+    public MembershipPeriod(MembershipPeriodId id, LocalDate start, LocalDate end) {
 
-        apply(new MembershipPeriodCreatedEvent(id, period));
+        apply(new MembershipPeriodCreatedEvent(id, start, end));
     }
 
     public MembershipPeriod(EventStream<MembershipPeriod> eventStream) {
@@ -43,7 +46,8 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
 
     private void mutate(MembershipPeriodCreatedEvent event) {
         this.id = event.getMembershipPeriodId();
-        this.period = event.getPeriod();
+        this.start = event.getStart();
+        this.end = event.getEnd();
     }
 
     private void mutate(MembershipPeriodMetadataChangedEvent event) {
@@ -83,8 +87,12 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         return id;
     }
 
-    public Period getPeriod() {
-        return period;
+    public LocalDate getStart() {
+        return start;
+    }
+
+    public LocalDate getEnd() {
+        return end;
     }
 
     public String getName() {
