@@ -14,7 +14,7 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
-import org.jaun.clubmanager.member.domain.model.contact.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.springframework.stereotype.Service;
 
@@ -48,14 +48,14 @@ public class HazelcastMemberProjection {
     };
 
     private void update(DomainEvent event) {
-        if (event.getEventType().is(ContactEventType.MEMBER_CREATED)) {
+        if (event.getEventType().is(ContactEventType.CONTACT_CREATED)) {
 
-            MemberCreatedEvent memberCreatedEvent = (MemberCreatedEvent) event;
+            ContactCreatedEvent contactCreatedEvent = (ContactCreatedEvent) event;
 
             MemberDTO memberDTO = new MemberDTO();
-            memberDTO.setMemberId(memberCreatedEvent.getContactId().getValue());
+            memberDTO.setMemberId(contactCreatedEvent.getContactId().getValue());
 
-            members.put(memberCreatedEvent.getContactId().getValue(), memberDTO);
+            members.put(contactCreatedEvent.getContactId().getValue(), memberDTO);
 
         } else if (event.getEventType().is(ContactEventType.NAME_CHANGED)) {
 

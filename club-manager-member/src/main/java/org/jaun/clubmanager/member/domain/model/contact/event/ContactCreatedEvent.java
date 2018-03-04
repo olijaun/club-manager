@@ -5,12 +5,12 @@ import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 
 import static java.util.Objects.requireNonNull;
 
-public class MemberCreatedEvent extends DomainEvent<ContactEventType> {
+public class ContactCreatedEvent extends DomainEvent<ContactEventType> {
 
     private final ContactId contactId;
 
-    public MemberCreatedEvent(ContactId contactId) {
-        super(ContactEventType.MEMBER_CREATED);
+    public ContactCreatedEvent(ContactId contactId) {
+        super(ContactEventType.CONTACT_CREATED);
         this.contactId = requireNonNull(contactId);
     }
 

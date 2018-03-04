@@ -3,7 +3,7 @@ package org.jaun.clubmanager.member.domain.model.contact;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
-import org.jaun.clubmanager.member.domain.model.contact.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 
 import static java.util.Objects.requireNonNull;
@@ -18,7 +18,7 @@ public class Contact extends EventSourcingAggregate<ContactId> {
     private EmailAddress emailAddress;
 
     public Contact(ContactId id, String firstName, String lastName) {
-        apply(new MemberCreatedEvent(id));
+        apply(new ContactCreatedEvent(id));
         setName(firstName, lastName);
     }
 
@@ -26,7 +26,7 @@ public class Contact extends EventSourcingAggregate<ContactId> {
         replayEvents(eventStream);
     }
 
-    protected void mutate(MemberCreatedEvent event) {
+    protected void mutate(ContactCreatedEvent event) {
         this.id = requireNonNull(event.getContactId());
     }
 
@@ -38,8 +38,8 @@ public class Contact extends EventSourcingAggregate<ContactId> {
 
     @Override
     protected void mutate(DomainEvent event) {
-        if(event instanceof MemberCreatedEvent) {
-            mutate((MemberCreatedEvent)event);
+        if(event instanceof ContactCreatedEvent) {
+            mutate((ContactCreatedEvent)event);
         } else if(event instanceof NameChangedEvent) {
             mutate((NameChangedEvent)event);
         }
@@ -48,10 +48,6 @@ public class Contact extends EventSourcingAggregate<ContactId> {
     public Contact setName(String firstName, String lastName) {
         apply(new NameChangedEvent(id, firstName, lastName));
         return this;
-    }
-
-    public void subscribeTo() {
-
     }
 
     public ContactId getId() {

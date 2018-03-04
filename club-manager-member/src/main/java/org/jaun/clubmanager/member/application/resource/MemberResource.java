@@ -4,6 +4,8 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
@@ -92,11 +94,31 @@ public class MemberResource {
         return Response.ok().entity(membershipTypeRepository.getAll()).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("membership-periods")
+    public Response createMembershipPeriods(MembershipPeriodDTO membershipPeriodDTO) {
+
+        MembershipPeriod period = ContactConverter.toMembershipPeriod(membershipPeriodDTO);
+
+        try {
+            membershipPeriodRepository.save(period);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok(period.getId().getValue()).build();
+    }
+
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("membership-periods")
     public Response getMembershipPeriods() {
-        // TODO: dto
-        return Response.ok().entity(membershipPeriodRepository.getAll()).build();
+
+        //MembershipPeriod p = membershipPeriodRepository.get()
+
+        return Response.ok().build(); //.entity(membershipPeriodRepository.getAll()).build();
     }
 }

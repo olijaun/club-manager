@@ -1,32 +1,81 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
 import com.google.common.collect.ImmutableList;
-import org.jaun.clubmanager.domain.model.commons.Aggregate;
+import org.jaun.clubmanager.domain.model.commons.DomainEvent;
+import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
+import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionAddedEvent;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionDefinitionAddedEvent;
 
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-public class MembershipPeriod extends Aggregate<MembershipPeriodId> {
+public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId> {
 
-    private final MembershipPeriodId id;
-    private final Period period;
-    private final String name;
-    private final String description;
+    private MembershipPeriodId id;
+    private Period period;
+    private String name;
+    private String description;
 
     private List<SubscriptionDefinition> subscriptionDefinitions = new ArrayList();
 
-    public MembershipPeriod(MembershipPeriodId id, Period period, String name, String description, Collection<SubscriptionDefinition> subscriptionDefinitions) {
-        this.id = id;
-        this.period = period;
-        this.name = name;
-        this.description = description;
-        this.subscriptionDefinitions = ImmutableList.copyOf(subscriptionDefinitions);
+    private List<Subscription> subscriptions = new ArrayList<>();
+
+    public MembershipPeriod(MembershipPeriodId id, Period period) {
+
+        apply(new MembershipPeriodCreatedEvent(id, period));
+    }
+
+    public MembershipPeriod(EventStream<MembershipPeriod> eventStream) {
+        replayEvents(eventStream);
     }
 
     public Collection<SubscriptionDefinition> getSubscriptionDefinitions() {
         return ImmutableList.copyOf(subscriptionDefinitions);
+    }
+
+    public void updateMetadata(String name, String description) {
+        apply(new MembershipPeriodMetadataChangedEvent(id, name, description));
+    }
+
+    private void mutate(MembershipPeriodCreatedEvent event) {
+        this.id = event.getMembershipPeriodId();
+        this.period = event.getPeriod();
+    }
+
+    private void mutate(MembershipPeriodMetadataChangedEvent event) {
+        this.id = event.getMembershipPeriodId();
+        this.name = event.getName();
+        this.description = event.getDescription();
+    }
+
+    private void mutate(MembershipPeriodSubscriptionAddedEvent event) {
+        Subscription subscription = new Subscription(event.getSubscriptionId(), event.getSubscriberId(), event.getAdditionalSubscribers(), event.getSubscriptionDefinitionId());
+
+        subscriptions.add(subscription);
+    }
+
+    private void mutate(MembershipPeriodSubscriptionDefinitionAddedEvent event) {
+        SubscriptionDefinition def = new SubscriptionDefinition(event.getSubscriptionDefinitionId(), event.getMembershipTypeId(), event.getName(), event.getAmount(), event.getCurrency(), event.getMaxSubscribers());
+
+        subscriptionDefinitions.add(def);
+    }
+
+
+    @Override
+    protected void mutate(DomainEvent event) {
+        if (event instanceof MembershipPeriodCreatedEvent) {
+            mutate((MembershipPeriodCreatedEvent) event);
+        } else if (event instanceof MembershipPeriodMetadataChangedEvent) {
+            mutate((MembershipPeriodMetadataChangedEvent) event);
+        } else if (event instanceof MembershipPeriodSubscriptionAddedEvent) {
+            mutate((MembershipPeriodSubscriptionAddedEvent) event);
+        } else if (event instanceof MembershipPeriodSubscriptionDefinitionAddedEvent) {
+            mutate((MembershipPeriodSubscriptionDefinitionAddedEvent) event);
+        }
     }
 
     @Override
@@ -44,5 +93,27 @@ public class MembershipPeriod extends Aggregate<MembershipPeriodId> {
 
     public String getDescription() {
         return description;
+    }
+
+    public void subscribe(ContactId contactId, Collection<ContactId> additionalSubscribers, SubscriptionDefinitionId definitionId) {
+        Optional<SubscriptionDefinition> definition = subscriptionDefinitions.stream().filter(d -> d.getId().equals(definitionId)).findAny();
+
+        if (!definition.isPresent()) {
+            throw new IllegalStateException("cannot subscribe " + contactId + " to unknown definition");
+        }
+
+        if ((additionalSubscribers.size() + 1) > definition.get().getMaxSubscribers()) {
+            throw new IllegalStateException("a maximum of " + definition.get().getMaxSubscribers() + " is possible for this subscription type");
+        }
+
+        apply(new MembershipPeriodSubscriptionAddedEvent(id, new SubscriptionId(UUID.randomUUID().toString()), contactId, additionalSubscribers, definitionId));
+
+
+    }
+
+    public void addDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
+
+        apply(new MembershipPeriodSubscriptionDefinitionAddedEvent(id, subscriptionDefinitionId, membershipTypeId, name, amount, currency, maxSubscribers));
+
     }
 }

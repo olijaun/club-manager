@@ -11,13 +11,15 @@ public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
     private final String name;
     private final double amount;
     private final Currency currency;
+    private final int maxSubscribers;
 
-    public SubscriptionDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency) {
+    public SubscriptionDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
         this.subscriptionDefinitionId = subscriptionDefinitionId;
         this.membershipTypeId = membershipTypeId;
         this.name = name;
         this.amount = amount;
         this.currency = currency;
+        this.maxSubscribers = maxSubscribers;
     }
 
     public SubscriptionDefinitionId getSubscriptionDefinitionId() {
@@ -42,5 +44,9 @@ public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
 
     public SubscriptionDefinitionId getId() {
         return subscriptionDefinitionId;
+    }
+
+    public int getMaxSubscribers() {
+        return maxSubscribers;
     }
 }
