@@ -5,7 +5,7 @@ import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
 import org.jaun.clubmanager.member.domain.model.membership.*;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class MemberResource {
     private MembershipPeriodRepository membershipPeriodRepository;
 
     @Autowired
-    private HazelcastMemberProjection projection;
+    private HazelcastContactProjection projection;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

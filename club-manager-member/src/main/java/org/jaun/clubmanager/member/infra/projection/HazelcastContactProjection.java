@@ -13,8 +13,8 @@ import com.hazelcast.query.Predicates;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.application.resource.ContactDTO;
-import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +24,26 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 @Service
-public class HazelcastMemberProjection {
+public class HazelcastContactProjection {
 
-    private final IMap<String, ContactDTO> members;
+    private final IMap<String, ContactDTO> contactMap;
 
     private Gson gson = new Gson();
+
+    public HazelcastContactProjection() {
+        Config config = new Config();
+
+        NetworkConfig network = config.getNetworkConfig();
+        //network.setPort(PORT_NUMBER);
+
+        JoinConfig join = network.getJoin();
+        join.getTcpIpConfig().setEnabled(false);
+        join.getAwsConfig().setEnabled(false);
+        join.getMulticastConfig().setEnabled(false);
+
+        HazelcastInstance h = Hazelcast.newHazelcastInstance(config);
+        contactMap = h.getMap("members");
+    }
 
     CatchUpSubscriptionListener listener = new CatchUpSubscriptionListener() {
 
@@ -55,38 +70,23 @@ public class HazelcastMemberProjection {
             ContactDTO contactDTO = new ContactDTO();
             contactDTO.setContactId(contactCreatedEvent.getContactId().getValue());
 
-            members.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
+            contactMap.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
 
         } else if (event.getEventType().is(ContactEventType.NAME_CHANGED)) {
 
             NameChangedEvent nameChangedEvent = (NameChangedEvent) event;
 
-            ContactDTO contactDTO = members.get(nameChangedEvent.getContactId().getValue());
+            ContactDTO contactDTO = contactMap.get(nameChangedEvent.getContactId().getValue());
             contactDTO.setFirstName(nameChangedEvent.getFirstName());
             contactDTO.setLastName(nameChangedEvent.getLastName());
-            members.flush();
 
-            members.put(nameChangedEvent.getContactId().getValue(), contactDTO);
+            contactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
         }
-    }
-
-    public HazelcastMemberProjection() {
-        Config config = new Config();
-
-        NetworkConfig network = config.getNetworkConfig();
-        //network.setPort(PORT_NUMBER);
-
-        JoinConfig join = network.getJoin();
-        join.getTcpIpConfig().setEnabled(false);
-        join.getAwsConfig().setEnabled(false);
-        join.getMulticastConfig().setEnabled(false);
-
-        HazelcastInstance h = Hazelcast.newHazelcastInstance(config);
-        members = h.getMap("members");
     }
 
     public void startSubscription() {
 
+        // TODO: make connection stuff configurable
         EventStore eventStore = EventStoreBuilder.newBuilder()
                 .singleNodeAddress("127.0.0.1", 1113)
                 .userCredentials("admin", "changeit")
@@ -95,6 +95,7 @@ public class HazelcastMemberProjection {
         CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder()
                 .resolveLinkTos(true).build();
 
+        // TODO: close connection/subscription on shutdown
         CatchUpSubscription catchupSubscription = eventStore.subscribeToStreamFrom("$ce-contact", null, settings, listener);
 
         //eventStore.subscribeToAll()
@@ -113,7 +114,7 @@ public class HazelcastMemberProjection {
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
 
-        return members.values(criteriaQuery);
+        return contactMap.values(criteriaQuery);
     }
 
     private DomainEvent toObject(ResolvedEvent resolvedEvent) {

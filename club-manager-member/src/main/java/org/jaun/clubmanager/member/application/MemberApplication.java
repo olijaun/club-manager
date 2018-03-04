@@ -1,6 +1,6 @@
 package org.jaun.clubmanager.member.application;
 
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +18,7 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        HazelcastMemberProjection bean = ctx.getBean(HazelcastMemberProjection.class);
+        HazelcastContactProjection bean = ctx.getBean(HazelcastContactProjection.class);
         bean.startSubscription();
 
         return args -> {
