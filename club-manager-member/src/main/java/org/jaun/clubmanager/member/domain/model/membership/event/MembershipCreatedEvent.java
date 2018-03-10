@@ -5,7 +5,6 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinition;
 import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
 
 import java.util.Collection;
@@ -15,14 +14,19 @@ import static java.util.Objects.requireNonNull;
 public class MembershipCreatedEvent extends DomainEvent<MembershipEventType> {
 
     private final MembershipId membershipId;
+    private final MembershipPeriodId membershipPeriodId;
     private final SubscriptionDefinitionId subscriptionDefinitionId;
-    private final Collection<ContactId> contactIds;
+    private final ContactId subscriberId;
+    private final Collection<ContactId> additionalSubscriberIds;
 
-    public MembershipCreatedEvent(MembershipId membershipId, SubscriptionDefinitionId subscriptionDefinitionId, Collection<ContactId> contactIds) {
+    public MembershipCreatedEvent(MembershipId membershipId, MembershipPeriodId membershipPeriodId, SubscriptionDefinitionId subscriptionDefinitionId, ContactId subscriberId, Collection<ContactId> additionalSubscriberIds) {
+
         super(MembershipEventType.MEMBERSHIP_CREATED);
         this.membershipId = requireNonNull(membershipId);
+        this.membershipPeriodId = requireNonNull(membershipPeriodId);
         this.subscriptionDefinitionId = requireNonNull(subscriptionDefinitionId);
-        this.contactIds = ImmutableList.copyOf(contactIds);
+        this.subscriberId = requireNonNull(subscriberId);
+        this.additionalSubscriberIds = ImmutableList.copyOf(additionalSubscriberIds);
     }
 
     public MembershipId getMembershipId() {
@@ -33,7 +37,15 @@ public class MembershipCreatedEvent extends DomainEvent<MembershipEventType> {
         return subscriptionDefinitionId;
     }
 
-    public Collection<ContactId> getContactIds() {
-        return contactIds;
+    public ContactId getSubscriberId() {
+        return subscriberId;
+    }
+
+    public Collection<ContactId> getAdditionalSubscriberIds() {
+        return additionalSubscriberIds;
+    }
+
+    public MembershipPeriodId getMembershipPeriodId() {
+        return membershipPeriodId;
     }
 }

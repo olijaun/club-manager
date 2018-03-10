@@ -24,6 +24,9 @@ public class MemberResource {
     private ContactRepository contactRepository;
 
     @Autowired
+    private MembershipRepository membershipRepository;
+
+    @Autowired
     private MembershipTypeRepository membershipTypeRepository;
 
     @Autowired
@@ -144,29 +147,34 @@ public class MemberResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("membership-periods/{id}/subscriptions")
-    public Response addSubscription(@PathParam("id") String membershipPeriodIdString, SubscriptionDTO subscriptionDTO) {
+    @Path("memberships")
+    public Response addSubscription(MembershipDTO membershipDTO) {
 
-        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodIdString));
+        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipDTO.getMembershipPeriodId()));
 
         if (period == null) {
-            throw new NotFoundException(membershipPeriodIdString);
+            throw new NotFoundException(membershipDTO.getMembershipPeriodId());
         }
 
-        Contact contact = contactRepository.get(new ContactId(subscriptionDTO.getSubscriberId()));
+        Contact contact = contactRepository.get(new ContactId(membershipDTO.getSubscriberId()));
         if (contact == null) {
-            throw new BadRequestException("contact does not exist: " + subscriptionDTO.getSubscriberId());
+            throw new BadRequestException("contact does not exist: " + membershipDTO.getSubscriberId());
         }
 
-        period.subscribe(contact.getId(), Collections.emptyList(), new SubscriptionDefinitionId(subscriptionDTO.getSubscriptionDefinitionId()));
+        MembershipId membershipId = new MembershipId(membershipDTO.getMembershipId());
+        Membership membership = membershipRepository.get(membershipId);
+
+        if (membership == null) {
+            membership = new Membership(membershipId, period, new SubscriptionDefinitionId(membershipDTO.getSubscriptionDefinitionId()), contact.getId(), Collections.emptyList());
+        }
 
         try {
-            membershipPeriodRepository.save(period);
+            membershipRepository.save(membership);
         } catch (ConcurrencyException e) {
             throw new IllegalStateException(e);
         }
 
-        return Response.ok(period.getId().getValue()).build();
+        return Response.ok(membership.getId().getValue()).build();
     }
 
     @GET

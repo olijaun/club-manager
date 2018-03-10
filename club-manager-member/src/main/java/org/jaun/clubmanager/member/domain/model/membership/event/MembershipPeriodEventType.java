@@ -8,7 +8,6 @@ import static java.util.Objects.requireNonNull;
 public enum MembershipPeriodEventType implements EventType {
     MEMBERSHIP_PERIOD_CREATED("MembershipPeriodCreated", MembershipPeriodCreatedEvent.class),
     METADATA_CHANGED("MetadataChanged", MembershipPeriodMetadataChangedEvent.class),
-    SUBSCRIPTION_ADDED("SubscriptionAdded", MembershipPeriodSubscriptionAddedEvent.class),
     SUBSCRIPTION_DEFINITION_ADDED("SubscriptionDefinitionAdded", MembershipPeriodSubscriptionDefinitionAddedEvent.class);
 
     private final String name;

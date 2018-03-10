@@ -1,7 +1,6 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
-public interface MembershipRepository {
-    Membership getMembership(MembershipId id);
+import org.jaun.clubmanager.domain.model.commons.GenericRepository;
 
-    void store(Membership membership);
+public interface MembershipRepository extends GenericRepository<Membership, MembershipId> {
 }

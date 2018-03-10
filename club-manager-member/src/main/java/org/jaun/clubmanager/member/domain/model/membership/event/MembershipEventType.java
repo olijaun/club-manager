@@ -6,6 +6,7 @@ import org.jaun.clubmanager.domain.model.commons.EventType;
 import static java.util.Objects.requireNonNull;
 
 public enum MembershipEventType implements EventType {
+
     MEMBERSHIP_CREATED("MembershipCreated", MembershipCreatedEvent.class);
 
     private final String name;
@@ -24,4 +25,4 @@ public enum MembershipEventType implements EventType {
     public Class<? extends DomainEvent> getEventClass() {
         return eventClass;
     }
-    }
+}
