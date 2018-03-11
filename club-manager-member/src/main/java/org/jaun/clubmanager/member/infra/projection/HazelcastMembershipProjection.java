@@ -1,6 +1,8 @@
 package org.jaun.clubmanager.member.infra.projection;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.jaun.clubmanager.member.application.resource.ContactDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipPeriodDTO;
@@ -10,6 +12,7 @@ import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEven
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipCreatedEvent;
@@ -23,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
 
 @Service
 public class HazelcastMembershipProjection extends AbstractProjection {
@@ -142,4 +147,22 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         membershipContactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
     }
 
+    public Collection<MembershipViewDTO> find(String firstName, String lastName, MembershipPeriodId membershipPeriodId) {
+
+        ArrayList<Predicate> andPredicates = new ArrayList<>();
+
+        if (firstName != null) {
+            andPredicates.add(Predicates.ilike("subscriberFirstName", "%" + firstName + "%"));
+        }
+        if (lastName != null) {
+            andPredicates.add(Predicates.ilike("subscriberLastName", "%" + lastName + "%"));
+        }
+        if (membershipPeriodId != null) {
+            andPredicates.add(Predicates.equal("membershipPeriodId", membershipPeriodId.getValue()));
+        }
+
+        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
+
+        return membershipMap.values(criteriaQuery);
+    }
 }

@@ -116,7 +116,8 @@ public class MemberResource {
     @Path("memberships")
     public Response addSubscription(CreateMembershipDTO createMembershipDTO) {
 
-        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
+        MembershipPeriod period =
+                membershipPeriodRepository.get(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
 
         if (period == null) {
             throw new NotFoundException(createMembershipDTO.getMembershipPeriodId());
@@ -131,9 +132,9 @@ public class MemberResource {
         Membership membership = membershipRepository.get(membershipId);
 
         if (membership == null) {
-            membership =
-                    new Membership(membershipId, period, new SubscriptionDefinitionId(createMembershipDTO.getSubscriptionDefinitionId()),
-                            contact.getId(), Collections.emptyList());
+            membership = new Membership(membershipId, period,
+                    new SubscriptionDefinitionId(createMembershipDTO.getSubscriptionDefinitionId()), contact.getId(),
+                    Collections.emptyList());
         }
 
         try {
@@ -143,6 +144,17 @@ public class MemberResource {
         }
 
         return Response.ok(membership.getId().getValue()).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("memberships")
+    public Response getMembership(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName,
+            @QueryParam("membershipPeriodId") String membershipPeriodId) {
+
+        Collection<MembershipViewDTO> view = projection.find(firstName, lastName, new MembershipPeriodId(membershipPeriodId));
+
+        return Response.ok(view).build(); //.entity(membershipPeriodRepository.getAll()).build();
     }
 
     @GET
