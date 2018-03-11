@@ -17,6 +17,7 @@ public class ContactConverter {
             return null;
         }
         ContactDTO out = new ContactDTO();
+        out.setContactId(in.getId().getValue());
         out.setFirstName(in.getFirstName());
         out.setLastName(in.getLastName());
         return out;

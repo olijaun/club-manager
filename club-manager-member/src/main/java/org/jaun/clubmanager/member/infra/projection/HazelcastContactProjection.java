@@ -1,108 +1,52 @@
 package org.jaun.clubmanager.member.infra.projection;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Stream;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.domain.model.commons.EventType;
+import javax.annotation.PostConstruct;
+
 import org.jaun.clubmanager.member.application.resource.ContactDTO;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.github.msemys.esjc.CatchUpSubscription;
-import com.github.msemys.esjc.CatchUpSubscriptionListener;
-import com.github.msemys.esjc.CatchUpSubscriptionSettings;
-import com.github.msemys.esjc.EventStore;
-import com.github.msemys.esjc.EventStoreBuilder;
-import com.github.msemys.esjc.ResolvedEvent;
-import com.github.msemys.esjc.SubscriptionDropReason;
 import com.google.gson.Gson;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 @Service
-public class HazelcastContactProjection {
+public class HazelcastContactProjection extends AbstractProjection {
 
-    private final IMap<String, ContactDTO> contactMap;
+    private IMap<String, ContactDTO> contactMap;
 
-    private Gson gson = new Gson();
+    public HazelcastContactProjection(@Autowired HazelcastInstance hazelcastInstance) {
+        super("$ce-contact");
 
-    public HazelcastContactProjection() {
-        Config config = new Config();
+        registerMapping(ContactEventType.CONTACT_CREATED, (r) -> update(toObject(r, ContactCreatedEvent.class)));
+        registerMapping(ContactEventType.NAME_CHANGED, (r) -> update(toObject(r, NameChangedEvent.class)));
 
-        NetworkConfig network = config.getNetworkConfig();
-        //network.setPort(PORT_NUMBER);
-
-        JoinConfig join = network.getJoin();
-        join.getTcpIpConfig().setEnabled(false);
-        join.getAwsConfig().setEnabled(false);
-        join.getMulticastConfig().setEnabled(false);
-
-        HazelcastInstance h = Hazelcast.newHazelcastInstance(config);
-        contactMap = h.getMap("members");
+        contactMap = hazelcastInstance.getMap("contacts");
     }
 
-    CatchUpSubscriptionListener listener = new CatchUpSubscriptionListener() {
+    protected void update(ContactCreatedEvent contactCreatedEvent) {
 
-        public void onLiveProcessingStarted(CatchUpSubscription subscription) {
-            System.out.println("Live processing started!");
-        }
+        ContactDTO contactDTO = new ContactDTO();
+        contactDTO.setContactId(contactCreatedEvent.getContactId().getValue());
 
-        public void onEvent(CatchUpSubscription subscription, ResolvedEvent event) {
-            DomainEvent domainEvent = toObject(event);
-            update(domainEvent);
-        }
-
-        public void onClose(CatchUpSubscription subscription, SubscriptionDropReason reason, Exception exception) {
-            System.out.println("Subscription closed: " + reason);
-            exception.printStackTrace();
-        }
-    };
-
-    private void update(DomainEvent event) {
-        if (event.getEventType().is(ContactEventType.CONTACT_CREATED)) {
-
-            ContactCreatedEvent contactCreatedEvent = (ContactCreatedEvent) event;
-
-            ContactDTO contactDTO = new ContactDTO();
-            contactDTO.setContactId(contactCreatedEvent.getContactId().getValue());
-
-            contactMap.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
-
-        } else if (event.getEventType().is(ContactEventType.NAME_CHANGED)) {
-
-            NameChangedEvent nameChangedEvent = (NameChangedEvent) event;
-
-            ContactDTO contactDTO = contactMap.get(nameChangedEvent.getContactId().getValue());
-            contactDTO.setFirstName(nameChangedEvent.getFirstName());
-            contactDTO.setLastName(nameChangedEvent.getLastName());
-
-            contactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
-        }
+        contactMap.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
     }
 
-    public void startSubscription() {
+    protected void update(NameChangedEvent nameChangedEvent) {
 
-        // TODO: make connection stuff configurable
-        EventStore eventStore =
-                EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
+        ContactDTO contactDTO = contactMap.get(nameChangedEvent.getContactId().getValue());
+        contactDTO.setFirstName(nameChangedEvent.getFirstName());
+        contactDTO.setLastName(nameChangedEvent.getLastName());
 
-        CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder().resolveLinkTos(true).build();
-
-        // TODO: close connection/subscription on shutdown
-        CatchUpSubscription catchupSubscription = eventStore.subscribeToStreamFrom("$ce-contact", null, settings, listener);
-
-        //eventStore.subscribeToAll()
+        contactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
     }
 
     public Collection<ContactDTO> find(String firstName, String lastName) {
@@ -120,23 +64,4 @@ public class HazelcastContactProjection {
 
         return contactMap.values(criteriaQuery);
     }
-
-    private DomainEvent toObject(ResolvedEvent resolvedEvent) {
-
-        try {
-            return gson.fromJson(new String(resolvedEvent.event.data, "UTF-8"), getEventClass(() -> resolvedEvent.event.eventType));
-            // getEventClass(resolvedEvent.event.eventType));
-        } catch (RuntimeException | UnsupportedEncodingException e) {
-            throw new IllegalStateException("could not deserialize event string to object: " + resolvedEvent.event.eventType, e);
-        }
-    }
-
-    protected Class<? extends DomainEvent> getEventClass(EventType evenType) {
-        return Stream.of(ContactEventType.values())
-                .filter(et -> et.getName().equals(evenType.getName()))
-                .map(ContactEventType::getEventClass)
-                .findFirst()
-                .get();
-    }
-
 }

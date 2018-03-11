@@ -30,7 +30,7 @@ import org.jaun.clubmanager.member.domain.model.membership.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
-import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,60 +51,7 @@ public class MemberResource {
     private MembershipPeriodRepository membershipPeriodRepository;
 
     @Autowired
-    private HazelcastContactProjection projection;
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("contacts")
-    public Response searchContacts(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName) {
-
-//        Contact contact = contactRepository.get(new ContactId(memberId));
-//        if(contact == null) {
-//            throw new NotFoundException();
-//        }
-//
-//        ContactDTO memberDTO = ContactConverter.toContactDTO(contact);
-//
-//        Collection<Contact> members = memberApplicationService.getMembers();
-//
-//        ContactsDTO membersDTO = ContactConverter.toMembersDTO(members);
-
-        Collection<ContactDTO> contactDTOS = projection.find(firstName, lastName);
-
-        return Response.ok(contactDTOS).build(); //.entity(membersDTO).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("contacts")
-    public Response createContact(ContactDTO contactDTO) {
-
-        Contact member = ContactConverter.toContact(contactDTO);
-
-        try {
-            contactRepository.save(member);
-        } catch (ConcurrencyException e) {
-            throw new IllegalStateException(e);
-        }
-
-        return Response.ok(member.getId().getValue()).build();
-    }
-
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("contacts/{contacts-id}")
-    public Response getContact(@PathParam("contacts-id") String memberId) {
-
-        Contact contact = contactRepository.get(new ContactId(memberId));
-        if (contact == null) {
-            throw new NotFoundException();
-        }
-
-        ContactDTO contactDTO = ContactConverter.toContactDTO(contact);
-        return Response.ok().entity(contactDTO).build();
-    }
+    private HazelcastMembershipProjection projection;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -167,25 +114,25 @@ public class MemberResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("memberships")
-    public Response addSubscription(MembershipDTO membershipDTO) {
+    public Response addSubscription(CreateMembershipDTO createMembershipDTO) {
 
-        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipDTO.getMembershipPeriodId()));
+        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
 
         if (period == null) {
-            throw new NotFoundException(membershipDTO.getMembershipPeriodId());
+            throw new NotFoundException(createMembershipDTO.getMembershipPeriodId());
         }
 
-        Contact contact = contactRepository.get(new ContactId(membershipDTO.getSubscriberId()));
+        Contact contact = contactRepository.get(new ContactId(createMembershipDTO.getSubscriberId()));
         if (contact == null) {
-            throw new BadRequestException("contact does not exist: " + membershipDTO.getSubscriberId());
+            throw new BadRequestException("contact does not exist: " + createMembershipDTO.getSubscriberId());
         }
 
-        MembershipId membershipId = new MembershipId(membershipDTO.getMembershipId());
+        MembershipId membershipId = new MembershipId(createMembershipDTO.getMembershipId());
         Membership membership = membershipRepository.get(membershipId);
 
         if (membership == null) {
             membership =
-                    new Membership(membershipId, period, new SubscriptionDefinitionId(membershipDTO.getSubscriptionDefinitionId()),
+                    new Membership(membershipId, period, new SubscriptionDefinitionId(createMembershipDTO.getSubscriptionDefinitionId()),
                             contact.getId(), Collections.emptyList());
         }
 

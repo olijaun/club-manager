@@ -1,6 +1,6 @@
 package org.jaun.clubmanager.member.application.resource;
 
-public class MembershipDTO {
+public class CreateMembershipDTO {
 
     private String membershipId;
     private String subscriberId;
@@ -11,7 +11,7 @@ public class MembershipDTO {
         return membershipId;
     }
 
-    public MembershipDTO setMembershipId(String membershipId) {
+    public CreateMembershipDTO setMembershipId(String membershipId) {
         this.membershipId = membershipId;
         return this;
     }
@@ -20,7 +20,7 @@ public class MembershipDTO {
         return subscriberId;
     }
 
-    public MembershipDTO setSubscriberId(String subscriberId) {
+    public CreateMembershipDTO setSubscriberId(String subscriberId) {
         this.subscriberId = subscriberId;
         return this;
     }
@@ -29,7 +29,7 @@ public class MembershipDTO {
         return subscriptionDefinitionId;
     }
 
-    public MembershipDTO setSubscriptionDefinitionId(String subscriptionDefinitionId) {
+    public CreateMembershipDTO setSubscriptionDefinitionId(String subscriptionDefinitionId) {
         this.subscriptionDefinitionId = subscriptionDefinitionId;
         return this;
     }
@@ -38,7 +38,7 @@ public class MembershipDTO {
         return membershipPeriodId;
     }
 
-    public MembershipDTO setMembershipPeriodId(String membershipPeriodId) {
+    public CreateMembershipDTO setMembershipPeriodId(String membershipPeriodId) {
         this.membershipPeriodId = membershipPeriodId;
         return this;
     }

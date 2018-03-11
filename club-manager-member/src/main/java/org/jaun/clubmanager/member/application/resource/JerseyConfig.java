@@ -8,5 +8,6 @@ public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
         register(MemberResource.class);
+        register(ContactResource.class);
     }
 }
