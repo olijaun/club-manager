@@ -1,9 +1,9 @@
 package org.jaun.clubmanager.member.domain.model.membership.event;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
-
-import static java.util.Objects.requireNonNull;
 
 public enum MembershipEventType implements EventType {
 

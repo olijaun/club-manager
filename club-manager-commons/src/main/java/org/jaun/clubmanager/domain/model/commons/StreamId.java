@@ -1,12 +1,13 @@
 package org.jaun.clubmanager.domain.model.commons;
 
-import com.google.common.base.Splitter;
-import org.apache.commons.lang3.StringUtils;
+import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.Splitter;
 
 public class StreamId extends ValueObject {
 

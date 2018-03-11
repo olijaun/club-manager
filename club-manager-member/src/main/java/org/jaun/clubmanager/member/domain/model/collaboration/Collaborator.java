@@ -1,8 +1,8 @@
 package org.jaun.clubmanager.member.domain.model.collaboration;
 
-import org.jaun.clubmanager.domain.model.commons.ValueObject;
-
 import static java.util.Objects.requireNonNull;
+
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
 public abstract class Collaborator extends ValueObject {
 

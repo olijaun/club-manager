@@ -1,16 +1,29 @@
 package org.jaun.clubmanager.member.infra.repository;
 
 
-import com.github.msemys.esjc.*;
-import com.google.gson.Gson;
-import org.jaun.clubmanager.domain.model.commons.*;
-
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
+import org.jaun.clubmanager.domain.model.commons.DomainEvent;
+import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
+import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.domain.model.commons.EventType;
+import org.jaun.clubmanager.domain.model.commons.GenericRepository;
+import org.jaun.clubmanager.domain.model.commons.Id;
+import org.jaun.clubmanager.domain.model.commons.StreamId;
 
-public abstract class AbstractGenericRepository<T extends EventSourcingAggregate<I>, I extends Id> implements GenericRepository<T, I> {
+import com.github.msemys.esjc.EventData;
+import com.github.msemys.esjc.EventStore;
+import com.github.msemys.esjc.EventStoreBuilder;
+import com.github.msemys.esjc.ExpectedVersion;
+import com.github.msemys.esjc.ResolvedEvent;
+import com.google.gson.Gson;
+
+
+public abstract class AbstractGenericRepository<T extends EventSourcingAggregate<I>, I extends Id> implements
+        GenericRepository<T, I> {
 
     private EventStore eventStore;
     private Gson gson = new Gson();
@@ -20,10 +33,8 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
     protected abstract T toAggregate(EventStream<T> eventStream);
 
     public AbstractGenericRepository() {
-        this.eventStore = EventStoreBuilder.newBuilder()
-                .singleNodeAddress("127.0.0.1", 1113)
-                .userCredentials("admin", "changeit")
-                .build();
+        this.eventStore =
+                EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
     }
 
     public void save(T m) throws ConcurrencyException {
@@ -35,7 +46,8 @@ public abstract class AbstractGenericRepository<T extends EventSourcingAggregate
         }
 
         if (m.hasChanges()) {
-            eventStore.appendToStream(new StreamId(m.getId(), getAggregateName()).getValue(), expectedVersion, toEventData(m.getChanges()));
+            eventStore.appendToStream(new StreamId(m.getId(), getAggregateName()).getValue(), expectedVersion,
+                    toEventData(m.getChanges()));
             m.clearChanges();
         }
     }

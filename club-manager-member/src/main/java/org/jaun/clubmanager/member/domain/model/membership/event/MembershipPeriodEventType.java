@@ -1,14 +1,14 @@
 package org.jaun.clubmanager.member.domain.model.membership.event;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventType;
 
-import static java.util.Objects.requireNonNull;
-
 public enum MembershipPeriodEventType implements EventType {
-    MEMBERSHIP_PERIOD_CREATED("MembershipPeriodCreated", MembershipPeriodCreatedEvent.class),
-    METADATA_CHANGED("MetadataChanged", MembershipPeriodMetadataChangedEvent.class),
-    SUBSCRIPTION_DEFINITION_ADDED("SubscriptionDefinitionAdded", MembershipPeriodSubscriptionDefinitionAddedEvent.class);
+    MEMBERSHIP_PERIOD_CREATED("MembershipPeriodCreated", MembershipPeriodCreatedEvent.class), METADATA_CHANGED("MetadataChanged",
+            MembershipPeriodMetadataChangedEvent.class), SUBSCRIPTION_DEFINITION_ADDED("SubscriptionDefinitionAdded",
+            MembershipPeriodSubscriptionDefinitionAddedEvent.class);
 
     private final String name;
     private final Class<? extends DomainEvent> eventClass;

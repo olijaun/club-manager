@@ -1,6 +1,12 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
-import com.google.common.collect.ImmutableList;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.List;
+import java.util.Optional;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
@@ -8,8 +14,7 @@ import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPerio
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionDefinitionAddedEvent;
 
-import java.time.LocalDate;
-import java.util.*;
+import com.google.common.collect.ImmutableList;
 
 public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId> {
 
@@ -55,7 +60,9 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
     }
 
     private void mutate(MembershipPeriodSubscriptionDefinitionAddedEvent event) {
-        SubscriptionDefinition def = new SubscriptionDefinition(event.getSubscriptionDefinitionId(), event.getMembershipTypeId(), event.getName(), event.getAmount(), event.getCurrency(), event.getMaxSubscribers());
+        SubscriptionDefinition def =
+                new SubscriptionDefinition(event.getSubscriptionDefinitionId(), event.getMembershipTypeId(), event.getName(),
+                        event.getAmount(), event.getCurrency(), event.getMaxSubscribers());
 
         subscriptionDefinitions.add(def);
     }
@@ -67,7 +74,7 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
             mutate((MembershipPeriodCreatedEvent) event);
         } else if (event instanceof MembershipPeriodMetadataChangedEvent) {
             mutate((MembershipPeriodMetadataChangedEvent) event);
-        }else if (event instanceof MembershipPeriodSubscriptionDefinitionAddedEvent) {
+        } else if (event instanceof MembershipPeriodSubscriptionDefinitionAddedEvent) {
             mutate((MembershipPeriodSubscriptionDefinitionAddedEvent) event);
         }
     }
@@ -93,9 +100,11 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         return description;
     }
 
-    public void addDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
+    public void addDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name,
+            double amount, Currency currency, int maxSubscribers) {
 
-        apply(new MembershipPeriodSubscriptionDefinitionAddedEvent(id, subscriptionDefinitionId, membershipTypeId, name, amount, currency, maxSubscribers));
+        apply(new MembershipPeriodSubscriptionDefinitionAddedEvent(id, subscriptionDefinitionId, membershipTypeId, name, amount,
+                currency, maxSubscribers));
 
     }
 }

@@ -1,12 +1,12 @@
 package org.jaun.clubmanager.identity.domain.model;
 
-import org.jaun.clubmanager.domain.model.commons.Entity;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static java.util.Objects.requireNonNull;
+import org.jaun.clubmanager.domain.model.commons.Entity;
 
 public class User extends Entity<UserId> {
     private final UserId id;

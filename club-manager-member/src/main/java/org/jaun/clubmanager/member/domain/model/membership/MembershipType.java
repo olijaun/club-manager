@@ -1,10 +1,8 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
-import org.jaun.clubmanager.domain.model.commons.Aggregate;
-
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
+
+import org.jaun.clubmanager.domain.model.commons.Aggregate;
 
 /**
  * Type of the Mebership regardless of Membership period. E.g. 'Gönner', 'Normal', 'Passiv'

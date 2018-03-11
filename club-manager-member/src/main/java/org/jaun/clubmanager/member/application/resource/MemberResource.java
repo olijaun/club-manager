@@ -1,20 +1,38 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Currency;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
-import org.jaun.clubmanager.member.domain.model.membership.*;
+import org.jaun.clubmanager.member.domain.model.membership.Membership;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodRepository;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipRepository;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipType;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
 import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Currency;
 
 @Component
 @Path("/")
@@ -133,7 +151,8 @@ public class MemberResource {
 
         Currency currency = ContactConverter.toCurrency(defDTO.getCurrency());
 
-        period.addDefinition(SubscriptionDefinitionId.random(SubscriptionDefinitionId::new), membershipType.getId(), defDTO.getName(), defDTO.getAmount(), currency, defDTO.getMaxSubscribers());
+        period.addDefinition(SubscriptionDefinitionId.random(SubscriptionDefinitionId::new), membershipType.getId(),
+                defDTO.getName(), defDTO.getAmount(), currency, defDTO.getMaxSubscribers());
 
         try {
             membershipPeriodRepository.save(period);
@@ -165,7 +184,9 @@ public class MemberResource {
         Membership membership = membershipRepository.get(membershipId);
 
         if (membership == null) {
-            membership = new Membership(membershipId, period, new SubscriptionDefinitionId(membershipDTO.getSubscriptionDefinitionId()), contact.getId(), Collections.emptyList());
+            membership =
+                    new Membership(membershipId, period, new SubscriptionDefinitionId(membershipDTO.getSubscriptionDefinitionId()),
+                            contact.getId(), Collections.emptyList());
         }
 
         try {

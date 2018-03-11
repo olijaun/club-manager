@@ -1,8 +1,8 @@
 package org.jaun.clubmanager.member.domain.model.contact;
 
-import org.jaun.clubmanager.domain.model.commons.ValueObject;
-
 import static java.util.Objects.requireNonNull;
+
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
 /**
  * Currently only supports simple "swiss" addresses. The country is assumed to be switzerland. This will be extended in the future.

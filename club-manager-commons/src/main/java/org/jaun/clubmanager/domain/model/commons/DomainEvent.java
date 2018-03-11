@@ -1,13 +1,13 @@
 package org.jaun.clubmanager.domain.model.commons;
 
+import static java.util.Objects.requireNonNull;
+
+import java.io.Serializable;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import java.io.Serializable;
-
-import static java.util.Objects.requireNonNull;
 
 public class DomainEvent<T extends EventType> extends ValueObject implements Serializable {
     private final EventId eventId;

@@ -1,12 +1,12 @@
 package org.jaun.clubmanager.member.domain.model.contact;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
-
-import static java.util.Objects.requireNonNull;
 
 public class Contact extends EventSourcingAggregate<ContactId> {
 
@@ -38,10 +38,10 @@ public class Contact extends EventSourcingAggregate<ContactId> {
 
     @Override
     protected void mutate(DomainEvent event) {
-        if(event instanceof ContactCreatedEvent) {
-            mutate((ContactCreatedEvent)event);
-        } else if(event instanceof NameChangedEvent) {
-            mutate((NameChangedEvent)event);
+        if (event instanceof ContactCreatedEvent) {
+            mutate((ContactCreatedEvent) event);
+        } else if (event instanceof NameChangedEvent) {
+            mutate((NameChangedEvent) event);
         }
     }
 

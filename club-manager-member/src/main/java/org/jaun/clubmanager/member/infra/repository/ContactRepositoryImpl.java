@@ -1,5 +1,7 @@
 package org.jaun.clubmanager.member.infra.repository;
 
+import java.util.stream.Stream;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.domain.model.commons.EventType;
@@ -8,8 +10,6 @@ import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Stream;
 
 @Service
 public class ContactRepositoryImpl extends AbstractGenericRepository<Contact, ContactId> implements ContactRepository {

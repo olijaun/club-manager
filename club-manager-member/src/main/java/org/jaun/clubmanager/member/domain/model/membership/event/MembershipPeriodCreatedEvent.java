@@ -1,11 +1,11 @@
 package org.jaun.clubmanager.member.domain.model.membership.event;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
+import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 
-import static java.util.Objects.requireNonNull;
+import org.jaun.clubmanager.domain.model.commons.DomainEvent;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 
 public class MembershipPeriodCreatedEvent extends DomainEvent<MembershipPeriodEventType> {
 

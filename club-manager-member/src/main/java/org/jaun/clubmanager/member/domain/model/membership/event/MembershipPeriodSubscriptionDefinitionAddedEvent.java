@@ -1,17 +1,13 @@
 package org.jaun.clubmanager.member.domain.model.membership.event;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Currency;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionId;
-
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Objects;
-
-import static java.util.Objects.requireNonNull;
 
 public class MembershipPeriodSubscriptionDefinitionAddedEvent extends DomainEvent<MembershipPeriodEventType> {
 
@@ -23,7 +19,9 @@ public class MembershipPeriodSubscriptionDefinitionAddedEvent extends DomainEven
     private final Currency currency;
     private final int maxSubscribers;
 
-    public MembershipPeriodSubscriptionDefinitionAddedEvent(MembershipPeriodId membershipPeriodId, SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
+    public MembershipPeriodSubscriptionDefinitionAddedEvent(MembershipPeriodId membershipPeriodId,
+            SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount,
+            Currency currency, int maxSubscribers) {
 
         super(MembershipPeriodEventType.SUBSCRIPTION_DEFINITION_ADDED);
         this.membershipPeriodId = requireNonNull(membershipPeriodId);

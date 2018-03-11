@@ -1,8 +1,8 @@
 package org.jaun.clubmanager.member.domain.model.membership;
 
-import org.jaun.clubmanager.domain.model.commons.Entity;
-
 import java.util.Currency;
+
+import org.jaun.clubmanager.domain.model.commons.Entity;
 
 public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
 
@@ -13,7 +13,8 @@ public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
     private final Currency currency;
     private final int maxSubscribers;
 
-    public SubscriptionDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
+    public SubscriptionDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name,
+            double amount, Currency currency, int maxSubscribers) {
         this.subscriptionDefinitionId = subscriptionDefinitionId;
         this.membershipTypeId = membershipTypeId;
         this.name = name;

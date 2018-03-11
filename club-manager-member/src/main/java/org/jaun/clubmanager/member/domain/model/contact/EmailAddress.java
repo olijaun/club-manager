@@ -1,10 +1,11 @@
 package org.jaun.clubmanager.member.domain.model.contact;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import static java.util.Objects.requireNonNull;
+
 import java.util.regex.Pattern;
 
-import static java.util.Objects.requireNonNull;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 public class EmailAddress {
 

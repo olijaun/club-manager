@@ -1,8 +1,8 @@
 package org.jaun.clubmanager.domain.model.commons;
 
-import com.google.common.base.MoreObjects;
-
 import java.util.Objects;
+
+import com.google.common.base.MoreObjects;
 
 public abstract class Entity<T extends Id> {
 

@@ -1,9 +1,9 @@
 package org.jaun.clubmanager.member.domain.model.contact.event;
 
+import static java.util.Objects.requireNonNull;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
-
-import static java.util.Objects.requireNonNull;
 
 public class ContactCreatedEvent extends DomainEvent<ContactEventType> {
 

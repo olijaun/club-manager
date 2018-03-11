@@ -1,14 +1,14 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import org.jaun.clubmanager.member.domain.model.contact.Contact;
-import org.jaun.clubmanager.member.domain.model.contact.ContactId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.stream.Collectors;
+
+import org.jaun.clubmanager.member.domain.model.contact.Contact;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 
 public class ContactConverter {
 

@@ -1,6 +1,25 @@
 package org.jaun.clubmanager.member.infra.projection;
 
-import com.github.msemys.esjc.*;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import org.jaun.clubmanager.domain.model.commons.DomainEvent;
+import org.jaun.clubmanager.domain.model.commons.EventType;
+import org.jaun.clubmanager.member.application.resource.ContactDTO;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
+import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
+import org.springframework.stereotype.Service;
+
+import com.github.msemys.esjc.CatchUpSubscription;
+import com.github.msemys.esjc.CatchUpSubscriptionListener;
+import com.github.msemys.esjc.CatchUpSubscriptionSettings;
+import com.github.msemys.esjc.EventStore;
+import com.github.msemys.esjc.EventStoreBuilder;
+import com.github.msemys.esjc.ResolvedEvent;
+import com.github.msemys.esjc.SubscriptionDropReason;
 import com.google.gson.Gson;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -10,18 +29,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.domain.model.commons.EventType;
-import org.jaun.clubmanager.member.application.resource.ContactDTO;
-import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
-import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
-import org.springframework.stereotype.Service;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.stream.Stream;
 
 @Service
 public class HazelcastContactProjection {
@@ -87,13 +94,10 @@ public class HazelcastContactProjection {
     public void startSubscription() {
 
         // TODO: make connection stuff configurable
-        EventStore eventStore = EventStoreBuilder.newBuilder()
-                .singleNodeAddress("127.0.0.1", 1113)
-                .userCredentials("admin", "changeit")
-                .build();
+        EventStore eventStore =
+                EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
 
-        CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder()
-                .resolveLinkTos(true).build();
+        CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder().resolveLinkTos(true).build();
 
         // TODO: close connection/subscription on shutdown
         CatchUpSubscription catchupSubscription = eventStore.subscribeToStreamFrom("$ce-contact", null, settings, listener);
