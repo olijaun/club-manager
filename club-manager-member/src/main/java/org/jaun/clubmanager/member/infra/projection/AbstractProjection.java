@@ -60,8 +60,6 @@ public abstract class AbstractProjection {
         }
     }
 
-    ;
-
     public void startSubscription() {
 
         // TODO: make connection stuff configurable

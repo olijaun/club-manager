@@ -147,6 +147,16 @@ public class MemberResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("memberships/{id}")
+    public Response getMembership(@PathParam("id") String membershipId) {
+
+        MembershipViewDTO view = projection.getById(new MembershipId(membershipId));
+
+        return Response.ok(view).build(); //.entity(membershipPeriodRepository.getAll()).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("membership-periods/{id}")
     public Response getMembershipPeriod(@PathParam("id") String membershipPeriodId) {
 

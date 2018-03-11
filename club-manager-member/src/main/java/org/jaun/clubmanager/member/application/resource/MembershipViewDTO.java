@@ -1,6 +1,8 @@
 package org.jaun.clubmanager.member.application.resource;
 
-public class MembershipViewDTO {
+import java.io.Serializable;
+
+public class MembershipViewDTO implements Serializable {
 
     private String membershipId;
     private String subscriberId;
