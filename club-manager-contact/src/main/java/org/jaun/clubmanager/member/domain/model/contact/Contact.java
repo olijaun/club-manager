@@ -2,64 +2,49 @@ package org.jaun.clubmanager.member.domain.model.contact;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 
-public class Contact extends EventSourcingAggregate<ContactId> {
+public abstract class Contact extends EventSourcingAggregate<ContactId> {
 
     private ContactId id;
-    private String firstName;
-    private String lastName;
+    private ContactType contactType;
+    private Name name;
     private Address address;
     private PhoneNumber phone;
     private EmailAddress emailAddress;
 
-    public Contact(ContactId id, String firstName, String lastName) {
-        apply(new ContactCreatedEvent(id));
-        setName(firstName, lastName);
+    public Contact(ContactId id, ContactType contactType) {
+        apply(new ContactCreatedEvent(id, contactType));
     }
 
-    public Contact(EventStream<Contact> eventStream) {
+    public Contact(EventStream<? extends Contact> eventStream) {
         replayEvents(eventStream);
     }
 
     protected void mutate(ContactCreatedEvent event) {
-        this.id = requireNonNull(event.getContactId());
-    }
-
-    protected void mutate(NameChangedEvent event) {
-        this.id = requireNonNull(event.getContactId());
-        this.firstName = requireNonNull(event.getFirstName());
-        this.lastName = requireNonNull(event.getLastName());
+        this.id = event.getContactId();
+        this.contactType = event.getContactType();
     }
 
     @Override
     protected void mutate(DomainEvent event) {
         if (event instanceof ContactCreatedEvent) {
             mutate((ContactCreatedEvent) event);
-        } else if (event instanceof NameChangedEvent) {
-            mutate((NameChangedEvent) event);
         }
-    }
-
-    public Contact setName(String firstName, String lastName) {
-        apply(new NameChangedEvent(id, firstName, lastName));
-        return this;
     }
 
     public ContactId getId() {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
+    public Name getName() {
+        return name;
     }
 
     public Address getAddress() {
@@ -70,35 +55,47 @@ public class Contact extends EventSourcingAggregate<ContactId> {
         return phone;
     }
 
-    public EmailAddress getEmailAddress() {
-        return emailAddress;
+    public Optional<EmailAddress> getEmailAddress() {
+        return Optional.ofNullable(emailAddress);
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
+    public static abstract class Builder {
         private ContactId id;
-        private String firstName;
-        private String lastName;
+        private ContactType contactType;
+        private Name name;
+        private Address address;
+        private PhoneNumber phone;
+        private EmailAddress emailAddress;
 
-        public Contact build() {
-            return new Contact(id, firstName, lastName);
-        }
+        public abstract void build();
 
         public Builder id(ContactId id) {
             this.id = id;
             return this;
         }
 
-        public Builder firstName(String firstName) {
-            this.firstName = firstName;
+        public Builder contactType(ContactType contactType) {
+            this.contactType = contactType;
             return this;
         }
 
-        public Builder lastName(String lastName) {
-            this.lastName = lastName;
+        public Builder name(Name name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder address(Address address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder phone(PhoneNumber phone) {
+            this.phone = phone;
+            return this;
+        }
+
+        public Builder emailAddress(EmailAddress emailAddress) {
+            this.emailAddress = emailAddress;
             return this;
         }
     }

@@ -4,17 +4,24 @@ import static java.util.Objects.requireNonNull;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.contact.ContactType;
 
 public class ContactCreatedEvent extends DomainEvent<ContactEventType> {
 
     private final ContactId contactId;
+    private final ContactType contactType;
 
-    public ContactCreatedEvent(ContactId contactId) {
+    public ContactCreatedEvent(ContactId contactId, ContactType contactType) {
         super(ContactEventType.CONTACT_CREATED);
         this.contactId = requireNonNull(contactId);
+        this.contactType = requireNonNull(contactType);
     }
 
     public ContactId getContactId() {
         return contactId;
+    }
+
+    public ContactType getContactType() {
+        return contactType;
     }
 }

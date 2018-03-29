@@ -4,31 +4,46 @@ import static java.util.Objects.requireNonNull;
 
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
-/**
- * Currently only supports simple "swiss" addresses. The country is assumed to be switzerland. This will be extended in the future.
- */
 public class Address extends ValueObject {
 
     private final String street;
-    private final int plz;
+    private final String streetNumber;
+    private final String zip;
     private final String city;
+    private final Country country;
+    private final String state;
 
-    public Address(String street, int plz, String city) {
+    public Address(String street, String streetNumber, String zip, String city, String state, Country country) {
         this.street = requireNonNull(street);
-        this.plz = requireNonNull(plz);
+        this.streetNumber = streetNumber;
+        this.zip = requireNonNull(zip);
         this.city = requireNonNull(city);
+        this.state = state;
+        this.country = requireNonNull(country);
     }
 
     public String getStreet() {
         return street;
     }
 
-    public int getPlz() {
-        return plz;
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public String getZip() {
+        return zip;
     }
 
     public String getCity() {
         return city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public Country getCountry() {
+        return country;
     }
 
     public static Builder builder() {
@@ -37,11 +52,14 @@ public class Address extends ValueObject {
 
     public static class Builder {
         private String street;
-        private int plz;
+        private String streetNumber;
+        private String zip;
         private String city;
+        private String state;
+        private Country country;
 
         public Address build() {
-            return new Address(street, plz, city);
+            return new Address(street, zip, streetNumber, state, city, country);
         }
 
         public Builder street(String street) {
@@ -49,13 +67,28 @@ public class Address extends ValueObject {
             return this;
         }
 
-        public Builder zip(int plz) {
-            this.plz = plz;
+        public Builder zip(String zip) {
+            this.zip = zip;
             return this;
         }
 
         public Builder city(String city) {
             this.city = city;
+            return this;
+        }
+
+        public Builder streetNumber(String streetNumber) {
+            this.streetNumber = streetNumber;
+            return this;
+        }
+
+        public Builder state(String state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder country(Country country) {
+            this.country = country;
             return this;
         }
     }

@@ -5,33 +5,39 @@ import java.io.Serializable;
 public class ContactDTO implements Serializable {
 
     private String contactId;
-    private String firstName;
-    private String lastName;
+    private AddressDTO addressDTO;
+    private String phoneNumber;
+    private String emailAddress;
 
     public String getContactId() {
         return contactId;
     }
 
-    public ContactDTO setContactId(String memberId) {
-        this.contactId = memberId;
-        return this;
+    public void setContactId(String contactId) {
+        this.contactId = contactId;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public AddressDTO getAddressDTO() {
+        return addressDTO;
     }
 
-    public ContactDTO setFirstName(String firstName) {
-        this.firstName = firstName;
-        return this;
+    public void setAddressDTO(AddressDTO addressDTO) {
+        this.addressDTO = addressDTO;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public ContactDTO setLastName(String lastName) {
-        this.lastName = lastName;
-        return this;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }

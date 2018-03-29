@@ -17,6 +17,7 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
+import org.jaun.clubmanager.member.domain.model.contact.Person;
 import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,8 +45,25 @@ public class ContactResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("contacts")
-    public Response createContact(ContactDTO contactDTO) {
+    @Path("persons")
+    public Response createPerson(PersonDTO personDTO) {
+
+        Person person = ContactConverter.toContact(contactDTO);
+
+        try {
+            contactRepository.save(member);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok(member.getId().getValue()).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("companies")
+    public Response createCompany(CompanyDTO companyDTO) {
 
         Contact member = ContactConverter.toContact(contactDTO);
 
