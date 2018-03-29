@@ -30,19 +30,26 @@
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-commons</artifactId>
                 <version>${project.version}</version>
-                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-contact</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-identity</artifactId>
                 <version>${project.version}</version>
-                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-member</artifactId>
+                <artifactId>club-manager-membership</artifactId>
                 <version>${project.version}</version>
-                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-springboot-app</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- 3rd party -->
@@ -170,7 +177,9 @@
     <modules>
         <module>club-manager-commons</module>
         <module>club-manager-identity</module>
-        <module>club-manager-member</module>
+        <module>club-manager-contact</module>
+        <module>club-manager-membership</module>
+        <module>club-manager-springboot-app</module>
     </modules>
 
 </project>
