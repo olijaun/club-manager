@@ -1,25 +1,25 @@
 package org.jaun.clubmanager.member.domain.model.contact.event;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.contact.Address;
+import org.jaun.clubmanager.member.domain.model.contact.StreetAddress;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 
-public class AddressChangedEvent extends DomainEvent<ContactEventType> {
+public class StreetAddressChangedEvent extends DomainEvent<ContactEventType> {
 
     private final ContactId contactId;
-    private final Address address;
+    private final StreetAddress streetAddress;
 
-    public AddressChangedEvent(ContactId contactId, Address address) {
+    public StreetAddressChangedEvent(ContactId contactId, StreetAddress streetAddress) {
         super(ContactEventType.ADDRESS_CHANGED);
         this.contactId = contactId;
-        this.address = address;
+        this.streetAddress = streetAddress;
     }
 
     public ContactId getContactId() {
         return contactId;
     }
 
-    public Address getAddress() {
-        return address;
+    public StreetAddress getStreetAddress() {
+        return streetAddress;
     }
 }

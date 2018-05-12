@@ -4,23 +4,24 @@ import static java.util.Objects.requireNonNull;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.contact.Sex;
 
-public class CompanyNameChangedEvent extends DomainEvent<ContactEventType> {
+public class SexChangedEvent extends DomainEvent<ContactEventType> {
 
     private final ContactId contactId;
-    private final String name;
+    private final Sex sex;
 
-    public CompanyNameChangedEvent(ContactId contactId, String name) {
+    public SexChangedEvent(ContactId contactId, Sex sex) {
         super(ContactEventType.NAME_CHANGED);
         this.contactId = requireNonNull(contactId);
-        this.name = requireNonNull(name);
+        this.sex = sex;
     }
 
     public ContactId getContactId() {
         return contactId;
     }
 
-    public String getName() {
-        return name;
+    public Sex getSex() {
+        return sex;
     }
 }

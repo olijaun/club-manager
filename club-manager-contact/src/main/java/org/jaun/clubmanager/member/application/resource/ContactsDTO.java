@@ -5,13 +5,13 @@ import java.util.Collection;
 
 public class ContactsDTO implements Serializable {
 
-    private Collection<ContactDTO> members;
+    private Collection<ContactDTO> contacts;
 
-    public Collection<ContactDTO> getMembers() {
-        return members;
+    public Collection<ContactDTO> getContacts() {
+        return contacts;
     }
 
-    public void setMembers(Collection<ContactDTO> members) {
-        this.members = members;
+    public void setContacts(Collection<ContactDTO> contacts) {
+        this.contacts = contacts;
     }
 }

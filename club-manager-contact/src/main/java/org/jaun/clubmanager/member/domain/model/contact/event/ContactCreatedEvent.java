@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactType;
+import org.jaun.clubmanager.member.domain.model.contact.Name;
 
 public class ContactCreatedEvent extends DomainEvent<ContactEventType> {
 

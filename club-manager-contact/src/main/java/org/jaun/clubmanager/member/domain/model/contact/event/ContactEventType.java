@@ -7,8 +7,8 @@ import org.jaun.clubmanager.domain.model.commons.EventType;
 
 public enum ContactEventType implements EventType {
     CONTACT_CREATED("ContactCreated", ContactCreatedEvent.class), NAME_CHANGED("NameChanged",
-            NameChangedEvent.class), ADDRESS_CHANGED("AddressChanged", AddressChangedEvent.class), PHONE_CHANGED("PhoneChanged",
-            PhoneChangedEvent.class);
+            NameChangedEvent.class), ADDRESS_CHANGED("AddressChanged", StreetAddressChangedEvent.class), PHONE_CHANGED("PhoneChanged",
+            PhoneNumberChangedEvent.class);
 
     private final String name;
     private final Class<? extends DomainEvent> eventClass;

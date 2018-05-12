@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
-public class Address extends ValueObject {
+public class StreetAddress extends ValueObject {
 
     private final String street;
     private final String streetNumber;
@@ -13,7 +13,7 @@ public class Address extends ValueObject {
     private final Country country;
     private final String state;
 
-    public Address(String street, String streetNumber, String zip, String city, String state, Country country) {
+    public StreetAddress(String street, String streetNumber, String zip, String city, String state, Country country) {
         this.street = requireNonNull(street);
         this.streetNumber = streetNumber;
         this.zip = requireNonNull(zip);
@@ -58,8 +58,8 @@ public class Address extends ValueObject {
         private String state;
         private Country country;
 
-        public Address build() {
-            return new Address(street, zip, streetNumber, state, city, country);
+        public StreetAddress build() {
+            return new StreetAddress(street, zip, streetNumber, state, city, country);
         }
 
         public Builder street(String street) {

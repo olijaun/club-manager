@@ -35,15 +35,15 @@ public class HazelcastContactProjection extends AbstractProjection {
 
         ContactDTO contactDTO = new ContactDTO();
         contactDTO.setContactId(contactCreatedEvent.getContactId().getValue());
-
+        contactDTO.setContactType(contactCreatedEvent.getContactType().name()); // TODO: shuld be converted
         contactMap.put(contactCreatedEvent.getContactId().getValue(), contactDTO);
     }
 
     protected void update(NameChangedEvent nameChangedEvent) {
 
         ContactDTO contactDTO = contactMap.get(nameChangedEvent.getContactId().getValue());
-        contactDTO.setFirstName(nameChangedEvent.getFirstName());
-        contactDTO.setLastName(nameChangedEvent.getLastName());
+        contactDTO.setFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
+        contactDTO.setLastNameOrCompanyName(nameChangedEvent.getName().getLastNameOrCompanyName());
 
         contactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
     }
