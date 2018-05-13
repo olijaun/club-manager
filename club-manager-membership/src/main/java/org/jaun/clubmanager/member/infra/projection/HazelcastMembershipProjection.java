@@ -8,7 +8,7 @@ import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipPeriodDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipViewDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionDefinitionDTO;
+import org.jaun.clubmanager.member.application.resource.SubscriptionOptionDTO;
 import org.jaun.clubmanager.member.domain.model.membership.MemberId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
@@ -19,7 +19,7 @@ import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEvent
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodEventType;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionDefinitionAddedEvent;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionOptionAddedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.contact.ContactCreatedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.contact.NameChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import com.hazelcast.query.Predicates;
 @Service
 public class HazelcastMembershipProjection extends AbstractProjection {
 
-    private final IMap<String, SubscriptionDefinitionDTO> subscriptionDefinitionMap;
+    private final IMap<String, SubscriptionOptionDTO> subscriptionOptionMap;
     private final IMap<String, MembershipPeriodDTO> membershipPeriodMap;
     private final IMap<String, MembershipViewDTO> membershipMap;
     private final IMap<String, MemberDTO> membershipContactMap;
@@ -45,8 +45,8 @@ public class HazelcastMembershipProjection extends AbstractProjection {
     public HazelcastMembershipProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
         super(eventStore, "MembershipProjectionStream");
 
-        registerMapping(MembershipPeriodEventType.SUBSCRIPTION_DEFINITION_ADDED,
-                (r) -> update(toObject(r, MembershipPeriodSubscriptionDefinitionAddedEvent.class)));
+        registerMapping(MembershipPeriodEventType.SUBSCRIPTION_OPTION_ADDED,
+                (r) -> update(toObject(r, MembershipPeriodSubscriptionOptionAddedEvent.class)));
 
         registerMapping(MembershipPeriodEventType.MEMBERSHIP_PERIOD_CREATED,
                 (r) -> update(toObject(r, MembershipPeriodCreatedEvent.class)));
@@ -58,25 +58,25 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         registerMapping("ContactCreated", (r) -> update(toObject(r, ContactCreatedEvent.class)));
         registerMapping("NameChanged", (r) -> update(toObject(r, NameChangedEvent.class)));
 
-        subscriptionDefinitionMap = hazelcastInstance.getMap("subscription-definitions");
+        subscriptionOptionMap = hazelcastInstance.getMap("subscription-options");
         membershipPeriodMap = hazelcastInstance.getMap("membership-periods");
         membershipMap = hazelcastInstance.getMap("memberships");
         membershipContactMap = hazelcastInstance.getMap("membership-contacts");
     }
 
-    protected void update(MembershipPeriodSubscriptionDefinitionAddedEvent definitionAddedEvent) {
+    protected void update(MembershipPeriodSubscriptionOptionAddedEvent optionAddedEvent) {
 
-        SubscriptionDefinitionDTO definitionDTO = new SubscriptionDefinitionDTO();
+        SubscriptionOptionDTO optionDTO = new SubscriptionOptionDTO();
 
-        definitionDTO.setId(definitionAddedEvent.getSubscriptionDefinitionId().getValue());
-        definitionDTO.setAmount(definitionAddedEvent.getAmount());
-        definitionDTO.setCurrency(definitionAddedEvent.getCurrency().getCurrencyCode());
-        definitionDTO.setMaxSubscribers(definitionAddedEvent.getMaxSubscribers());
-        definitionDTO.setMembershipPeriodId(definitionAddedEvent.getMembershipPeriodId().getValue());
-        definitionDTO.setName(definitionAddedEvent.getName());
-        definitionDTO.setMembershipTypeId(definitionAddedEvent.getMembershipTypeId().getValue());
+        optionDTO.setId(optionAddedEvent.getSubscriptionOptionId().getValue());
+        optionDTO.setAmount(optionAddedEvent.getAmount());
+        optionDTO.setCurrency(optionAddedEvent.getCurrency().getCurrencyCode());
+        optionDTO.setMaxSubscribers(optionAddedEvent.getMaxSubscribers());
+        optionDTO.setMembershipPeriodId(optionAddedEvent.getMembershipPeriodId().getValue());
+        optionDTO.setName(optionAddedEvent.getName());
+        optionDTO.setMembershipTypeId(optionAddedEvent.getMembershipTypeId().getValue());
 
-        subscriptionDefinitionMap.put(definitionAddedEvent.getSubscriptionDefinitionId().getValue(), definitionDTO);
+        subscriptionOptionMap.put(optionAddedEvent.getSubscriptionOptionId().getValue(), optionDTO);
     }
 
     protected void update(MembershipPeriodCreatedEvent membershipPeriodCreatedEvent) {
@@ -106,8 +106,8 @@ public class HazelcastMembershipProjection extends AbstractProjection {
 
         MembershipPeriodDTO periodDTO = membershipPeriodMap.get(membershipCreatedEvent.getMembershipPeriodId().getValue());
 
-        SubscriptionDefinitionDTO definitionDTO =
-                subscriptionDefinitionMap.get(membershipCreatedEvent.getSubscriptionDefinitionId().getValue());
+        SubscriptionOptionDTO optionDTO =
+                subscriptionOptionMap.get(membershipCreatedEvent.getSubscriptionOptionId().getValue());
 
         MembershipViewDTO view = new MembershipViewDTO();
         view.setMembershipId(membershipCreatedEvent.getMembershipId().getValue());
@@ -118,13 +118,13 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         view.setSubscriberFirstName(memberDTO.getFirstName());
         view.setSubscriberLastName(memberDTO.getLastName());
 
-        view.setSubscriptionDefinitionId(membershipCreatedEvent.getSubscriptionDefinitionId().getValue());
-        view.setSubscriptionDefinitionName(definitionDTO.getName());
-        view.setMembershipTypeId(definitionDTO.getMembershipTypeId());
+        view.setSubscriptionOptionId(membershipCreatedEvent.getSubscriptionOptionId().getValue());
+        view.setSubscriptionOptionName(optionDTO.getName());
+        view.setMembershipTypeId(optionDTO.getMembershipTypeId());
 
         // TODO: make type also event sourced
         view.setMembershipTypeName(
-                membershipTypeRepository.get(new MembershipTypeId(definitionDTO.getMembershipTypeId())).getName());
+                membershipTypeRepository.get(new MembershipTypeId(optionDTO.getMembershipTypeId())).getName());
 
         membershipMap.put(membershipCreatedEvent.getMembershipId().getValue(), view);
 
@@ -179,7 +179,7 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         return membershipPeriodMap.values();
     }
 
-    public Collection<SubscriptionDefinitionDTO> getAllSubscriptionDefinitionsForPeriods(MembershipPeriodId membershipPeriodId) {
+    public Collection<SubscriptionOptionDTO> getAllSubscriptionOptionsForPeriods(MembershipPeriodId membershipPeriodId) {
 
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 
@@ -187,7 +187,7 @@ public class HazelcastMembershipProjection extends AbstractProjection {
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
 
-        return subscriptionDefinitionMap.values(criteriaQuery);
+        return subscriptionOptionMap.values(criteriaQuery);
 
     }
 }

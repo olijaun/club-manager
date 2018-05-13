@@ -7,8 +7,8 @@ import org.jaun.clubmanager.domain.model.commons.EventType;
 
 public enum MembershipPeriodEventType implements EventType {
     MEMBERSHIP_PERIOD_CREATED("MembershipPeriodCreated", MembershipPeriodCreatedEvent.class), METADATA_CHANGED("MetadataChanged",
-            MembershipPeriodMetadataChangedEvent.class), SUBSCRIPTION_DEFINITION_ADDED("SubscriptionDefinitionAdded",
-            MembershipPeriodSubscriptionDefinitionAddedEvent.class);
+            MembershipPeriodMetadataChangedEvent.class), SUBSCRIPTION_OPTION_ADDED("SubscriptionOptionAdded",
+            MembershipPeriodSubscriptionOptionAddedEvent.class);
 
     private final String name;
     private final Class<? extends DomainEvent> eventClass;

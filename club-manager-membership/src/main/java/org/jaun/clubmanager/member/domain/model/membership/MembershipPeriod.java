@@ -12,7 +12,7 @@ import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionDefinitionAddedEvent;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionOptionAddedEvent;
 
 import com.google.common.collect.ImmutableList;
 
@@ -24,7 +24,7 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
     private String name;
     private String description;
 
-    private List<SubscriptionDefinition> subscriptionDefinitions = new ArrayList();
+    private List<SubscriptionOption> subscriptionOptions = new ArrayList();
 
     public MembershipPeriod(MembershipPeriodId id, LocalDate start, LocalDate end) {
 
@@ -35,12 +35,12 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         replayEvents(eventStream);
     }
 
-    public Collection<SubscriptionDefinition> getSubscriptionDefinitions() {
-        return ImmutableList.copyOf(subscriptionDefinitions);
+    public Collection<SubscriptionOption> getSubscriptionOptions() {
+        return ImmutableList.copyOf(subscriptionOptions);
     }
 
-    public Optional<SubscriptionDefinition> getSubscriptionDefinitionById(SubscriptionDefinitionId id) {
-        return subscriptionDefinitions.stream().filter(d -> d.getId().equals(id)).findAny();
+    public Optional<SubscriptionOption> getSubscriptionOptionById(SubscriptionOptionId id) {
+        return subscriptionOptions.stream().filter(d -> d.getId().equals(id)).findAny();
     }
 
     public void updateMetadata(String name, String description) {
@@ -59,12 +59,12 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         this.description = event.getDescription();
     }
 
-    private void mutate(MembershipPeriodSubscriptionDefinitionAddedEvent event) {
-        SubscriptionDefinition def =
-                new SubscriptionDefinition(event.getSubscriptionDefinitionId(), event.getMembershipTypeId(), event.getName(),
+    private void mutate(MembershipPeriodSubscriptionOptionAddedEvent event) {
+        SubscriptionOption def =
+                new SubscriptionOption(event.getSubscriptionOptionId(), event.getMembershipTypeId(), event.getName(),
                         event.getAmount(), event.getCurrency(), event.getMaxSubscribers());
 
-        subscriptionDefinitions.add(def);
+        subscriptionOptions.add(def);
     }
 
 
@@ -74,8 +74,8 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
             mutate((MembershipPeriodCreatedEvent) event);
         } else if (event instanceof MembershipPeriodMetadataChangedEvent) {
             mutate((MembershipPeriodMetadataChangedEvent) event);
-        } else if (event instanceof MembershipPeriodSubscriptionDefinitionAddedEvent) {
-            mutate((MembershipPeriodSubscriptionDefinitionAddedEvent) event);
+        } else if (event instanceof MembershipPeriodSubscriptionOptionAddedEvent) {
+            mutate((MembershipPeriodSubscriptionOptionAddedEvent) event);
         }
     }
 
@@ -100,10 +100,10 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         return description;
     }
 
-    public void addDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name,
+    public void addSubscriptionOption(SubscriptionOptionId subscriptionOptionId, MembershipTypeId membershipTypeId, String name,
             double amount, Currency currency, int maxSubscribers) {
 
-        apply(new MembershipPeriodSubscriptionDefinitionAddedEvent(id, subscriptionDefinitionId, membershipTypeId, name, amount,
+        apply(new MembershipPeriodSubscriptionOptionAddedEvent(id, subscriptionOptionId, membershipTypeId, name, amount,
                 currency, maxSubscribers));
 
     }

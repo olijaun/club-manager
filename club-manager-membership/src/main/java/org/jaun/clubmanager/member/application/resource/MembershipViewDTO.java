@@ -10,8 +10,8 @@ public class MembershipViewDTO implements Serializable {
     private String subscriberLastName;
     private String membershipPeriodId;
     private String membershipPeriodName;
-    private String subscriptionDefinitionId;
-    private String subscriptionDefinitionName;
+    private String subscriptionOptionId;
+    private String subscriptionOptionName;
     private String membershipTypeId;
     private String membershipTypeName;
 
@@ -33,12 +33,12 @@ public class MembershipViewDTO implements Serializable {
         return this;
     }
 
-    public String getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public String getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
-    public MembershipViewDTO setSubscriptionDefinitionId(String subscriptionDefinitionId) {
-        this.subscriptionDefinitionId = subscriptionDefinitionId;
+    public MembershipViewDTO setSubscriptionOptionId(String subscriptionOptionId) {
+        this.subscriptionOptionId = subscriptionOptionId;
         return this;
     }
 
@@ -78,12 +78,12 @@ public class MembershipViewDTO implements Serializable {
         return this;
     }
 
-    public String getSubscriptionDefinitionName() {
-        return subscriptionDefinitionName;
+    public String getSubscriptionOptionName() {
+        return subscriptionOptionName;
     }
 
-    public MembershipViewDTO setSubscriptionDefinitionName(String subscriptionDefinitionName) {
-        this.subscriptionDefinitionName = subscriptionDefinitionName;
+    public MembershipViewDTO setSubscriptionOptionName(String subscriptionOptionName) {
+        this.subscriptionOptionName = subscriptionOptionName;
         return this;
     }
 

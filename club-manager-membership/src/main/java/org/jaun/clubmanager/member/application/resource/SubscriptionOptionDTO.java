@@ -2,7 +2,7 @@ package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
 
-public class SubscriptionDefinitionDTO implements Serializable {
+public class SubscriptionOptionDTO implements Serializable {
     private String id;
     private String membershipPeriodId;
     private String membershipTypeId;
@@ -23,7 +23,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return membershipPeriodId;
     }
 
-    public SubscriptionDefinitionDTO setMembershipPeriodId(String membershipPeriodId) {
+    public SubscriptionOptionDTO setMembershipPeriodId(String membershipPeriodId) {
         this.membershipPeriodId = membershipPeriodId;
         return this;
     }
@@ -32,7 +32,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return membershipTypeId;
     }
 
-    public SubscriptionDefinitionDTO setMembershipTypeId(String membershipTypeId) {
+    public SubscriptionOptionDTO setMembershipTypeId(String membershipTypeId) {
         this.membershipTypeId = membershipTypeId;
         return this;
     }
@@ -41,7 +41,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return name;
     }
 
-    public SubscriptionDefinitionDTO setName(String name) {
+    public SubscriptionOptionDTO setName(String name) {
         this.name = name;
         return this;
     }
@@ -50,7 +50,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return amount;
     }
 
-    public SubscriptionDefinitionDTO setAmount(double amount) {
+    public SubscriptionOptionDTO setAmount(double amount) {
         this.amount = amount;
         return this;
     }
@@ -59,7 +59,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return currency;
     }
 
-    public SubscriptionDefinitionDTO setCurrency(String currency) {
+    public SubscriptionOptionDTO setCurrency(String currency) {
         this.currency = currency;
         return this;
     }
@@ -68,7 +68,7 @@ public class SubscriptionDefinitionDTO implements Serializable {
         return maxSubscribers;
     }
 
-    public SubscriptionDefinitionDTO setMaxSubscribers(int maxSubscribers) {
+    public SubscriptionOptionDTO setMaxSubscribers(int maxSubscribers) {
         this.maxSubscribers = maxSubscribers;
         return this;
     }

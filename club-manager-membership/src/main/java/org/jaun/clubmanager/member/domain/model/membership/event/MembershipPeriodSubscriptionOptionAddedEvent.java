@@ -7,25 +7,25 @@ import java.util.Currency;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
+import org.jaun.clubmanager.member.domain.model.membership.SubscriptionOptionId;
 
-public class MembershipPeriodSubscriptionDefinitionAddedEvent extends DomainEvent<MembershipPeriodEventType> {
+public class MembershipPeriodSubscriptionOptionAddedEvent extends DomainEvent<MembershipPeriodEventType> {
 
     private final MembershipPeriodId membershipPeriodId;
-    private final SubscriptionDefinitionId subscriptionDefinitionId;
+    private final SubscriptionOptionId subscriptionOptionId;
     private final MembershipTypeId membershipTypeId;
     private final String name;
     private final double amount;
     private final Currency currency;
     private final int maxSubscribers;
 
-    public MembershipPeriodSubscriptionDefinitionAddedEvent(MembershipPeriodId membershipPeriodId,
-            SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name, double amount,
+    public MembershipPeriodSubscriptionOptionAddedEvent(MembershipPeriodId membershipPeriodId,
+            SubscriptionOptionId subscriptionOptionId, MembershipTypeId membershipTypeId, String name, double amount,
             Currency currency, int maxSubscribers) {
 
-        super(MembershipPeriodEventType.SUBSCRIPTION_DEFINITION_ADDED);
+        super(MembershipPeriodEventType.SUBSCRIPTION_OPTION_ADDED);
         this.membershipPeriodId = requireNonNull(membershipPeriodId);
-        this.subscriptionDefinitionId = requireNonNull(subscriptionDefinitionId);
+        this.subscriptionOptionId = requireNonNull(subscriptionOptionId);
         this.membershipTypeId = requireNonNull(membershipTypeId);
         this.name = requireNonNull(name);
         this.amount = amount;
@@ -37,8 +37,8 @@ public class MembershipPeriodSubscriptionDefinitionAddedEvent extends DomainEven
         return membershipPeriodId;
     }
 
-    public SubscriptionDefinitionId getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public SubscriptionOptionId getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
     public MembershipTypeId getMembershipTypeId() {

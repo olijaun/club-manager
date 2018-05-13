@@ -4,18 +4,18 @@ import java.util.Currency;
 
 import org.jaun.clubmanager.domain.model.commons.Entity;
 
-public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
+public class SubscriptionOption extends Entity<SubscriptionOptionId> {
 
-    private final SubscriptionDefinitionId subscriptionDefinitionId;
+    private final SubscriptionOptionId subscriptionOptionId;
     private final MembershipTypeId membershipTypeId; // e.g. Gönner, Normal, Passiv
     private final String name;
     private final double amount;
     private final Currency currency;
     private final int maxSubscribers;
 
-    public SubscriptionDefinition(SubscriptionDefinitionId subscriptionDefinitionId, MembershipTypeId membershipTypeId, String name,
+    public SubscriptionOption(SubscriptionOptionId subscriptionOptionId, MembershipTypeId membershipTypeId, String name,
             double amount, Currency currency, int maxSubscribers) {
-        this.subscriptionDefinitionId = subscriptionDefinitionId;
+        this.subscriptionOptionId = subscriptionOptionId;
         this.membershipTypeId = membershipTypeId;
         this.name = name;
         this.amount = amount;
@@ -23,8 +23,8 @@ public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
         this.maxSubscribers = maxSubscribers;
     }
 
-    public SubscriptionDefinitionId getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public SubscriptionOptionId getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
     public MembershipTypeId getMembershipTypeId() {
@@ -43,8 +43,8 @@ public class SubscriptionDefinition extends Entity<SubscriptionDefinitionId> {
         return currency;
     }
 
-    public SubscriptionDefinitionId getId() {
-        return subscriptionDefinitionId;
+    public SubscriptionOptionId getId() {
+        return subscriptionOptionId;
     }
 
     public int getMaxSubscribers() {

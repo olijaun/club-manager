@@ -27,7 +27,7 @@ import org.jaun.clubmanager.member.domain.model.membership.MembershipRepository;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionDefinitionId;
+import org.jaun.clubmanager.member.domain.model.membership.SubscriptionOptionId;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -76,8 +76,8 @@ public class MemberResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("membership-periods/{id}/definitions")
-    public Response addSubscriptionDefinition(@PathParam("id") String membershipPeriodIdString, SubscriptionDefinitionDTO defDTO) {
+    @Path("membership-periods/{id}/subscription-options")
+    public Response addSubscriptionOption(@PathParam("id") String membershipPeriodIdString, SubscriptionOptionDTO defDTO) {
 
         MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodIdString));
 
@@ -93,7 +93,7 @@ public class MemberResource {
 
         Currency currency = MembershipConverter.toCurrency(defDTO.getCurrency());
 
-        period.addDefinition(SubscriptionDefinitionId.random(SubscriptionDefinitionId::new), membershipType.getId(),
+        period.addSubscriptionOption(SubscriptionOptionId.random(SubscriptionOptionId::new), membershipType.getId(),
                 defDTO.getName(), defDTO.getAmount(), currency, defDTO.getMaxSubscribers());
 
         try {
@@ -107,13 +107,13 @@ public class MemberResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("membership-periods/{id}/definitions")
-    public Response getSubscriptionDefinitions(@PathParam("id") String membershipPeriodIdString) {
+    @Path("membership-periods/{id}/subscription-options")
+    public Response getSubscriptionOptions(@PathParam("id") String membershipPeriodIdString) {
 
-        Collection<SubscriptionDefinitionDTO> allSubscriptionDefinitionsForPeriods =
-                projection.getAllSubscriptionDefinitionsForPeriods(new MembershipPeriodId(membershipPeriodIdString));
+        Collection<SubscriptionOptionDTO> allSubscriptionOptionsForPeriods =
+                projection.getAllSubscriptionOptionsForPeriods(new MembershipPeriodId(membershipPeriodIdString));
 
-        return Response.ok(allSubscriptionDefinitionsForPeriods).build();
+        return Response.ok(allSubscriptionOptionsForPeriods).build();
     }
 
 
@@ -140,7 +140,7 @@ public class MemberResource {
 
         if (membership == null) {
             membership = new Membership(membershipId, period,
-                    new SubscriptionDefinitionId(createMembershipDTO.getSubscriptionDefinitionId()),
+                    new SubscriptionOptionId(createMembershipDTO.getSubscriptionOptionId()),
                     new MemberId(memberDTO.getMemberId()), Collections.emptyList());
         }
 

@@ -10,14 +10,14 @@ public class Subscription extends Entity<SubscriptionId> {
 
     private final SubscriptionId id;
     private final MemberId memberId;
-    private final SubscriptionDefinitionId subscriptionDefinitionId;
+    private final SubscriptionOptionId subscriptionOptionId;
     private final Collection<MemberId> additionalSubscribers;
 
     public Subscription(SubscriptionId id, MemberId memberId, Collection<MemberId> additionalSubscribers,
-            SubscriptionDefinitionId subscriptionDefinitionId) {
+            SubscriptionOptionId subscriptionOptionId) {
         this.id = id;
         this.memberId = memberId;
-        this.subscriptionDefinitionId = subscriptionDefinitionId;
+        this.subscriptionOptionId = subscriptionOptionId;
         this.additionalSubscribers = ImmutableList.copyOf(additionalSubscribers);
     }
 
@@ -29,8 +29,8 @@ public class Subscription extends Entity<SubscriptionId> {
         return additionalSubscribers;
     }
 
-    public SubscriptionDefinitionId getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public SubscriptionOptionId getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
     @Override

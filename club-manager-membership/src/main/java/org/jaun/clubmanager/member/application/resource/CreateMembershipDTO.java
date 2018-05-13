@@ -7,7 +7,7 @@ public class CreateMembershipDTO implements Serializable {
     private String membershipId;
     private String subscriberId;
     private String membershipPeriodId;
-    private String subscriptionDefinitionId;
+    private String subscriptionOptionId;
 
     public String getMembershipId() {
         return membershipId;
@@ -27,12 +27,12 @@ public class CreateMembershipDTO implements Serializable {
         return this;
     }
 
-    public String getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public String getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
-    public CreateMembershipDTO setSubscriptionDefinitionId(String subscriptionDefinitionId) {
-        this.subscriptionDefinitionId = subscriptionDefinitionId;
+    public CreateMembershipDTO setSubscriptionOptionId(String subscriptionOptionId) {
+        this.subscriptionOptionId = subscriptionOptionId;
         return this;
     }
 

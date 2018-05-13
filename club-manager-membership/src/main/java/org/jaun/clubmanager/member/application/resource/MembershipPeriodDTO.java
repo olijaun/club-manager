@@ -10,11 +10,6 @@ public class MembershipPeriodDTO implements Serializable {
     private String name;
     private String description;
 
-//    private List<SubscriptionDefinition> subscriptionDefinitions = new ArrayList();
-//
-//    private List<Subscription> subscriptions = new ArrayList<>();
-
-
     public String getId() {
         return id;
     }

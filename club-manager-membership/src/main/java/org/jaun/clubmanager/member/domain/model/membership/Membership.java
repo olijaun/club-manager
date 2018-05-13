@@ -12,24 +12,24 @@ import com.google.common.collect.ImmutableList;
 public class Membership extends EventSourcingAggregate<MembershipId> {
 
     private MembershipId id;
-    private SubscriptionDefinitionId subscriptionDefinitionId;
+    private SubscriptionOptionId subscriptionOptionId;
     private MembershipPeriodId membershipPeriodId;
     private MemberId subscriberId;
     private Collection<MemberId> additionalSubscriberIds;
 
-    public Membership(MembershipId id, MembershipPeriod period, SubscriptionDefinitionId subscriptionDefinitionId,
+    public Membership(MembershipId id, MembershipPeriod period, SubscriptionOptionId subscriptionOptionId,
             MemberId subscriberId, Collection<MemberId> additionalSubscriberIds) {
 
-        SubscriptionDefinition definition = period.getSubscriptionDefinitionById(subscriptionDefinitionId)
+        SubscriptionOption option = period.getSubscriptionOptionById(subscriptionOptionId)
                 .orElseThrow(() -> new IllegalStateException(
-                        "definition " + subscriptionDefinitionId + " does not exist in period " + period.getId()));
+                        "option " + subscriptionOptionId + " does not exist in period " + period.getId()));
 
-        if ((additionalSubscriberIds.size() + 1) > definition.getMaxSubscribers()) {
+        if ((additionalSubscriberIds.size() + 1) > option.getMaxSubscribers()) {
             throw new IllegalStateException(
-                    "a maximum of " + definition.getMaxSubscribers() + " is possible for this subscription type");
+                    "a maximum of " + option.getMaxSubscribers() + " is possible for this subscription type");
         }
 
-        apply(new MembershipCreatedEvent(id, period.getId(), definition.getSubscriptionDefinitionId(), subscriberId,
+        apply(new MembershipCreatedEvent(id, period.getId(), option.getSubscriptionOptionId(), subscriberId,
                 additionalSubscriberIds));
 
     }
@@ -38,8 +38,8 @@ public class Membership extends EventSourcingAggregate<MembershipId> {
         replayEvents(eventStream);
     }
 
-    public SubscriptionDefinitionId getSubscriptionDefinitionId() {
-        return subscriptionDefinitionId;
+    public SubscriptionOptionId getSubscriptionOptionId() {
+        return subscriptionOptionId;
     }
 
     public MemberId getSubscriberId() {
@@ -53,7 +53,7 @@ public class Membership extends EventSourcingAggregate<MembershipId> {
     protected void mutate(MembershipCreatedEvent event) {
         this.id = event.getMembershipId();
         this.membershipPeriodId = event.getMembershipPeriodId();
-        this.subscriptionDefinitionId = event.getSubscriptionDefinitionId();
+        this.subscriptionOptionId = event.getSubscriptionOptionId();
         this.subscriberId = event.getMemberId();
         this.additionalSubscriberIds = ImmutableList.copyOf(event.getAdditionalSubscriberIds());
     }
