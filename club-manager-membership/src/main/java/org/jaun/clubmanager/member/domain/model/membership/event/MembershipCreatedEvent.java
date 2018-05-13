@@ -4,15 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.membership.MemberId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
 
 import com.google.common.collect.ImmutableList;
 
-public class MembershipCreatedEvent extends DomainEvent<MembershipEventType> {
+public class MembershipCreatedEvent extends MembershipEvent {
 
     private final MembershipId membershipId;
     private final MembershipPeriodId membershipPeriodId;
@@ -24,7 +23,6 @@ public class MembershipCreatedEvent extends DomainEvent<MembershipEventType> {
             SubscriptionOptionId subscriptionOptionId, MemberId memberId,
             Collection<MemberId> additionalSubscriberIds) {
 
-        super(MembershipEventType.MEMBERSHIP_CREATED);
         this.membershipId = requireNonNull(membershipId);
         this.membershipPeriodId = requireNonNull(membershipPeriodId);
         this.subscriptionOptionId = requireNonNull(subscriptionOptionId);

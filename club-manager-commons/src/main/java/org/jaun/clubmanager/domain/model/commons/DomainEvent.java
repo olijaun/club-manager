@@ -9,25 +9,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class DomainEvent<T extends EventType> extends ValueObject implements Serializable {
+public class DomainEvent extends ValueObject implements Serializable {
     private final EventId eventId;
-    private final T eventType;
 
-    public DomainEvent(EventId eventId, T eventType) {
+    public DomainEvent(EventId eventId) {
         this.eventId = requireNonNull(eventId);
-        this.eventType = requireNonNull(eventType);
-    }
-
-    public DomainEvent(T eventType) {
-        this(EventId.generate(), eventType);
     }
 
     public EventId getEventId() {
         return eventId;
-    }
-
-    public T getEventType() {
-        return eventType;
     }
 
     @Override

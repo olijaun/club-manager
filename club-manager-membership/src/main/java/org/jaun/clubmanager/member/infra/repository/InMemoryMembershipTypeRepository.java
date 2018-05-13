@@ -4,9 +4,9 @@ import static java.util.Arrays.asList;
 
 import java.util.Collection;
 
-import org.jaun.clubmanager.member.domain.model.membership.MembershipType;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,15 +1,16 @@
-package org.jaun.clubmanager.member.domain.model.membership.event;
+package org.jaun.clubmanager.member.domain.model.membershipperiod.event;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.Currency;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
-import org.jaun.clubmanager.member.domain.model.membership.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
+import org.jaun.clubmanager.member.infra.repository.MembershipPeriodEventMapping;
 
-public class MembershipPeriodSubscriptionOptionAddedEvent extends DomainEvent<MembershipPeriodEventType> {
+public class MembershipPeriodSubscriptionOptionAddedEvent extends MembershipPeriodEvent {
 
     private final MembershipPeriodId membershipPeriodId;
     private final SubscriptionOptionId subscriptionOptionId;
@@ -23,7 +24,6 @@ public class MembershipPeriodSubscriptionOptionAddedEvent extends DomainEvent<Me
             SubscriptionOptionId subscriptionOptionId, MembershipTypeId membershipTypeId, String name, double amount,
             Currency currency, int maxSubscribers) {
 
-        super(MembershipPeriodEventType.SUBSCRIPTION_OPTION_ADDED);
         this.membershipPeriodId = requireNonNull(membershipPeriodId);
         this.subscriptionOptionId = requireNonNull(subscriptionOptionId);
         this.membershipTypeId = requireNonNull(membershipTypeId);

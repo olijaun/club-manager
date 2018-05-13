@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model.membership;
+package org.jaun.clubmanager.member.domain.model.membershipperiod;
 
 import org.jaun.clubmanager.domain.model.commons.GenericRepository;
 

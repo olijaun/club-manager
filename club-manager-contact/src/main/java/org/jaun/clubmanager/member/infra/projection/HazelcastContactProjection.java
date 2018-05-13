@@ -13,7 +13,7 @@ import org.jaun.clubmanager.member.domain.model.contact.PhoneNumber;
 import org.jaun.clubmanager.member.domain.model.contact.Sex;
 import org.jaun.clubmanager.member.domain.model.contact.event.BirthDateChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.contact.event.ContactEventType;
+import org.jaun.clubmanager.member.infra.repository.ContactEventMapping;
 import org.jaun.clubmanager.member.domain.model.contact.event.EmailAddressChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.PhoneNumberChangedEvent;
@@ -36,13 +36,13 @@ public class HazelcastContactProjection extends AbstractProjection {
     public HazelcastContactProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
         super(eventStore, "$ce-contact");
 
-        registerMapping(ContactEventType.CONTACT_CREATED, (r) -> update(toObject(r, ContactCreatedEvent.class)));
-        registerMapping(ContactEventType.NAME_CHANGED, (r) -> update(toObject(r, NameChangedEvent.class)));
-        registerMapping(ContactEventType.ADDRESS_CHANGED, (r) -> update(toObject(r, StreetAddressChangedEvent.class)));
-        registerMapping(ContactEventType.EMAIL_CHANGED, (r) -> update(toObject(r, EmailAddressChangedEvent.class)));
-        registerMapping(ContactEventType.PHONE_CHANGED, (r) -> update(toObject(r, PhoneNumberChangedEvent.class)));
-        registerMapping(ContactEventType.BIRTHDATE_CHANGED, (r) -> update(toObject(r, BirthDateChangedEvent.class)));
-        registerMapping(ContactEventType.SEX_CHANGED, (r) -> update(toObject(r, SexChangedEvent.class)));
+        registerMapping(ContactEventMapping.CONTACT_CREATED, (r) -> update(toObject(r, ContactCreatedEvent.class)));
+        registerMapping(ContactEventMapping.NAME_CHANGED, (r) -> update(toObject(r, NameChangedEvent.class)));
+        registerMapping(ContactEventMapping.ADDRESS_CHANGED, (r) -> update(toObject(r, StreetAddressChangedEvent.class)));
+        registerMapping(ContactEventMapping.EMAIL_CHANGED, (r) -> update(toObject(r, EmailAddressChangedEvent.class)));
+        registerMapping(ContactEventMapping.PHONE_CHANGED, (r) -> update(toObject(r, PhoneNumberChangedEvent.class)));
+        registerMapping(ContactEventMapping.BIRTHDATE_CHANGED, (r) -> update(toObject(r, BirthDateChangedEvent.class)));
+        registerMapping(ContactEventMapping.SEX_CHANGED, (r) -> update(toObject(r, SexChangedEvent.class)));
 
         contactMap = hazelcastInstance.getMap("contacts");
     }

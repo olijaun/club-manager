@@ -1,20 +1,19 @@
-package org.jaun.clubmanager.member.domain.model.membership.event;
+package org.jaun.clubmanager.member.domain.model.membershipperiod.event;
 
 import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 
-public class MembershipPeriodCreatedEvent extends DomainEvent<MembershipPeriodEventType> {
+public class MembershipPeriodCreatedEvent extends MembershipPeriodEvent {
 
     private final MembershipPeriodId membershipPeriodId;
     private final LocalDate start;
     private final LocalDate end;
 
     public MembershipPeriodCreatedEvent(MembershipPeriodId membershipPeriodId, LocalDate start, LocalDate end) {
-        super(MembershipPeriodEventType.MEMBERSHIP_PERIOD_CREATED);
         this.membershipPeriodId = requireNonNull(membershipPeriodId);
 
         this.start = requireNonNull(start);

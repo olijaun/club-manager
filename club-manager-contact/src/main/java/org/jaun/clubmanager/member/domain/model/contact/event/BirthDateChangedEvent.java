@@ -6,15 +6,15 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
+import org.jaun.clubmanager.domain.model.commons.EventId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 
-public class BirthDateChangedEvent extends DomainEvent<ContactEventType> {
+public class BirthDateChangedEvent extends ContactEvent {
 
     private final ContactId contactId;
     private final LocalDate birthDate;
 
     public BirthDateChangedEvent(ContactId contactId, LocalDate birthDate) {
-        super(ContactEventType.BIRTHDATE_CHANGED);
         this.contactId = requireNonNull(contactId);
         this.birthDate = birthDate;
     }

@@ -1,18 +1,16 @@
-package org.jaun.clubmanager.member.domain.model.membership.event;
+package org.jaun.clubmanager.member.domain.model.membershipperiod.event;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 
-public class MembershipPeriodMetadataChangedEvent extends DomainEvent<MembershipPeriodEventType> {
+public class MembershipPeriodMetadataChangedEvent extends MembershipPeriodEvent {
 
     private final String name;
     private final String description;
     private final MembershipPeriodId membershipPeriodId;
 
     public MembershipPeriodMetadataChangedEvent(MembershipPeriodId membershipPeriodId, String name, String description) {
-        super(MembershipPeriodEventType.METADATA_CHANGED);
         this.membershipPeriodId = membershipPeriodId;
         this.name = requireNonNull(name);
         this.description = description;

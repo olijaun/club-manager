@@ -1,8 +1,9 @@
-package org.jaun.clubmanager.member.domain.model.membership;
+package org.jaun.clubmanager.member.domain.model.membershipperiod;
 
 import java.util.Currency;
 
 import org.jaun.clubmanager.domain.model.commons.Entity;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 
 public class SubscriptionOption extends Entity<SubscriptionOptionId> {
 

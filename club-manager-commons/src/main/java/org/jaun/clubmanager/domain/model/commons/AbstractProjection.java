@@ -28,8 +28,8 @@ public abstract class AbstractProjection {
         this.streams = Arrays.asList(streams);
     }
 
-    protected void registerMapping(EventType eventType, Consumer<ResolvedEvent> event) {
-        map.put(eventType.getName(), event);
+    protected void registerMapping(EventMapping eventMapping, Consumer<ResolvedEvent> event) {
+        map.put(eventMapping.getEventType(), event);
     }
 
     protected void registerMapping(String eventType, Consumer<ResolvedEvent> event) {
@@ -44,7 +44,7 @@ public abstract class AbstractProjection {
 
         public void onEvent(CatchUpSubscription subscription, ResolvedEvent event) {
             try {
-                if(map.containsKey(event.event.eventType)) {
+                if (map.containsKey(event.event.eventType)) {
                     map.get(event.event.eventType).accept(event);
                 }
             } catch (NullPointerException e) {

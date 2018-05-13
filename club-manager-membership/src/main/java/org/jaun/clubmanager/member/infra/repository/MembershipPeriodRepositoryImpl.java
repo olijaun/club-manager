@@ -1,19 +1,16 @@
 package org.jaun.clubmanager.member.infra.repository;
 
-import java.util.stream.Stream;
-
 import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
-import org.jaun.clubmanager.domain.model.commons.EventType;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodRepository;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodEventType;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodRepository;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodEvent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MembershipPeriodRepositoryImpl extends AbstractGenericRepository<MembershipPeriod, MembershipPeriodId> implements
+public class MembershipPeriodRepositoryImpl extends
+        AbstractGenericRepository<MembershipPeriod, MembershipPeriodId, MembershipPeriodEvent> implements
         MembershipPeriodRepository {
 
 
@@ -23,16 +20,17 @@ public class MembershipPeriodRepositoryImpl extends AbstractGenericRepository<Me
     }
 
     @Override
-    protected MembershipPeriod toAggregate(EventStream<MembershipPeriod> eventStream) {
+    protected MembershipPeriod toAggregate(EventStream<MembershipPeriodEvent> eventStream) {
         return new MembershipPeriod(eventStream);
     }
 
     @Override
-    protected Class<? extends DomainEvent> getEventClass(EventType evenType) {
-        return Stream.of(MembershipPeriodEventType.values())
-                .filter(et -> et.getName().equals(evenType.getName()))
-                .map(MembershipPeriodEventType::getEventClass)
-                .findFirst()
-                .get();
+    protected Class<? extends MembershipPeriodEvent> getClassByName(String name) {
+        return MembershipPeriodEventMapping.of(name).getEventClass();
+    }
+
+    @Override
+    protected String getNameByEvent(MembershipPeriodEvent event) {
+        return MembershipPeriodEventMapping.of(event).getEventType();
     }
 }

@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model.membership;
+package org.jaun.clubmanager.member.domain.model.membershipperiod;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -7,16 +7,17 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionOptionAddedEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodMetadataChangedEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodSubscriptionOptionAddedEvent;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 
 import com.google.common.collect.ImmutableList;
 
-public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId> {
+public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId, MembershipPeriodEvent> {
 
     private MembershipPeriodId id;
     private LocalDate start;
@@ -31,7 +32,7 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
         apply(new MembershipPeriodCreatedEvent(id, start, end));
     }
 
-    public MembershipPeriod(EventStream<MembershipPeriod> eventStream) {
+    public MembershipPeriod(EventStream<MembershipPeriodEvent> eventStream) {
         replayEvents(eventStream);
     }
 
@@ -69,7 +70,7 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
 
 
     @Override
-    protected void mutate(DomainEvent event) {
+    protected void mutate(MembershipPeriodEvent event) {
         if (event instanceof MembershipPeriodCreatedEvent) {
             mutate((MembershipPeriodCreatedEvent) event);
         } else if (event instanceof MembershipPeriodMetadataChangedEvent) {
@@ -103,8 +104,8 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId>
     public void addSubscriptionOption(SubscriptionOptionId subscriptionOptionId, MembershipTypeId membershipTypeId, String name,
             double amount, Currency currency, int maxSubscribers) {
 
-        apply(new MembershipPeriodSubscriptionOptionAddedEvent(id, subscriptionOptionId, membershipTypeId, name, amount,
-                currency, maxSubscribers));
+        apply(new MembershipPeriodSubscriptionOptionAddedEvent(id, subscriptionOptionId, membershipTypeId, name, amount, currency,
+                maxSubscribers));
 
     }
 }

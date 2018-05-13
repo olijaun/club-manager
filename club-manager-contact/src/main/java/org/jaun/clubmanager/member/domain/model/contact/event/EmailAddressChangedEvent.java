@@ -8,13 +8,12 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.EmailAddress;
 
-public class EmailAddressChangedEvent extends DomainEvent<ContactEventType> {
+public class EmailAddressChangedEvent extends ContactEvent {
 
     private final ContactId contactId;
     private final EmailAddress emailAddress;
 
     public EmailAddressChangedEvent(ContactId contactId, EmailAddress emailAddress) {
-        super(ContactEventType.EMAIL_CHANGED);
         this.contactId = requireNonNull(contactId);
         this.emailAddress = emailAddress;
     }

@@ -6,18 +6,18 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.contact.event.BirthDateChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.contact.event.ContactEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.EmailAddressChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.PhoneNumberChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.SexChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.StreetAddressChangedEvent;
 
-public class Contact extends EventSourcingAggregate<ContactId> {
+public class Contact extends EventSourcingAggregate<ContactId, ContactEvent> {
 
     private ContactId id;
     private ContactType contactType;
@@ -33,7 +33,7 @@ public class Contact extends EventSourcingAggregate<ContactId> {
         apply(new NameChangedEvent(id, name));
     }
 
-    public Contact(EventStream<? extends Contact> eventStream) {
+    public Contact(EventStream<ContactEvent> eventStream) {
         replayEvents(eventStream);
     }
 
@@ -67,7 +67,7 @@ public class Contact extends EventSourcingAggregate<ContactId> {
     }
 
     @Override
-    protected void mutate(DomainEvent event) {
+    protected void mutate(ContactEvent event) {
         if (event instanceof ContactCreatedEvent) {
             mutate((ContactCreatedEvent) event);
         } else if (event instanceof NameChangedEvent) {

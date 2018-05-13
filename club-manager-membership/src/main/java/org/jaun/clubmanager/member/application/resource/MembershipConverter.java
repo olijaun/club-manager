@@ -3,8 +3,8 @@ package org.jaun.clubmanager.member.application.resource;
 import java.time.LocalDate;
 import java.util.Currency;
 
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriod;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriod;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 
 public class MembershipConverter {
 

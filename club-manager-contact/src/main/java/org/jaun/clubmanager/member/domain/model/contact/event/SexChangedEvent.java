@@ -8,13 +8,12 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.Sex;
 
-public class SexChangedEvent extends DomainEvent<ContactEventType> {
+public class SexChangedEvent extends ContactEvent {
 
     private final ContactId contactId;
     private final Sex sex;
 
     public SexChangedEvent(ContactId contactId, Sex sex) {
-        super(ContactEventType.SEX_CHANGED);
         this.contactId = requireNonNull(contactId);
         this.sex = sex;
     }

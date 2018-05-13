@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.member.domain.model.membership;
+package org.jaun.clubmanager.member.domain.model.membershiptype;
 
 import java.util.Collection;
 

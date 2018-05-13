@@ -1,20 +1,16 @@
 package org.jaun.clubmanager.member.infra.repository;
 
-import java.util.stream.Stream;
-
 import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
-import org.jaun.clubmanager.domain.model.commons.EventType;
 import org.jaun.clubmanager.member.domain.model.membership.Membership;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipRepository;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEventType;
+import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEvent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MembershipRepositoryImpl extends AbstractGenericRepository<Membership, MembershipId> implements MembershipRepository {
-
+public class MembershipRepositoryImpl extends AbstractGenericRepository<Membership, MembershipId, MembershipEvent> implements
+        MembershipRepository {
 
     @Override
     protected String getAggregateName() {
@@ -22,16 +18,17 @@ public class MembershipRepositoryImpl extends AbstractGenericRepository<Membersh
     }
 
     @Override
-    protected Membership toAggregate(EventStream<Membership> eventStream) {
+    protected Membership toAggregate(EventStream<MembershipEvent> eventStream) {
         return new Membership(eventStream);
     }
 
     @Override
-    protected Class<? extends DomainEvent> getEventClass(EventType evenType) {
-        return Stream.of(MembershipEventType.values())
-                .filter(et -> et.getName().equals(evenType.getName()))
-                .map(MembershipEventType::getEventClass)
-                .findFirst()
-                .get();
+    protected Class<? extends MembershipEvent> getClassByName(String name) {
+        return MembershipEventMapping.of(name).getEventClass();
+    }
+
+    @Override
+    protected String getNameByEvent(MembershipEvent event) {
+        return MembershipEventMapping.of(event).getEventType();
     }
 }

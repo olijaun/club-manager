@@ -11,15 +11,15 @@ import org.jaun.clubmanager.member.application.resource.MembershipViewDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionOptionDTO;
 import org.jaun.clubmanager.member.domain.model.membership.MemberId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEventType;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodEventType;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodMetadataChangedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipPeriodSubscriptionOptionAddedEvent;
+import org.jaun.clubmanager.member.infra.repository.MembershipEventMapping;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodCreatedEvent;
+import org.jaun.clubmanager.member.infra.repository.MembershipPeriodEventMapping;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodMetadataChangedEvent;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodSubscriptionOptionAddedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.contact.ContactCreatedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.contact.NameChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +45,15 @@ public class HazelcastMembershipProjection extends AbstractProjection {
     public HazelcastMembershipProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
         super(eventStore, "MembershipProjectionStream");
 
-        registerMapping(MembershipPeriodEventType.SUBSCRIPTION_OPTION_ADDED,
+        registerMapping(MembershipPeriodEventMapping.SUBSCRIPTION_OPTION_ADDED,
                 (r) -> update(toObject(r, MembershipPeriodSubscriptionOptionAddedEvent.class)));
 
-        registerMapping(MembershipPeriodEventType.MEMBERSHIP_PERIOD_CREATED,
+        registerMapping(MembershipPeriodEventMapping.MEMBERSHIP_PERIOD_CREATED,
                 (r) -> update(toObject(r, MembershipPeriodCreatedEvent.class)));
-        registerMapping(MembershipPeriodEventType.METADATA_CHANGED,
+        registerMapping(MembershipPeriodEventMapping.METADATA_CHANGED,
                 (r) -> update(toObject(r, MembershipPeriodMetadataChangedEvent.class)));
 
-        registerMapping(MembershipEventType.MEMBERSHIP_CREATED, (r) -> update(toObject(r, MembershipCreatedEvent.class)));
+        registerMapping(MembershipEventMapping.MEMBERSHIP_CREATED, (r) -> update(toObject(r, MembershipCreatedEvent.class)));
 
         registerMapping("ContactCreated", (r) -> update(toObject(r, ContactCreatedEvent.class)));
         registerMapping("NameChanged", (r) -> update(toObject(r, NameChangedEvent.class)));

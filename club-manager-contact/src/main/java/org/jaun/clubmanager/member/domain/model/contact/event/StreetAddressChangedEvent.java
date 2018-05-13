@@ -6,13 +6,12 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.StreetAddress;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 
-public class StreetAddressChangedEvent extends DomainEvent<ContactEventType> {
+public class StreetAddressChangedEvent extends ContactEvent {
 
     private final ContactId contactId;
     private final StreetAddress streetAddress;
 
     public StreetAddressChangedEvent(ContactId contactId, StreetAddress streetAddress) {
-        super(ContactEventType.ADDRESS_CHANGED);
         this.contactId = contactId;
         this.streetAddress = streetAddress;
     }

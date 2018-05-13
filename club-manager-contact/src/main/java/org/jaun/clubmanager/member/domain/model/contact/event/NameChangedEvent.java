@@ -6,13 +6,12 @@ import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.Name;
 
-public class NameChangedEvent extends DomainEvent<ContactEventType> {
+public class NameChangedEvent extends ContactEvent {
 
     private final ContactId contactId;
     private final Name name;
 
     public NameChangedEvent(ContactId contactId, Name name) {
-        super(ContactEventType.NAME_CHANGED);
         this.contactId = requireNonNull(contactId);
         this.name = requireNonNull(name);
     }

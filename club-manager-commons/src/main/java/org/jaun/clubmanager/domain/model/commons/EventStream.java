@@ -3,16 +3,16 @@ package org.jaun.clubmanager.domain.model.commons;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class EventStream<T extends Aggregate<?>> {
-    private final List<DomainEvent> eventList;
+public class EventStream<E extends DomainEvent> {
+    private final List<E> eventList;
     private final StreamId streamId;
 
-    public EventStream(StreamId streamId, List<DomainEvent> eventList) {
+    public EventStream(StreamId streamId, List<E> eventList) {
         this.eventList = eventList;
         this.streamId = streamId;
     }
 
-    public List<DomainEvent> getEventList() {
+    public List<E> getEventList() {
         return eventList;
     }
 
@@ -28,7 +28,7 @@ public class EventStream<T extends Aggregate<?>> {
         return eventList.isEmpty();
     }
 
-    public Stream<DomainEvent> stream() {
+    public Stream<E> stream() {
         return eventList.stream();
     }
 

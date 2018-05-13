@@ -5,17 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class EventSourcingAggregate<T extends Id> extends Aggregate<T> {
+public abstract class EventSourcingAggregate<T extends Id, E extends DomainEvent> extends Aggregate<T> {
 
     private Integer version;
-    private List<DomainEvent> changes = new ArrayList<>();
+    private List<E> changes = new ArrayList<>();
     private EventStream eventStream;
 
     protected EventSourcingAggregate() {
 
     }
 
-    protected void replayEvents(EventStream<?> eventStream) {
+    protected void replayEvents(EventStream<E> eventStream) {
 
         this.eventStream = eventStream;
         eventStream.stream().forEachOrdered(domainEvent -> {
@@ -30,7 +30,7 @@ public abstract class EventSourcingAggregate<T extends Id> extends Aggregate<T> 
     }
 
 
-    protected abstract void mutate(DomainEvent event);
+    protected abstract void mutate(E event);
 
 
     public abstract T getId();
@@ -50,7 +50,7 @@ public abstract class EventSourcingAggregate<T extends Id> extends Aggregate<T> 
     }
 
 
-    public List<DomainEvent> getChanges() {
+    public List<E> getChanges() {
         return new ArrayList<>(changes);
     }
 
@@ -64,7 +64,7 @@ public abstract class EventSourcingAggregate<T extends Id> extends Aggregate<T> 
         changes.clear();
     }
 
-    protected void apply(DomainEvent event) {
+    protected void apply(E event) {
         changes.add(event);
         mutate(event);
         incrementVersion();
