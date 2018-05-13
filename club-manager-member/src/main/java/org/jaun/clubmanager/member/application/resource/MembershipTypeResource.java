@@ -35,7 +35,7 @@ public class MembershipTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("membership-types")
+    @Path("/")
     public Response getMembershipTypes() {
         Collection<MembershipType> membershipTypes = membershipTypeRepository.getAll();
 

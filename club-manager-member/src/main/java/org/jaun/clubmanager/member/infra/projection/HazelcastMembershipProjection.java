@@ -4,6 +4,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.ws.rs.NotFoundException;
+
 import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipPeriodDTO;
@@ -13,6 +15,7 @@ import org.jaun.clubmanager.member.domain.model.membership.MemberId;
 import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
 import org.jaun.clubmanager.member.domain.model.membership.event.MembershipCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodMetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodSubscriptionOptionAddedEvent;
@@ -83,9 +86,9 @@ public class HazelcastMembershipProjection extends AbstractProjection {
 
         MembershipPeriodDTO periodDTO = new MembershipPeriodDTO();
 
+        periodDTO.setId(membershipPeriodCreatedEvent.getMembershipPeriodId().getValue());
         periodDTO.setStartDate(membershipPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
         periodDTO.setEndDate(membershipPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
-
         membershipPeriodMap.put(membershipPeriodCreatedEvent.getMembershipPeriodId().getValue(), periodDTO);
     }
 
@@ -185,6 +188,24 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
 
         return subscriptionOptionMap.values(criteriaQuery);
+
+    }
+
+    public SubscriptionOptionDTO get(MembershipPeriodId membershipPeriodId, SubscriptionOptionId subscriptionOptionId) {
+
+        ArrayList<Predicate> andPredicates = new ArrayList<>();
+
+        andPredicates.add(Predicates.equal("membershipPeriodId", membershipPeriodId.getValue()));
+
+        andPredicates.add(Predicates.equal("id", subscriptionOptionId.getValue()));
+
+        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
+
+        if(subscriptionOptionMap.values(criteriaQuery).isEmpty()) {
+            return null;
+        }
+
+        return subscriptionOptionMap.values(criteriaQuery).iterator().next();
 
     }
 

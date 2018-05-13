@@ -7,7 +7,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -73,36 +72,31 @@ public class MembershipPeriodResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("")
+    @Path("/")
     public Response getMembershipPeriods() {
 
         Collection<MembershipPeriodDTO> allMembershipPeriods = projection.getAllMembershipPeriods();
 
-        return Response.ok(allMembershipPeriods).build(); //.entity(membershipPeriodRepository.getAll()).build();
+        MembershipPeriodsDTO periodsDTO = new MembershipPeriodsDTO();
+        periodsDTO.setMembershipPeriods(allMembershipPeriods);
+
+        return Response.ok(periodsDTO).build(); //.entity(membershipPeriodRepository.getAll()).build();
     }
 
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{id}/subscription-options")
-    public Response addSubscriptionOption(@PathParam("id") String membershipPeriodIdString, SubscriptionOptionDTO defDTO) {
+    @Path("/{period-id}/subscription-options/{id}")
+    public Response addSubscriptionOption(@PathParam("period-id") String membershipPeriodIdString,
+            @PathParam("id") String subscriptionOptionIdAsString, CreateSubscriptionOptionDTO subscriptionOption) {
 
-        MembershipPeriod period = membershipPeriodRepository.get(new MembershipPeriodId(membershipPeriodIdString));
+        MembershipType membershipType = getMembershipType(new MembershipTypeId(subscriptionOption.getMembershipTypeId()));
+        Currency currency = MembershipConverter.toCurrency(subscriptionOption.getCurrency());
 
-        if (period == null) {
-            throw new NotFoundException(membershipPeriodIdString);
-        }
+        MembershipPeriod period = getForUpdate(new MembershipPeriodId(membershipPeriodIdString));
 
-        MembershipType membershipType = membershipTypeRepository.get(new MembershipTypeId(defDTO.getMembershipTypeId()));
-
-        if (membershipType == null) {
-            throw new BadRequestException("membership type does not exist: " + defDTO.getMembershipTypeId());
-        }
-
-        Currency currency = MembershipConverter.toCurrency(defDTO.getCurrency());
-
-        period.addSubscriptionOption(SubscriptionOptionId.random(SubscriptionOptionId::new), membershipType.getId(),
-                defDTO.getName(), defDTO.getAmount(), currency, defDTO.getMaxSubscribers());
+        period.addSubscriptionOption(new SubscriptionOptionId(subscriptionOptionIdAsString), membershipType.getId(),
+                subscriptionOption.getName(), subscriptionOption.getAmount(), currency, subscriptionOption.getMaxSubscribers());
 
         try {
             membershipPeriodRepository.save(period);
@@ -113,14 +107,53 @@ public class MembershipPeriodResource {
         return Response.ok(period.getId().getValue()).build();
     }
 
+    private MembershipPeriod getForUpdate(MembershipPeriodId membershipPeriodId) {
+        MembershipPeriod period = membershipPeriodRepository.get(membershipPeriodId);
+
+        if (period == null) {
+            throw new NotFoundException(membershipPeriodId.getValue());
+        }
+        return period;
+    }
+
+    private MembershipType getMembershipType(MembershipTypeId membershipTypeId) {
+        MembershipType membershipType = membershipTypeRepository.get(membershipTypeId);
+
+        if (membershipType == null) {
+            throw new BadRequestException("membership type does not exist: " + membershipTypeId);
+        }
+        return membershipType;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/subscription-options")
-    public Response getSubscriptionOptions(@PathParam("id") String membershipPeriodIdString) {
+    @Path("/{period-id}/subscription-options")
+    public Response getSubscriptionOptions(@PathParam("period-id") String membershipPeriodIdString) {
 
         Collection<SubscriptionOptionDTO> allSubscriptionOptionsForPeriods =
                 projection.getAllSubscriptionOptionsForPeriods(new MembershipPeriodId(membershipPeriodIdString));
 
-        return Response.ok(allSubscriptionOptionsForPeriods).build();
+        SubscriptionOptionsDTO optionsDTO = new SubscriptionOptionsDTO();
+        optionsDTO.setSubscriptionOptions(allSubscriptionOptionsForPeriods);
+
+        return Response.ok(optionsDTO).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{period-id}/subscription-options/{id}")
+    public Response getSubscriptionOption(@PathParam("period-id") String membershipPeriodIdString,
+            @PathParam("id") String subscriptionOptionIdAsString) {
+
+        SubscriptionOptionDTO subscriptionOptionDTO = projection.get(new MembershipPeriodId(membershipPeriodIdString),
+                new SubscriptionOptionId(subscriptionOptionIdAsString));
+
+        if (subscriptionOptionDTO == null) {
+            throw new NotFoundException(
+                    "could not find subscription for period " + membershipPeriodIdString + " and subscriptionOption "
+                    + subscriptionOptionIdAsString);
+        }
+
+        return Response.ok(subscriptionOptionDTO).build();
     }
 }
