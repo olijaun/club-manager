@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
 import org.jaun.clubmanager.member.application.resource.ContactConverter;
 import org.jaun.clubmanager.member.application.resource.ContactDTO;
+import org.jaun.clubmanager.member.application.resource.NameDTO;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.EmailAddress;
 import org.jaun.clubmanager.member.domain.model.contact.PhoneNumber;
@@ -57,8 +58,11 @@ public class HazelcastContactProjection extends AbstractProjection {
     protected void update(NameChangedEvent nameChangedEvent) {
 
         ContactDTO contactDTO = contactMap.get(nameChangedEvent.getContactId().getValue());
-        contactDTO.setFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
-        contactDTO.setLastNameOrCompanyName(nameChangedEvent.getName().getLastNameOrCompanyName());
+
+        NameDTO nameDTO = new NameDTO();
+        nameDTO.setLastNameOrCompanyName(nameChangedEvent.getName().getLastNameOrCompanyName());
+        nameDTO.setFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
+        contactDTO.setName(nameDTO);
 
         contactMap.put(nameChangedEvent.getContactId().getValue(), contactDTO);
     }
@@ -116,7 +120,7 @@ public class HazelcastContactProjection extends AbstractProjection {
             andPredicates.add(Predicates.ilike("firstName", "%" + firstName + "%"));
         }
         if (lastName != null) {
-            andPredicates.add(Predicates.ilike("lastName", "%" + lastName + "%"));
+            andPredicates.add(Predicates.ilike("lastNameOrCompanyName", "%" + lastName + "%"));
         }
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));

@@ -20,6 +20,7 @@ import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
 import org.jaun.clubmanager.member.domain.model.contact.EmailAddress;
+import org.jaun.clubmanager.member.domain.model.contact.Name;
 import org.jaun.clubmanager.member.domain.model.contact.PhoneNumber;
 import org.jaun.clubmanager.member.domain.model.contact.Sex;
 import org.jaun.clubmanager.member.domain.model.contact.StreetAddress;
@@ -40,9 +41,10 @@ public class ContactResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("contacts")
-    public Response searchContacts(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName) {
+    public Response searchContacts(@QueryParam("firstName") String firstName,
+            @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName) {
 
-        Collection<ContactDTO> contactDTOS = projection.find(firstName, lastName);
+        Collection<ContactDTO> contactDTOS = projection.find(firstName, lastNameOrCompanyName);
 
         return Response.ok(contactDTOS).build();
     }
@@ -73,6 +75,19 @@ public class ContactResource {
         StreetAddress streetAddress = ContactConverter.toStreetAddress(streetAddressDTO);
         Contact contact = getForUpdate(new ContactId(contactId));
         contact.changeStreetAddress(streetAddress);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/name")
+    public Response changeName(@PathParam("id") String contactId, NameDTO nameDTO) {
+
+        Name name = ContactConverter.toName(nameDTO);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changeName(name);
         save(contact);
         return Response.ok().build();
     }
@@ -120,7 +135,8 @@ public class ContactResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("contacts/{id}/commands/change-email-address")
-    public Response changeEmailAddress(@PathParam("id") String contactId, @QueryParam("email-address") String emailAddressAsString) {
+    public Response changeEmailAddress(@PathParam("id") String contactId,
+            @QueryParam("email-address") String emailAddressAsString) {
 
         EmailAddress emailAddress = ContactConverter.toEmailAddress(emailAddressAsString);
         Contact contact = getForUpdate(new ContactId(contactId));

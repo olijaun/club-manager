@@ -23,13 +23,19 @@ public class ContactConverter {
         }
         ContactDTO out = new ContactDTO();
         out.setContactId(in.getId().getValue());
-        out.setFirstName(in.getName().getFirstName().orElse(null));
-        out.setLastNameOrCompanyName(in.getName().getLastNameOrCompanyName());
+        out.setName(toNameDTO(in.getName()));
         out.setStreetAddress(toAddressDTO(in.getStreetAddress()));
         out.setBirthDate(in.getBirthDate().orElse(null));
         out.setSex(in.getSex().map(ContactConverter::toSexAsString).orElse(null));
         out.setEmailAddress(in.getEmailAddress().map(EmailAddress::getValue).orElse(null));
         return out;
+    }
+
+    public static NameDTO toNameDTO(Name name) {
+        NameDTO nameDTO = new NameDTO();
+        nameDTO.setFirstName(name.getFirstName().orElse(null));
+        nameDTO.setLastNameOrCompanyName(name.getLastNameOrCompanyName());
+        return nameDTO;
     }
 
     public static String toSexAsString(Sex sex) {
@@ -102,6 +108,10 @@ public class ContactConverter {
     }
 
     public static Name toName(CreateContactDTO in) {
+        return toName(in.getName());
+    }
+
+    public static Name toName(NameDTO in) {
         return new Name(in.getLastNameOrCompanyName(), in.getFirstName());
     }
 

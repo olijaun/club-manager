@@ -5,8 +5,7 @@ import java.time.LocalDate;
 
 public class CreateContactDTO implements Serializable {
 
-    private String lastNameOrCompanyName;
-    private String firstName;
+    private NameDTO name;
     private StreetAddressDTO streetAddressDTO;
     private String phoneNumber;
     private String emailAddress;
@@ -22,20 +21,12 @@ public class CreateContactDTO implements Serializable {
         this.contactType = contactType;
     }
 
-    public String getLastNameOrCompanyName() {
-        return lastNameOrCompanyName;
+    public NameDTO getName() {
+        return name;
     }
 
-    public void setLastNameOrCompanyName(String lastNameOrCompanyName) {
-        this.lastNameOrCompanyName = lastNameOrCompanyName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(NameDTO name) {
+        this.name = name;
     }
 
     public String getSex() {
