@@ -6,9 +6,11 @@ import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodMetadataChangedEvent;
@@ -106,6 +108,22 @@ public class MembershipPeriod extends EventSourcingAggregate<MembershipPeriodId,
 
         apply(new MembershipPeriodSubscriptionOptionAddedEvent(id, subscriptionOptionId, membershipTypeId, name, amount, currency,
                 maxSubscribers));
+
+    }
+
+    public SubscriptionRequest createSubscriptionRequest(SubscriptionOptionId subscriptionOptionId,
+            Collection<Member> additionalSubscribers) {
+
+        SubscriptionOption option = getSubscriptionOptionById(subscriptionOptionId).orElseThrow(
+                () -> new IllegalStateException("option " + subscriptionOptionId + " does not exist in period " + id));
+
+        if ((additionalSubscribers.size() + 1) > option.getMaxSubscribers()) {
+            throw new IllegalStateException(
+                    "a maximum of " + option.getMaxSubscribers() + " is possible for this subscription type");
+        }
+
+        return new SubscriptionRequest(id, subscriptionOptionId,
+                additionalSubscribers.stream().map(Member::getId).collect(Collectors.toSet()));
 
     }
 }

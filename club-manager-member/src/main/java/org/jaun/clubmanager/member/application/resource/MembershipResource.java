@@ -16,25 +16,29 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.membership.MemberId;
-import org.jaun.clubmanager.member.domain.model.membership.Membership;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipId;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipRepository;
+import org.jaun.clubmanager.member.domain.model.contact.Contact;
+import org.jaun.clubmanager.member.domain.model.contact.ContactService;
+import org.jaun.clubmanager.member.domain.model.member.Member;
+import org.jaun.clubmanager.member.domain.model.member.MemberId;
+import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
+import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriod;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionRequest;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
+import org.jaun.clubmanager.member.infra.projection.event.contact.ContactId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Path("/memberships")
-public class MembershipsResource {
+public class MembershipResource {
 
     @Autowired
-    private MembershipRepository membershipRepository;
+    private MemberRepository memberRepository;
 
     @Autowired
     private MembershipTypeRepository membershipTypeRepository;
@@ -45,40 +49,58 @@ public class MembershipsResource {
     @Autowired
     private HazelcastMembershipProjection projection;
 
+    @Autowired
+    private ContactService contactService;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("")
     public Response addSubscription(CreateMembershipDTO createMembershipDTO) {
 
-        MembershipPeriod period =
-                membershipPeriodRepository.get(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
+        MembershipPeriod period = getMembershipPeriod(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
+        MemberId memberId = new MemberId(createMembershipDTO.getSubscriberId());
+        Member member = getOrCreateMember(memberId);
 
-        if (period == null) {
-            throw new NotFoundException(createMembershipDTO.getMembershipPeriodId());
-        }
+        SubscriptionOptionId subscriptionOptionId = new SubscriptionOptionId(createMembershipDTO.getSubscriptionOptionId());
+        SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionOptionId,
+                Collections.emptyList());// TODO: support additional subscribers
 
-        MemberDTO memberDTO = projection.getById(new MemberId(createMembershipDTO.getSubscriberId()));
-        if (memberDTO == null) {
-            throw new BadRequestException("member does not exist: " + createMembershipDTO.getSubscriberId());
-        }
-
-        MembershipId membershipId = new MembershipId(createMembershipDTO.getMembershipId());
-        Membership membership = membershipRepository.get(membershipId);
-
-        if (membership == null) {
-            membership =
-                    new Membership(membershipId, period, new SubscriptionOptionId(createMembershipDTO.getSubscriptionOptionId()),
-                            new MemberId(memberDTO.getMemberId()), Collections.emptyList());
-        }
+        SubscriptionId subscriptionId = member.subscribe(subscriptionRequest);
 
         try {
-            membershipRepository.save(membership);
+            memberRepository.save(member);
         } catch (ConcurrencyException e) {
             throw new IllegalStateException(e);
         }
 
-        return Response.ok(membership.getId().getValue()).build();
+        return Response.ok(subscriptionId.getValue()).build();
+    }
+
+    private Member getOrCreateMember(MemberId memberId) {
+
+        Member member = memberRepository.get(memberId);
+        if (member == null) {
+            ContactId contactId = new ContactId(memberId.getValue());
+            Contact contact = contactService.getContact(contactId);
+
+            if (contact == null) {
+                throw new BadRequestException("contact does not exist: " + contactId);
+            }
+
+            member = new Member(memberId, contact.getFirstName().orElse(null), contact.getLastNameOrCompanyName());
+        }
+
+        return member;
+    }
+
+    private MembershipPeriod getMembershipPeriod(MembershipPeriodId membershipPeriodId) {
+        MembershipPeriod period = membershipPeriodRepository.get(membershipPeriodId);
+
+        if (period == null) {
+            throw new NotFoundException("could not find membership period " + membershipPeriodId.getValue());
+        }
+        return period;
     }
 
     @GET
@@ -100,7 +122,7 @@ public class MembershipsResource {
     @Path("{id}")
     public Response getMembership(@PathParam("id") String membershipId) {
 
-        MembershipViewDTO view = projection.getById(new MembershipId(membershipId));
+        MembershipViewDTO view = projection.getById(new SubscriptionId(membershipId));
 
         return Response.ok(view).build(); //.entity(membershipPeriodRepository.getAll()).build();
     }

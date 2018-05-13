@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.LocalDate;
 
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEvent;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 
 public class MembershipPeriodCreatedEvent extends MembershipPeriodEvent {

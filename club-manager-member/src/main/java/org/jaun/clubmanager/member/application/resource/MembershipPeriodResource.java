@@ -15,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.membership.MembershipRepository;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriod;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodRepository;
@@ -30,9 +29,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Path("/membership-periods")
 public class MembershipPeriodResource {
-
-    @Autowired
-    private MembershipRepository membershipRepository;
 
     @Autowired
     private MembershipTypeRepository membershipTypeRepository;

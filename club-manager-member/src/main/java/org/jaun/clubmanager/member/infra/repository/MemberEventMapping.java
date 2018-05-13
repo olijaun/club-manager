@@ -5,23 +5,25 @@ import static java.util.Objects.requireNonNull;
 import java.util.stream.Stream;
 
 import org.jaun.clubmanager.domain.model.commons.EventMapping;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membership.event.MembershipEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
 
-public enum MembershipEventMapping implements EventMapping {
+public enum MemberEventMapping implements EventMapping {
 
-    MEMBERSHIP_CREATED("MembershipCreated", MembershipCreatedEvent.class);
+    MEMBER_CREATED("MemberCreated", MemberCreatedEvent.class), //
+    SUBSCRIPTION_CREATED("SubscriptionCreated", SubscriptionCreatedEvent.class);
 
     private final String name;
-    private final Class<? extends MembershipEvent> eventClass;
+    private final Class<? extends MemberEvent> eventClass;
 
-    MembershipEventMapping(String name, Class<? extends MembershipEvent> eventClass) {
+    MemberEventMapping(String name, Class<? extends MemberEvent> eventClass) {
         this.name = requireNonNull(name);
         this.eventClass = requireNonNull(eventClass);
     }
 
     @Override
-    public Class<? extends MembershipEvent> getEventClass() {
+    public Class<? extends MemberEvent> getEventClass() {
         return eventClass;
     }
 
@@ -30,15 +32,15 @@ public enum MembershipEventMapping implements EventMapping {
         return name;
     }
 
-    public static MembershipEventMapping of(String name) {
-        return Stream.of(MembershipEventMapping.values())
+    public static MemberEventMapping of(String name) {
+        return Stream.of(MemberEventMapping.values())
                 .filter(m -> m.getEventType().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("mapping not found for name " + name));
     }
 
-    public static MembershipEventMapping of(MembershipEvent event) {
-        return Stream.of(MembershipEventMapping.values())
+    public static MemberEventMapping of(MemberEvent event) {
+        return Stream.of(MemberEventMapping.values())
                 .filter(m -> m.getEventClass().equals(event.getClass()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("mapping not found for event " + event));
