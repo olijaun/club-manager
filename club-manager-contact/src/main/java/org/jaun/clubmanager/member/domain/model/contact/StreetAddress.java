@@ -59,7 +59,7 @@ public class StreetAddress extends ValueObject {
         private Country country;
 
         public StreetAddress build() {
-            return new StreetAddress(street, zip, streetNumber, state, city, country);
+            return new StreetAddress(street, streetNumber, zip, state, city, country);
         }
 
         public Builder street(String street) {

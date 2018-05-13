@@ -1,8 +1,10 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.io.Serializable;
+
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
-public class StreetAddressDTO extends ValueObject {
+public class StreetAddressDTO implements Serializable {
 
     private String street;
     private String streetNumber;

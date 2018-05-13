@@ -1,11 +1,13 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -17,6 +19,10 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.jaun.clubmanager.member.domain.model.contact.ContactRepository;
+import org.jaun.clubmanager.member.domain.model.contact.EmailAddress;
+import org.jaun.clubmanager.member.domain.model.contact.PhoneNumber;
+import org.jaun.clubmanager.member.domain.model.contact.Sex;
+import org.jaun.clubmanager.member.domain.model.contact.StreetAddress;
 import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,13 +47,13 @@ public class ContactResource {
         return Response.ok(contactDTOS).build();
     }
 
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("contacts")
-    public Response createContact(ContactDTO contactDTO) {
+    @Path("contacts/{id}")
+    public Response createContact(@PathParam("id") String contactId, CreateContactDTO contactDTO) {
 
-        Contact contact = ContactConverter.toContact(contactDTO);
+        Contact contact = ContactConverter.toContact(new ContactId(contactId), contactDTO);
 
         try {
             contactRepository.save(contact);
@@ -58,17 +64,99 @@ public class ContactResource {
         return Response.ok(contact.getId().getValue()).build();
     }
 
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/street-address")
+    public Response changeStreetAddress(@PathParam("id") String contactId, StreetAddressDTO streetAddressDTO) {
+
+        StreetAddress streetAddress = ContactConverter.toStreetAddress(streetAddressDTO);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changeStreetAddress(streetAddress);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/commands/change-sex")
+    public Response changeSex(@PathParam("id") String contactId, @QueryParam("sex") String sexAsString) {
+
+        Sex sex = ContactConverter.toSex(sexAsString);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changeSex(sex);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/commands/change-birth-date")
+    public Response changeBirthDate(@PathParam("id") String contactId, @QueryParam("birth-date") String birthDateAsString) {
+
+        LocalDate birthDate = ContactConverter.toLocalDate(birthDateAsString);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changeBirthdate(birthDate);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/commands/change-phone-number")
+    public Response changePhoneNumber(@PathParam("id") String contactId, @QueryParam("phone-number") String phoneNumberAsString) {
+
+        PhoneNumber phoneNumber = ContactConverter.toPhoneNumber(phoneNumberAsString);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changePhoneNumber(phoneNumber);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("contacts/{id}/commands/change-email-address")
+    public Response changeEmailAddress(@PathParam("id") String contactId, @QueryParam("email-address") String emailAddressAsString) {
+
+        EmailAddress emailAddress = ContactConverter.toEmailAddress(emailAddressAsString);
+        Contact contact = getForUpdate(new ContactId(contactId));
+        contact.changeEmailAddress(emailAddress);
+        save(contact);
+        return Response.ok().build();
+    }
+
+    private Contact getForUpdate(ContactId contactId) {
+        Contact contact = contactRepository.get(contactId);
+
+        if (contact == null) {
+            throw new NotFoundException("could not find contact " + contactId);
+        }
+
+        return contact;
+    }
+
+    private void save(Contact contact) {
+        try {
+            contactRepository.save(contact);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("contacts/{contacts-id}")
-    public Response getContact(@PathParam("contacts-id") String memberId) {
+    @Path("contacts/{id}")
+    public Response getContact(@PathParam("id") String contactId) {
 
-        Contact contact = contactRepository.get(new ContactId(memberId));
-        if (contact == null) {
+        ContactDTO contactDTO = projection.get(new ContactId(contactId));
+        if (contactDTO == null) {
             throw new NotFoundException();
         }
 
-        ContactDTO contactDTO = ContactConverter.toContactDTO(contact);
         return Response.ok().entity(contactDTO).build();
     }
 }

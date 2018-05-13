@@ -7,7 +7,9 @@ import java.util.regex.Pattern;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-public class EmailAddress {
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
+
+public class EmailAddress extends ValueObject {
 
     private static Pattern TLD_PATTERN = Pattern.compile("[^@]+@[^@]+\\.[^@]+");
     private String value;

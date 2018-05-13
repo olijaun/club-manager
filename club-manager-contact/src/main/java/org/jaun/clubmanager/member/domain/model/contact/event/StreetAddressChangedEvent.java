@@ -1,5 +1,7 @@
 package org.jaun.clubmanager.member.domain.model.contact.event;
 
+import java.util.Optional;
+
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.StreetAddress;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
@@ -19,7 +21,7 @@ public class StreetAddressChangedEvent extends DomainEvent<ContactEventType> {
         return contactId;
     }
 
-    public StreetAddress getStreetAddress() {
-        return streetAddress;
+    public Optional<StreetAddress> getStreetAddress() {
+        return Optional.ofNullable(streetAddress);
     }
 }

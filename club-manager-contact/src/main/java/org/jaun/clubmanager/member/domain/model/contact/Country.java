@@ -1,16 +1,26 @@
 package org.jaun.clubmanager.member.domain.model.contact;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
 
-public class Country {
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
-    private final Locale locale;
+public class Country extends ValueObject {
 
-    public Country(String isoCountryCode) {
-        locale = new Locale("", isoCountryCode);
+    private final String iso2LetterCountryCode;
+
+    public Country(String iso2LetterCountryCode) {
+        Locale locale = new Locale("", iso2LetterCountryCode);
+        try {
+            locale.getISO3Country(); // Locale only seams to validate the code as soon as we call this method
+        } catch (MissingResourceException e) {
+            // missing resource... are you serious?
+            throw new IllegalArgumentException("unknown country: " + iso2LetterCountryCode);
+        }
+        this.iso2LetterCountryCode = locale.getCountry();
     }
 
     public String getIsoCountryCode() {
-        return locale.getISO3Country();
+        return iso2LetterCountryCode;
     }
 }

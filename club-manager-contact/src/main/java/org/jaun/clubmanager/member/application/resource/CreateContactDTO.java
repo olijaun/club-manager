@@ -54,11 +54,11 @@ public class CreateContactDTO implements Serializable {
         this.birthDate = birthDate;
     }
 
-    public StreetAddressDTO getStreetAddressDTO() {
+    public StreetAddressDTO getStreetAddress() {
         return streetAddressDTO;
     }
 
-    public void setStreetAddressDTO(StreetAddressDTO streetAddressDTO) {
+    public void setStreetAddress(StreetAddressDTO streetAddressDTO) {
         this.streetAddressDTO = streetAddressDTO;
     }
 

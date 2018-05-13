@@ -1,5 +1,6 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.stream.Collectors;
@@ -24,14 +25,36 @@ public class ContactConverter {
         out.setContactId(in.getId().getValue());
         out.setFirstName(in.getName().getFirstName().orElse(null));
         out.setLastNameOrCompanyName(in.getName().getLastNameOrCompanyName());
-        out.setStreetAddressDTO(toAddressDTO(in.getStreetAddress()));
+        out.setStreetAddress(toAddressDTO(in.getStreetAddress()));
         out.setBirthDate(in.getBirthDate().orElse(null));
-        out.setSex(in.getSex().map(Sex::name).orElse(null)); // TODO: should be mapped
+        out.setSex(in.getSex().map(ContactConverter::toSexAsString).orElse(null));
         out.setEmailAddress(in.getEmailAddress().map(EmailAddress::getValue).orElse(null));
         return out;
     }
 
-    private static StreetAddressDTO toAddressDTO(StreetAddress streetAddress) {
+    public static String toSexAsString(Sex sex) {
+        switch (sex) {
+            case MALE:
+                return "MALE";
+            case FEMALE:
+                return "FEMALE";
+            default:
+                throw new IllegalArgumentException("unknown sex: " + sex);
+        }
+    }
+
+    public static Sex toSex(String sex) {
+        switch (sex) {
+            case "MALE":
+                return Sex.MALE;
+            case "FEMALE":
+                return Sex.FEMALE;
+            default:
+                throw new IllegalArgumentException("invalid sex: " + sex);
+        }
+    }
+
+    public static StreetAddressDTO toAddressDTO(StreetAddress streetAddress) {
         if (streetAddress == null) {
             return null;
         }
@@ -45,7 +68,7 @@ public class ContactConverter {
         return streetAddressDTO;
     }
 
-    private static StreetAddress toStreetAddress(StreetAddressDTO in) {
+    public static StreetAddress toStreetAddress(StreetAddressDTO in) {
         if (in == null) {
             return null;
         }
@@ -59,30 +82,30 @@ public class ContactConverter {
                 .build();
     }
 
-    public static Contact toContact(ContactDTO in) {
+    public static Contact toContact(ContactId contractId, CreateContactDTO in) {
         if (in == null) {
             return null;
         }
         ContactType contactType = toContactType(in);
 
-        Contact contact = new Contact(new ContactId(in.getContactId()), contactType, toName(in));
-        contact.changeStreetAddress(toStreetAddress(in.getStreetAddressDTO()));
-        contact.changeEmailAddress(new EmailAddress(in.getEmailAddress()));
-        contact.changePhoneNumber(new PhoneNumber(in.getPhoneNumber()));
+        Contact contact = new Contact(contractId, contactType, toName(in));
+        contact.changeStreetAddress(toStreetAddress(in.getStreetAddress()));
+        contact.changeEmailAddress(in.getEmailAddress() == null ? null : new EmailAddress(in.getEmailAddress()));
+        contact.changePhoneNumber(in.getPhoneNumber() == null ? null : new PhoneNumber(in.getPhoneNumber()));
 
         if (ContactType.PERSON.equals(contactType)) {
             contact.changeBirthdate(in.getBirthDate());
-            contact.changeSex(Sex.valueOf(in.getSex()));
+            contact.changeSex(in.getSex() == null ? null : Sex.valueOf(in.getSex()));
         }
 
         return contact;
     }
 
-    public static Name toName(ContactDTO in) {
+    public static Name toName(CreateContactDTO in) {
         return new Name(in.getLastNameOrCompanyName(), in.getFirstName());
     }
 
-    public static ContactType toContactType(ContactDTO contactDTO) {
+    public static ContactType toContactType(CreateContactDTO contactDTO) {
         switch (contactDTO.getContactType()) {
             case "PERSON":
                 return ContactType.PERSON;
@@ -101,5 +124,18 @@ public class ContactConverter {
 
     public static Currency toCurrency(String currencyCode) {
         return Currency.getInstance(currencyCode);
+    }
+
+    public static LocalDate toLocalDate(String birthDateAsString) {
+
+        return LocalDate.parse(birthDateAsString);
+    }
+
+    public static PhoneNumber toPhoneNumber(String phoneNumberAsString) {
+        return new PhoneNumber(phoneNumberAsString);
+    }
+
+    public static EmailAddress toEmailAddress(String emailAddressAsString) {
+        return new EmailAddress(emailAddressAsString);
     }
 }

@@ -3,11 +3,13 @@ package org.jaun.clubmanager.member.domain.model.contact;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
+
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 
-public class PhoneNumber {
+public class PhoneNumber extends ValueObject {
 
     private final String value;
 

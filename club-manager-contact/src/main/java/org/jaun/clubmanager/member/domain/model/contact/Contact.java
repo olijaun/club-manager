@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.member.domain.model.contact.event.BirthDateChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.EmailAddressChangedEvent;
 import org.jaun.clubmanager.member.domain.model.contact.event.NameChangedEvent;
@@ -46,19 +47,23 @@ public class Contact extends EventSourcingAggregate<ContactId> {
     }
 
     protected void mutate(EmailAddressChangedEvent event) {
-        this.emailAddress = event.getEmailAddress();
+        this.emailAddress = event.getEmailAddress().orElse(null);
     }
 
     protected void mutate(PhoneNumberChangedEvent event) {
-        this.phoneNumber = event.getPhoneNumber();
+        this.phoneNumber = event.getPhoneNumber().orElse(null);
     }
 
     protected void mutate(SexChangedEvent event) {
-        this.sex = event.getSex();
+        this.sex = event.getSex().orElse(null);
     }
 
     protected void mutate(StreetAddressChangedEvent event) {
-        this.streetAddress = event.getStreetAddress();
+        this.streetAddress = event.getStreetAddress().orElse(null);
+    }
+
+    protected void mutate(BirthDateChangedEvent event) {
+        this.birthDate = event.getBirthDate().orElse(null);
     }
 
     @Override
@@ -75,6 +80,8 @@ public class Contact extends EventSourcingAggregate<ContactId> {
             mutate((SexChangedEvent) event);
         } else if (event instanceof StreetAddressChangedEvent) {
             mutate((StreetAddressChangedEvent) event);
+        } else if (event instanceof BirthDateChangedEvent) {
+            mutate((BirthDateChangedEvent) event);
         }
     }
 
@@ -110,7 +117,7 @@ public class Contact extends EventSourcingAggregate<ContactId> {
             return;
         }
 
-        apply(new SexChangedEvent(id, sex));
+        apply(new BirthDateChangedEvent(id, birthDate));
     }
 
     public void changeEmailAddress(EmailAddress emailAddress) {

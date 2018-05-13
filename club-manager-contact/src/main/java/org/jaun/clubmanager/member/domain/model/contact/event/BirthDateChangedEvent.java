@@ -2,28 +2,28 @@ package org.jaun.clubmanager.member.domain.model.contact.event;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.member.domain.model.contact.ContactId;
-import org.jaun.clubmanager.member.domain.model.contact.Sex;
 
-public class SexChangedEvent extends DomainEvent<ContactEventType> {
+public class BirthDateChangedEvent extends DomainEvent<ContactEventType> {
 
     private final ContactId contactId;
-    private final Sex sex;
+    private final LocalDate birthDate;
 
-    public SexChangedEvent(ContactId contactId, Sex sex) {
-        super(ContactEventType.SEX_CHANGED);
+    public BirthDateChangedEvent(ContactId contactId, LocalDate birthDate) {
+        super(ContactEventType.BIRTHDATE_CHANGED);
         this.contactId = requireNonNull(contactId);
-        this.sex = sex;
+        this.birthDate = birthDate;
     }
 
     public ContactId getContactId() {
         return contactId;
     }
 
-    public Optional<Sex> getSex() {
-        return Optional.ofNullable(sex);
+    public Optional<LocalDate> getBirthDate() {
+        return Optional.ofNullable(birthDate);
     }
 }
