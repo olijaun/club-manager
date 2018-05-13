@@ -43,7 +43,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-membership</artifactId>
+                <artifactId>club-manager-member</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -178,7 +178,7 @@
         <module>club-manager-commons</module>
         <module>club-manager-identity</module>
         <module>club-manager-contact</module>
-        <module>club-manager-membership</module>
+        <module>club-manager-member</module>
         <module>club-manager-springboot-app</module>
     </modules>
 

@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-membership</artifactId>
-    <name>club-manager-membership</name>
+    <artifactId>club-manager-member</artifactId>
+    <name>club-manager-member</name>
 
     <packaging>jar</packaging>
 

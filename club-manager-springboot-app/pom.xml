@@ -33,7 +33,7 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-membership</artifactId>
+            <artifactId>club-manager-member</artifactId>
         </dependency>
 
 
