@@ -8,7 +8,7 @@ import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPerio
 
 public class MembershipConverter {
 
-    public static MembershipPeriod toMembershipPeriod(MembershipPeriodDTO in) {
+    public static MembershipPeriod toMembershipPeriod(MembershipPeriodId id, MembershipPeriodDTO in) {
         if (in == null) {
             return null;
         }
@@ -16,7 +16,7 @@ public class MembershipConverter {
         LocalDate startDate = LocalDate.parse(in.getStartDate());
         LocalDate endDate = LocalDate.parse(in.getEndDate());
 
-        MembershipPeriod period = new MembershipPeriod(MembershipPeriodId.random(MembershipPeriodId::new), startDate, endDate);
+        MembershipPeriod period = new MembershipPeriod(id, startDate, endDate);
         period.updateMetadata(in.getName(), in.getDescription());
 
         return period;

@@ -4,20 +4,10 @@ import java.io.Serializable;
 
 public class MembershipPeriodDTO implements Serializable {
 
-    private String id;
     private String startDate;
     private String endDate;
     private String name;
     private String description;
-
-    public String getId() {
-        return id;
-    }
-
-    public MembershipPeriodDTO setId(String id) {
-        this.id = id;
-        return this;
-    }
 
     public String getStartDate() {
         return startDate;

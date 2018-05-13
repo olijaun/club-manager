@@ -2,6 +2,8 @@ package org.jaun.clubmanager.member.domain.model.membershiptype;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
+
 import org.jaun.clubmanager.domain.model.commons.Aggregate;
 
 /**
@@ -23,8 +25,8 @@ public class MembershipType extends Aggregate<MembershipTypeId> {
         return name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public MembershipTypeId getId() {
