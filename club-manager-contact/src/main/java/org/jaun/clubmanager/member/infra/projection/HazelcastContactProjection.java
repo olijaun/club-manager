@@ -117,10 +117,10 @@ public class HazelcastContactProjection extends AbstractProjection {
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 
         if (firstName != null) {
-            andPredicates.add(Predicates.ilike("firstName", "%" + firstName + "%"));
+            andPredicates.add(Predicates.ilike("name.firstName", "%" + firstName + "%"));
         }
         if (lastName != null) {
-            andPredicates.add(Predicates.ilike("lastNameOrCompanyName", "%" + lastName + "%"));
+            andPredicates.add(Predicates.ilike("name.lastNameOrCompanyName", "%" + lastName + "%"));
         }
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
