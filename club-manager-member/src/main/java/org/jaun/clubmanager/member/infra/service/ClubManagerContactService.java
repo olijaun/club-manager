@@ -2,10 +2,10 @@ package org.jaun.clubmanager.member.infra.service;
 
 import org.jaun.clubmanager.member.domain.model.contact.Contact;
 import org.jaun.clubmanager.member.domain.model.contact.ContactService;
-import org.jaun.clubmanager.member.infra.projection.event.contact.ContactId;
-import org.springframework.stereotype.Component;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class ClubManagerContactService implements ContactService {
 
     @Override

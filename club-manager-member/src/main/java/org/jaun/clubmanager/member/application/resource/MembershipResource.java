@@ -29,7 +29,7 @@ import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOpt
 import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionRequest;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
-import org.jaun.clubmanager.member.infra.projection.event.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +55,7 @@ public class MembershipResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("")
+    @Path("/")
     public Response addSubscription(CreateMembershipDTO createMembershipDTO) {
 
         MembershipPeriod period = getMembershipPeriod(new MembershipPeriodId(createMembershipDTO.getMembershipPeriodId()));
@@ -105,7 +105,7 @@ public class MembershipResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("")
+    @Path("/")
     public Response getMembership(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName,
             @QueryParam("membershipPeriodId") String membershipPeriodIdAsString) {
 

@@ -1,10 +1,10 @@
 package org.jaun.clubmanager;
 
 import org.glassfish.jersey.server.ResourceConfig;
-import org.jaun.clubmanager.member.application.resource.ContactResource;
+import org.jaun.clubmanager.contact.application.resource.ContactResource;
 import org.jaun.clubmanager.member.application.resource.MembershipPeriodResource;
-import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
 import org.jaun.clubmanager.member.application.resource.MembershipResource;
+import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
 import org.springframework.stereotype.Component;
 
 @Component

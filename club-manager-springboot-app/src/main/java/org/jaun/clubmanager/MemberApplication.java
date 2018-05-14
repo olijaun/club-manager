@@ -1,6 +1,6 @@
 package org.jaun.clubmanager;
 
-import org.jaun.clubmanager.member.infra.projection.HazelcastContactProjection;
+import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

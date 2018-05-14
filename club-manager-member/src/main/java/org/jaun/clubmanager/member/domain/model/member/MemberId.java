@@ -1,7 +1,7 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
-import org.jaun.clubmanager.member.infra.projection.event.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
 
 public class MemberId extends Id {
     public MemberId(String value) {

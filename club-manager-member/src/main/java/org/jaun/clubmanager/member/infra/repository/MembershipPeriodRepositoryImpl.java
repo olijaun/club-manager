@@ -6,9 +6,10 @@ import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPerio
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.membershipperiod.event.MembershipPeriodEvent;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class MembershipPeriodRepositoryImpl extends
         AbstractGenericRepository<MembershipPeriod, MembershipPeriodId, MembershipPeriodEvent> implements
         MembershipPeriodRepository {

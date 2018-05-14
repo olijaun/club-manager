@@ -1,4 +1,4 @@
-fromStreams(["$ce-contact", "$ce-membership", "$ce-membershipPeriod"])
+fromStreams(["$ce-contact", "$ce-membership", "$ce-membershipPeriod", "$ce-member"])
     .when({
         $any: function(s, e) {
             linkTo("MembershipProjectionStream", e)

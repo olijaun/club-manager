@@ -2,11 +2,10 @@ package org.jaun.clubmanager.member.domain.model.contact;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Serializable;
 import java.util.Optional;
 
-import org.jaun.clubmanager.member.infra.projection.event.contact.ContactId;
-
-public class Contact {
+public class Contact implements Serializable {
     private final ContactId contactId;
     private final String firstName;
     private final String lastNameOrCompanyName;

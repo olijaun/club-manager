@@ -2,6 +2,8 @@ package org.jaun.clubmanager.member.infra.projection.event.contact;
 
 import static java.util.Objects.requireNonNull;
 
+import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+
 public class NameChangedEvent {
 
     private final ContactId contactId;

@@ -3,6 +3,7 @@ package org.jaun.clubmanager.member.domain.model.contact;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import org.jaun.clubmanager.contact.domain.model.contact.Country;
 import org.junit.Test;
 
 public class CountryTest {
