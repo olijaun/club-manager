@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.github.msemys.esjc.CatchUpSubscription;
@@ -17,22 +18,23 @@ import com.google.gson.Gson;
 
 public abstract class AbstractProjection {
 
-    private Map<String, Consumer<ResolvedEvent>> map = new HashMap<>();
+    private Map<String, BiConsumer<Long, ResolvedEvent>> map = new HashMap<>();
     private final List<String> streams;
     private final Gson gson = new Gson();
 
-    private final EventStore eventStore;
+    // TODO: make private
+    protected final EventStore eventStore;
 
     public AbstractProjection(EventStore eventStore, String... streams) {
         this.eventStore = eventStore;
         this.streams = Arrays.asList(streams);
     }
 
-    protected void registerMapping(EventMapping eventMapping, Consumer<ResolvedEvent> event) {
+    protected void registerMapping(EventMapping eventMapping, BiConsumer<Long, ResolvedEvent> event) {
         map.put(eventMapping.getEventType(), event);
     }
 
-    protected void registerMapping(String eventType, Consumer<ResolvedEvent> event) {
+    protected void registerMapping(String eventType, BiConsumer<Long, ResolvedEvent> event) {
         map.put(eventType, event);
     }
 
@@ -45,7 +47,7 @@ public abstract class AbstractProjection {
         public void onEvent(CatchUpSubscription subscription, ResolvedEvent event) {
             try {
                 if (map.containsKey(event.event.eventType)) {
-                    map.get(event.event.eventType).accept(event);
+                    map.get(event.event.eventType).accept(event.event.eventNumber, event);
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -60,24 +62,15 @@ public abstract class AbstractProjection {
 
     public void startSubscription() {
 
-        // TODO: make connection stuff configurable
-//        EventStore eventStore =
-//                EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
-
         CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder().resolveLinkTos(true).build();
 
         // TODO: close connection/subscription on shutdown
-
         for (String streamName : streams) {
 
             CatchUpSubscription catchupSubscription =
                     eventStore.subscribeToStreamFrom(streamName, null, settings, new MyCatchUpSubscriptionListener());
-
         }
-
-        //eventStore.subscribeToAll()
     }
-
 
     protected <T> T toObject(ResolvedEvent resolvedEvent, Class<T> domainEventClass) {
 

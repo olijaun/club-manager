@@ -12,8 +12,8 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
     private MemberId id;
     private Subscriptions subscriptions = new Subscriptions();
 
-    public Member(MemberId id, String firstName, String lastNameOrCompanyName) {
-        apply(new MemberCreatedEvent(id, firstName, lastNameOrCompanyName));
+    public Member(MemberId id) {
+        apply(new MemberCreatedEvent(id));
     }
 
     public Member(EventStream<MemberEvent> eventStream) {
@@ -29,9 +29,8 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
             throw new IllegalStateException("Cannot create a subscription for the same period and option twice.");
         }
 
-        apply(new SubscriptionCreatedEvent(subscriptionId, id,
-                subscriptionRequest.getMembershipPeriodId(), subscriptionRequest.getSubscriptionOptionId(),
-                subscriptionRequest.getAdditionalSubscriberIds()));
+        apply(new SubscriptionCreatedEvent(subscriptionId, id, subscriptionRequest.getMembershipPeriodId(),
+                subscriptionRequest.getSubscriptionOptionId(), subscriptionRequest.getAdditionalSubscriberIds()));
 
         return subscriptionId;
     }

@@ -88,7 +88,7 @@ public class MembershipResource {
                 throw new BadRequestException("contact does not exist: " + contactId);
             }
 
-            member = new Member(memberId, contact.getFirstName().orElse(null), contact.getLastNameOrCompanyName());
+            member = new Member(memberId);
         }
 
         return member;
@@ -112,7 +112,7 @@ public class MembershipResource {
         MembershipPeriodId membershipPeriodId =
                 membershipPeriodIdAsString == null ? null : new MembershipPeriodId(membershipPeriodIdAsString);
 
-        Collection<MembershipViewDTO> view = projection.find(firstName, lastName, membershipPeriodId);
+        Collection<MembershipViewDTO> view = projection.find(firstName, lastName, membershipPeriodId, null);
 
         return Response.ok(view).build(); //.entity(membershipPeriodRepository.getAll()).build();
     }

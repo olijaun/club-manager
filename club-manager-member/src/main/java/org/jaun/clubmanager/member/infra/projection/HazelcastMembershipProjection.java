@@ -3,6 +3,8 @@ package org.jaun.clubmanager.member.infra.projection;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
@@ -27,6 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.github.msemys.esjc.EventStore;
+import com.github.msemys.esjc.ResolvedEvent;
+import com.github.msemys.esjc.StreamEventsSlice;
+import com.github.msemys.esjc.StreamPosition;
+import com.hazelcast.core.EntryView;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
@@ -35,10 +41,11 @@ import com.hazelcast.query.Predicates;
 @Service
 public class HazelcastMembershipProjection extends AbstractProjection {
 
-    private final IMap<String, SubscriptionOptionDTO> subscriptionOptionMap;
-    private final IMap<String, MembershipPeriodDTO> membershipPeriodMap;
-    private final IMap<String, MembershipViewDTO> membershipMap;
-    private final IMap<String, MemberDTO> membershipContactMap;
+    private final IMap<SubscriptionOptionId, SubscriptionOptionDTO> subscriptionOptionMap;
+    private final IMap<MembershipPeriodId, MembershipPeriodDTO> membershipPeriodMap;
+    private final IMap<SubscriptionId, MembershipViewDTO> membershipMap;
+    private final IMap<KeyWithVersion<MemberId>, MemberDTO> membershipContactMap;
+    private final IMap<String, String> lockMap;
 
     @Autowired
     private MembershipTypeRepository membershipTypeRepository;
@@ -47,26 +54,27 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         super(eventStore, "MembershipProjectionStream");
 
         registerMapping(MembershipPeriodEventMapping.SUBSCRIPTION_OPTION_ADDED,
-                (r) -> update(toObject(r, MembershipPeriodSubscriptionOptionAddedEvent.class)));
+                (v, r) -> update(v, toObject(r, MembershipPeriodSubscriptionOptionAddedEvent.class)));
 
         registerMapping(MembershipPeriodEventMapping.MEMBERSHIP_PERIOD_CREATED,
-                (r) -> update(toObject(r, MembershipPeriodCreatedEvent.class)));
+                (v, r) -> update(v, toObject(r, MembershipPeriodCreatedEvent.class)));
         registerMapping(MembershipPeriodEventMapping.METADATA_CHANGED,
-                (r) -> update(toObject(r, MembershipPeriodMetadataChangedEvent.class)));
+                (v, r) -> update(v, toObject(r, MembershipPeriodMetadataChangedEvent.class)));
 
-        registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED, (r) -> update(toObject(r, SubscriptionCreatedEvent.class)));
+        registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED, (v, r) -> update(v, toObject(r, SubscriptionCreatedEvent.class)));
 
-        registerMapping(MemberEventMapping.MEMBER_CREATED, (r) -> update(toObject(r, MemberCreatedEvent.class)));
+        registerMapping(MemberEventMapping.MEMBER_CREATED, (v, r) -> update(v, toObject(r, MemberCreatedEvent.class)));
 
-        registerMapping("NameChanged", (r) -> update(toObject(r, NameChangedEvent.class)));
+        registerMapping("NameChanged", (v, r) -> update(v, toObject(r, NameChangedEvent.class)));
 
         subscriptionOptionMap = hazelcastInstance.getMap("subscription-options");
         membershipPeriodMap = hazelcastInstance.getMap("membership-periods");
         membershipMap = hazelcastInstance.getMap("memberships");
         membershipContactMap = hazelcastInstance.getMap("membership-contacts");
+        lockMap = hazelcastInstance.getMap("locks");
     }
 
-    protected void update(MembershipPeriodSubscriptionOptionAddedEvent optionAddedEvent) {
+    protected void update(Long version, MembershipPeriodSubscriptionOptionAddedEvent optionAddedEvent) {
 
         SubscriptionOptionDTO optionDTO = new SubscriptionOptionDTO();
 
@@ -78,36 +86,36 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         optionDTO.setName(optionAddedEvent.getName());
         optionDTO.setMembershipTypeId(optionAddedEvent.getMembershipTypeId().getValue());
 
-        subscriptionOptionMap.put(optionAddedEvent.getSubscriptionOptionId().getValue(), optionDTO);
+        subscriptionOptionMap.put(optionAddedEvent.getSubscriptionOptionId(), optionDTO);
     }
 
-    protected void update(MembershipPeriodCreatedEvent membershipPeriodCreatedEvent) {
+    protected void update(Long version, MembershipPeriodCreatedEvent membershipPeriodCreatedEvent) {
 
         MembershipPeriodDTO periodDTO = new MembershipPeriodDTO();
 
         periodDTO.setId(membershipPeriodCreatedEvent.getMembershipPeriodId().getValue());
         periodDTO.setStartDate(membershipPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
         periodDTO.setEndDate(membershipPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
-        membershipPeriodMap.put(membershipPeriodCreatedEvent.getMembershipPeriodId().getValue(), periodDTO);
+        membershipPeriodMap.put(membershipPeriodCreatedEvent.getMembershipPeriodId(), periodDTO);
     }
 
-    protected void update(MembershipPeriodMetadataChangedEvent metadataChangedEvent) {
+    protected void update(Long version, MembershipPeriodMetadataChangedEvent metadataChangedEvent) {
 
-        MembershipPeriodDTO periodDTO = membershipPeriodMap.get(metadataChangedEvent.getMembershipPeriodId().getValue());
+        MembershipPeriodDTO periodDTO = membershipPeriodMap.get(metadataChangedEvent.getMembershipPeriodId());
 
         periodDTO.setName(metadataChangedEvent.getName());
         periodDTO.setDescription(metadataChangedEvent.getDescription());
 
-        membershipPeriodMap.put(metadataChangedEvent.getMembershipPeriodId().getValue(), periodDTO);
+        membershipPeriodMap.put(metadataChangedEvent.getMembershipPeriodId(), periodDTO);
     }
 
-    protected void update(SubscriptionCreatedEvent subscriptionCreatedEvent) {
+    protected void update(Long version, SubscriptionCreatedEvent subscriptionCreatedEvent) {
 
-        MemberDTO memberDTO = membershipContactMap.get(subscriptionCreatedEvent.getMemberId().getValue());
+        MemberDTO memberDTO = membershipContactMap.get(new KeyWithVersion<>(subscriptionCreatedEvent.getMemberId(), 0));
 
-        MembershipPeriodDTO periodDTO = membershipPeriodMap.get(subscriptionCreatedEvent.getMembershipPeriodId().getValue());
+        MembershipPeriodDTO periodDTO = membershipPeriodMap.get(subscriptionCreatedEvent.getMembershipPeriodId());
 
-        SubscriptionOptionDTO optionDTO = subscriptionOptionMap.get(subscriptionCreatedEvent.getSubscriptionOptionId().getValue());
+        SubscriptionOptionDTO optionDTO = subscriptionOptionMap.get(subscriptionCreatedEvent.getSubscriptionOptionId());
 
         MembershipViewDTO view = new MembershipViewDTO();
         view.setMembershipId(subscriptionCreatedEvent.getSubscriptionId().getValue());
@@ -125,43 +133,95 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         // TODO: make type also event sourced
         view.setMembershipTypeName(membershipTypeRepository.get(new MembershipTypeId(optionDTO.getMembershipTypeId())).getName());
 
-        membershipMap.put(subscriptionCreatedEvent.getSubscriptionId().getValue(), view);
+        membershipMap.put(subscriptionCreatedEvent.getSubscriptionId(), view);
 
     }
 
     public MembershipViewDTO getById(SubscriptionId id) {
-        return membershipMap.get(id.getValue());
+        return membershipMap.get(id);
     }
 
     public MemberDTO getById(MemberId id) {
-        return membershipContactMap.get(id.getValue());
+        return membershipContactMap.get(id);
     }
 
-    protected void update(MemberCreatedEvent memberCreatedEvent) {
+    protected void update(Long version, MemberCreatedEvent memberCreatedEvent) {
 
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setMemberId(memberCreatedEvent.getMemberId().getValue());
-        memberDTO.setLastName(memberCreatedEvent.getLastNameOrCompanyName());
-        memberDTO.setFirstName(memberCreatedEvent.getFirstName().orElse(null));
 
-        membershipContactMap.put(memberCreatedEvent.getMemberId().getValue(), memberDTO);
-    }
+        membershipContactMap.put(new KeyWithVersion<>(memberCreatedEvent.getMemberId(), version), memberDTO);
 
-    protected void update(NameChangedEvent nameChangedEvent) {
+        try {
+            StreamEventsSlice streamEventsSlice =
+                    eventStore.readStreamEventsBackward("contact-" + memberCreatedEvent.getMemberId().getValue(),
+                            StreamPosition.END, 4096, false).get();
 
-        MemberDTO memberDTO = membershipContactMap.get(nameChangedEvent.getContactId().getValue());
+            Optional<ResolvedEvent> nameChangedResolvedEvent = streamEventsSlice.events.stream()
+                    .filter(resolvedEvent -> resolvedEvent.event.eventType.equals("NameChanged"))
+                    .findFirst();
 
-        if(memberDTO == null) {
-            return;
+            if (nameChangedResolvedEvent.isPresent()) {
+
+                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
+
+                update(nameChangedResolvedEvent.get().event.eventNumber, nameChangedEvent);
+            }
+
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
-
-        memberDTO.setFirstName(nameChangedEvent.getFirstName());
-        memberDTO.setLastName(nameChangedEvent.getLastName());
-
-        membershipContactMap.put(nameChangedEvent.getContactId().getValue(), memberDTO);
     }
 
-    public Collection<MembershipViewDTO> find(String firstName, String lastName, MembershipPeriodId membershipPeriodId) {
+    protected void update(Long version, NameChangedEvent nameChangedEvent) {
+        String lockString = "members";
+        try {
+            lockMap.lock(lockString);
+
+            //MemberDTO memberDTO  =
+            EntryView<KeyWithVersion<MemberId>, MemberDTO> entryView = membershipContactMap.getEntryView(
+                    new KeyWithVersion<>(new MemberId(nameChangedEvent.getContactId().getValue()), 0));
+
+
+            if (entryView == null) {
+                return;
+            }
+
+            MemberDTO memberDTO = entryView.getValue();
+            KeyWithVersion keyWithVersion = entryView.getKey();
+
+            if (memberDTO == null || keyWithVersion.getVersion() >= version) {
+                return;
+            }
+
+            memberDTO.setFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
+            memberDTO.setLastName(nameChangedEvent.getName().getLastNameOrCompanyName());
+
+            // important: convert contact id to member id, because we convert contacts into members and won't find them in the map otherwise
+            membershipContactMap.put(new KeyWithVersion<>(new MemberId(nameChangedEvent.getContactId().getValue()), version),
+                    memberDTO);
+
+            Collection<MembershipViewDTO> membershipViewDTOS =
+                    find(null, null, null, new MemberId(nameChangedEvent.getContactId().getValue()));
+
+            if (!membershipViewDTOS.isEmpty()) {
+
+                MembershipViewDTO viewDTO = membershipViewDTOS.iterator().next();
+
+                // update member info in membership view
+                viewDTO.setSubscriberFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
+                viewDTO.setSubscriberLastName(nameChangedEvent.getName().getLastNameOrCompanyName());
+
+                membershipMap.put(new SubscriptionId(viewDTO.getMembershipId()), viewDTO);
+            }
+
+        } finally {
+            lockMap.unlock(lockString);
+        }
+    }
+
+    public Collection<MembershipViewDTO> find(String firstName, String lastName, MembershipPeriodId membershipPeriodId,
+            MemberId memberId) {
 
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 
@@ -173,6 +233,9 @@ public class HazelcastMembershipProjection extends AbstractProjection {
         }
         if (membershipPeriodId != null) {
             andPredicates.add(Predicates.equal("membershipPeriodId", membershipPeriodId.getValue()));
+        }
+        if (memberId != null) {
+            andPredicates.add(Predicates.equal("subscriberId", memberId.getValue()));
         }
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
@@ -216,6 +279,6 @@ public class HazelcastMembershipProjection extends AbstractProjection {
     }
 
     public MembershipPeriodDTO getById(MembershipPeriodId membershipPeriodId) {
-        return membershipPeriodMap.get(membershipPeriodId.getValue());
+        return membershipPeriodMap.get(membershipPeriodId);
     }
 }

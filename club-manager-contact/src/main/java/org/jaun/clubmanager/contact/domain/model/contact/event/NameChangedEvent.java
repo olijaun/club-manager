@@ -2,7 +2,6 @@ package org.jaun.clubmanager.contact.domain.model.contact.event;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jaun.clubmanager.domain.model.commons.DomainEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.ContactId;
 import org.jaun.clubmanager.contact.domain.model.contact.Name;
 
