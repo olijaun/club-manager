@@ -1,5 +1,9 @@
 package org.jaun.clubmanager;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
 import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
 import org.springframework.boot.CommandLineRunner;
@@ -62,5 +66,15 @@ public class MemberApplication {
     @Bean
     public EventStore eventStore() {
         return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
+    }
+
+    @Bean
+    public Client jaxRsClient() {
+        return ClientBuilder.newClient();
+    }
+
+    @Bean
+    public WebTarget clubManagerContactServiceTarget() {
+        return jaxRsClient().target("http://localhost:9000/contacts");
     }
 }

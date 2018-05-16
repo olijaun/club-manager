@@ -1,33 +1,25 @@
 package org.jaun.clubmanager.member.infra.service;
 
-import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactDTO {
-    private ContactId contactId;
-    private String firstName;
-    private String lastNameOrCompanyName;
+    private String contactId;
+    private String contactType;
 
-    public ContactId getContactId() {
+    public String getContactId() {
         return contactId;
     }
 
-    public void setContactId(ContactId contactId) {
+    public void setContactId(String contactId) {
         this.contactId = contactId;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getContactType() {
+        return contactType;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastNameOrCompanyName() {
-        return lastNameOrCompanyName;
-    }
-
-    public void setLastNameOrCompanyName(String lastNameOrCompanyName) {
-        this.lastNameOrCompanyName = lastNameOrCompanyName;
+    public void setContactType(String contactType) {
+        this.contactType = contactType;
     }
 }

@@ -7,24 +7,12 @@ import java.util.Optional;
 
 public class Contact implements Serializable {
     private final ContactId contactId;
-    private final String firstName;
-    private final String lastNameOrCompanyName;
 
-    public Contact(ContactId contactId, String firstName, String lastNameOrCompanyName) {
+    public Contact(ContactId contactId) {
         this.contactId = requireNonNull(contactId);
-        this.firstName = firstName;
-        this.lastNameOrCompanyName = requireNonNull(lastNameOrCompanyName);
     }
 
     public ContactId getContactId() {
         return contactId;
-    }
-
-    public Optional<String> getFirstName() {
-        return Optional.ofNullable(firstName);
-    }
-
-    public String getLastNameOrCompanyName() {
-        return lastNameOrCompanyName;
     }
 }
