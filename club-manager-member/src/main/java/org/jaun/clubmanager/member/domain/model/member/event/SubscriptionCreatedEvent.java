@@ -6,8 +6,8 @@ import java.util.Collection;
 
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 
 import com.google.common.collect.ImmutableList;
 
@@ -15,17 +15,17 @@ public class SubscriptionCreatedEvent extends MemberEvent {
 
     private final SubscriptionId subscriptionId;
     private final MemberId memberId;
-    private final MembershipPeriodId membershipPeriodId;
-    private final SubscriptionOptionId subscriptionOptionId;
+    private final SubscriptionPeriodId subscriptionPeriodId;
+    private final SubscriptionTypeId subscriptionTypeId;
     private final Collection<MemberId> additionalSubscriberIds;
 
-    public SubscriptionCreatedEvent(SubscriptionId subscriptionId, MemberId memberId, MembershipPeriodId membershipPeriodId,
-            SubscriptionOptionId subscriptionOptionId, Collection<MemberId> additionalSubscriberIds) {
+    public SubscriptionCreatedEvent(SubscriptionId subscriptionId, MemberId memberId, SubscriptionPeriodId subscriptionPeriodId,
+            SubscriptionTypeId subscriptionTypeId, Collection<MemberId> additionalSubscriberIds) {
 
         this.subscriptionId = subscriptionId;
         this.memberId = requireNonNull(memberId);
-        this.membershipPeriodId = membershipPeriodId;
-        this.subscriptionOptionId = subscriptionOptionId;
+        this.subscriptionPeriodId = subscriptionPeriodId;
+        this.subscriptionTypeId = subscriptionTypeId;
         this.additionalSubscriberIds = ImmutableList.copyOf(additionalSubscriberIds);
     }
 
@@ -37,12 +37,12 @@ public class SubscriptionCreatedEvent extends MemberEvent {
         return memberId;
     }
 
-    public MembershipPeriodId getMembershipPeriodId() {
-        return membershipPeriodId;
+    public SubscriptionPeriodId getSubscriptionPeriodId() {
+        return subscriptionPeriodId;
     }
 
-    public SubscriptionOptionId getSubscriptionOptionId() {
-        return subscriptionOptionId;
+    public SubscriptionTypeId getSubscriptionTypeId() {
+        return subscriptionTypeId;
     }
 
     public Collection<MemberId> getAdditionalSubscriberIds() {

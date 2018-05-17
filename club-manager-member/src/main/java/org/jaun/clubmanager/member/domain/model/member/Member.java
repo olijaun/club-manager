@@ -5,10 +5,9 @@ import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionRequest;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 
 public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
-
     private MemberId id;
     private Subscriptions subscriptions = new Subscriptions();
 
@@ -24,13 +23,13 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
         SubscriptionId subscriptionId = SubscriptionId.random(SubscriptionId::new);
 
-        if (subscriptions.containsSubscriptionWith(subscriptionRequest.getMembershipPeriodId(),
-                subscriptionRequest.getSubscriptionOptionId())) {
+        if (subscriptions.containsMembershipWith(subscriptionRequest.getSubscriptionPeriodId(),
+                subscriptionRequest.getSubscriptionTypeId())) {
             throw new IllegalStateException("Cannot create a subscription for the same period and option twice.");
         }
 
-        apply(new SubscriptionCreatedEvent(subscriptionId, id, subscriptionRequest.getMembershipPeriodId(),
-                subscriptionRequest.getSubscriptionOptionId(), subscriptionRequest.getAdditionalSubscriberIds()));
+        apply(new SubscriptionCreatedEvent(subscriptionId, id, subscriptionRequest.getSubscriptionPeriodId(),
+                subscriptionRequest.getSubscriptionTypeId(), subscriptionRequest.getAdditionalSubscriberIds()));
 
         return subscriptionId;
     }
@@ -41,7 +40,7 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     protected void mutate(SubscriptionCreatedEvent event) {
         Subscription subscription =
-                new Subscription(event.getSubscriptionId(), event.getMembershipPeriodId(), event.getSubscriptionOptionId(),
+                new Subscription(event.getSubscriptionId(), event.getSubscriptionPeriodId(), event.getSubscriptionTypeId(),
                         event.getMemberId(), event.getAdditionalSubscriberIds());
 
         subscriptions.add(subscription);

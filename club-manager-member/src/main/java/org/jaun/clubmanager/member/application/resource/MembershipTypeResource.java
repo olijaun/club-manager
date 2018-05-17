@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class MembershipTypeResource {
     private MembershipTypeRepository membershipTypeRepository;
 
     @Autowired
-    private HazelcastMembershipProjection projection;
+    private HazelcastMemberProjection projection;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

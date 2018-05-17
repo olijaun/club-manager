@@ -2,8 +2,8 @@ package org.jaun.clubmanager;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.jaun.clubmanager.contact.application.resource.ContactResource;
-import org.jaun.clubmanager.member.application.resource.MembershipPeriodResource;
-import org.jaun.clubmanager.member.application.resource.MembershipResource;
+import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodResource;
+import org.jaun.clubmanager.member.application.resource.SubscriptionResource;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
         register(ContactResource.class);
         register(MembershipTypeResource.class);
-        register(MembershipPeriodResource.class);
-        register(MembershipResource.class);
+        register(SubscriptionPeriodResource.class);
+        register(SubscriptionResource.class);
     }
 }

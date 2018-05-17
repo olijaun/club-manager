@@ -5,7 +5,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMembershipProjection;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,11 +30,11 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        HazelcastMembershipProjection membershipProjection = ctx.getBean(HazelcastMembershipProjection.class);
-        membershipProjection.startSubscription();
+        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+        membershipProjection.startSubscriptions();
 
         HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-        contactProjection.startSubscription();
+        contactProjection.startSubscriptions();
 
         return args -> {
 

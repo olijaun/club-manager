@@ -5,14 +5,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import com.github.msemys.esjc.CatchUpSubscription;
 import com.github.msemys.esjc.CatchUpSubscriptionListener;
 import com.github.msemys.esjc.CatchUpSubscriptionSettings;
 import com.github.msemys.esjc.EventStore;
 import com.github.msemys.esjc.ResolvedEvent;
+import com.github.msemys.esjc.StreamPosition;
 import com.github.msemys.esjc.SubscriptionDropReason;
 import com.google.gson.Gson;
 
@@ -21,6 +22,8 @@ public abstract class AbstractProjection {
     private Map<String, BiConsumer<Long, ResolvedEvent>> map = new HashMap<>();
     private final List<String> streams;
     private final Gson gson = new Gson();
+
+    private final Map<String, CatchUpSubscription> subscriptionMap = new ConcurrentHashMap<>();
 
     // TODO: make private
     protected final EventStore eventStore;
@@ -56,20 +59,56 @@ public abstract class AbstractProjection {
 
         public void onClose(CatchUpSubscription subscription, SubscriptionDropReason reason, Exception exception) {
             System.out.println("Subscription closed: " + reason);
-            exception.printStackTrace();
+            if(exception != null) {
+                exception.printStackTrace();
+            }
         }
     }
 
-    public void startSubscription() {
+    public void startSubscriptions() {
+
+        for (String streamName : streams) {
+            startSubscription(streamName, null);
+        }
+    }
+
+    /**
+     *
+     * @param streamName
+     * @param fromVersion NULL is from start... oh dear
+     */
+    public void startSubscription(String streamName, Long fromVersion) {
 
         CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder().resolveLinkTos(true).build();
 
-        // TODO: close connection/subscription on shutdown
-        for (String streamName : streams) {
+        CatchUpSubscription catchupSubscription =
+                eventStore.subscribeToStreamFrom(streamName, fromVersion, settings, new MyCatchUpSubscriptionListener());
 
-            CatchUpSubscription catchupSubscription =
-                    eventStore.subscribeToStreamFrom(streamName, null, settings, new MyCatchUpSubscriptionListener());
+        subscriptionMap.put(streamName, catchupSubscription);
+    }
+
+    public void stopSubscription(String streamName) {
+
+        try {
+            subscriptionMap.get(streamName).stop();
+            subscriptionMap.remove(streamName);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    public void stopSubscriptions() {
+
+        for (CatchUpSubscription subscription : subscriptionMap.values()) {
+
+            try {
+                subscription.stop(); //Duration.of(5, ChronoUnit.SECONDS));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        subscriptionMap.clear();
     }
 
     protected <T> T toObject(ResolvedEvent resolvedEvent, Class<T> domainEventClass) {

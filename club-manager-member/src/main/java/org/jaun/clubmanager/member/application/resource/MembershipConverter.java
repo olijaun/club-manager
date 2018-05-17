@@ -3,12 +3,12 @@ package org.jaun.clubmanager.member.application.resource;
 import java.time.LocalDate;
 import java.util.Currency;
 
-import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriod;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 
 public class MembershipConverter {
 
-    public static MembershipPeriod toMembershipPeriod(MembershipPeriodId id, MembershipPeriodDTO in) {
+    public static SubscriptionPeriod toSubscriptionPeriod(SubscriptionPeriodId id, CreateSubscriptionPeriodDTO in) {
         if (in == null) {
             return null;
         }
@@ -16,7 +16,7 @@ public class MembershipConverter {
         LocalDate startDate = LocalDate.parse(in.getStartDate());
         LocalDate endDate = LocalDate.parse(in.getEndDate());
 
-        MembershipPeriod period = new MembershipPeriod(id, startDate, endDate);
+        SubscriptionPeriod period = new SubscriptionPeriod(id, startDate, endDate);
         period.updateMetadata(in.getName(), in.getDescription());
 
         return period;

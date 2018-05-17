@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 
 
 public class Subscriptions implements Iterable {
@@ -22,9 +22,9 @@ public class Subscriptions implements Iterable {
         subscriptions.add(subscription);
     }
 
-    public boolean containsSubscriptionWith(MembershipPeriodId membershipPeriodId, SubscriptionOptionId subscriptionOptionId) {
+    public boolean containsMembershipWith(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
         return subscriptions.stream()
-                .filter(m -> m.matchesPeriodAndOption(membershipPeriodId, subscriptionOptionId))
+                .filter(m -> m.matchesPeriodAndOption(subscriptionPeriodId, subscriptionTypeId))
                 .findFirst()
                 .isPresent();
     }

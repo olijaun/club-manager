@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.jaun.clubmanager.domain.model.commons.Aggregate;
 
 /**
- * Type of the Mebership regardless of Subscription period. E.g. 'Gönner', 'Normal', 'Passiv'
+ * Type of the Membership regardless of Subscription period. E.g. 'Gönner', 'Normal', 'Passiv'
  */
 public class MembershipType extends Aggregate<MembershipTypeId> {
 

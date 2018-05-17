@@ -5,47 +5,48 @@ import static java.util.Objects.requireNonNull;
 import java.util.Collection;
 
 import org.jaun.clubmanager.domain.model.commons.Entity;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.MembershipPeriodId;
-import org.jaun.clubmanager.member.domain.model.membershipperiod.SubscriptionOptionId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 
 import com.google.common.collect.ImmutableList;
 
+// http://chrislema.com/memberships-and-subscriptions/
 public class Subscription extends Entity<SubscriptionId> {
 
     private final SubscriptionId id;
-    private final SubscriptionOptionId subscriptionOptionId;
-    private final MembershipPeriodId membershipPeriodId; // TODO: unused?
-    private final MemberId subscriberId;
-    private final Collection<MemberId> additionalSubscriberIds;
+    private final SubscriptionTypeId subscriptionTypeId;
+    private final SubscriptionPeriodId subscriptionPeriodId; // TODO: unused?
+    private final MemberId memberId;
+    private final Collection<MemberId> additionalMemberIds;
 
-    public Subscription(SubscriptionId id, MembershipPeriodId periodId, SubscriptionOptionId subscriptionOptionId,
-            MemberId subscriberId, Collection<MemberId> additionalSubscriberIds) {
+    public Subscription(SubscriptionId id, SubscriptionPeriodId periodId, SubscriptionTypeId subscriptionTypeId,
+            MemberId memberId, Collection<MemberId> additionalMemberIds) {
 
         this.id = requireNonNull(id);
-        this.membershipPeriodId = requireNonNull(periodId);
-        this.subscriptionOptionId = requireNonNull(subscriptionOptionId);
-        this.subscriberId = requireNonNull(subscriberId);
-        this.additionalSubscriberIds = ImmutableList.copyOf(requireNonNull(additionalSubscriberIds));
+        this.subscriptionPeriodId = requireNonNull(periodId);
+        this.subscriptionTypeId = requireNonNull(subscriptionTypeId);
+        this.memberId = requireNonNull(memberId);
+        this.additionalMemberIds = ImmutableList.copyOf(requireNonNull(additionalMemberIds));
     }
 
-    public SubscriptionOptionId getSubscriptionOptionId() {
-        return subscriptionOptionId;
+    public SubscriptionTypeId getSubscriptionTypeId() {
+        return subscriptionTypeId;
     }
 
-    public MembershipPeriodId getMembershipPeriodId() {
-        return membershipPeriodId;
+    public SubscriptionPeriodId getSubscriptionPeriodId() {
+        return subscriptionPeriodId;
     }
 
-    public MemberId getSubscriberId() {
-        return subscriberId;
+    public MemberId getMemberId() {
+        return memberId;
     }
 
-    public Collection<MemberId> getAdditionalSubscriberIds() {
-        return additionalSubscriberIds;
+    public Collection<MemberId> getAdditionalMemberIds() {
+        return additionalMemberIds;
     }
 
-    public boolean matchesPeriodAndOption(MembershipPeriodId membershipPeriodId, SubscriptionOptionId subscriptionOptionId) {
-        return this.membershipPeriodId.equals(membershipPeriodId) && this.subscriptionOptionId.equals(subscriptionOptionId);
+    public boolean matchesPeriodAndOption(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
+        return this.subscriptionPeriodId.equals(subscriptionPeriodId) && this.subscriptionTypeId.equals(subscriptionTypeId);
     }
 
     @Override

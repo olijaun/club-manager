@@ -6,7 +6,7 @@ public class MemberDTO implements Serializable {
 
     private String memberId;
     private String firstName;
-    private String lastName;
+    private String lastNameOrCompanyName;
 
     public String getMemberId() {
         return memberId;
@@ -24,11 +24,11 @@ public class MemberDTO implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getLastNameOrCompanyName() {
+        return lastNameOrCompanyName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastNameOrCompanyName(String lastNameOrCompanyName) {
+        this.lastNameOrCompanyName = lastNameOrCompanyName;
     }
 }
