@@ -1,0 +1,283 @@
+{
+	"id": "455fdf22-3bf5-43c6-b422-dafb009f58cd",
+	"name": "contact",
+	"description": null,
+	"auth": null,
+	"events": null,
+	"variables": null,
+	"order": [
+		"5d24a696-fbca-4fd6-ad3c-f280c2c7ab05",
+		"6b377335-abf4-4f0e-bcd1-8c69b5b54185",
+		"b613f55d-e202-47fe-8a7c-8af7b56da894",
+		"67d44fd4-f858-47b5-a014-e841f4008738",
+		"2aeb0bed-732d-44db-9b7a-309cdcc661e2",
+		"4ff1a5b2-d10b-41db-9b92-7da3ce17d0cc",
+		"87cc61b8-1e00-4d60-a560-b20209315fb6",
+		"c052f454-4373-4ad3-8c31-d30d3fc45b5d",
+		"e12f670f-2686-4821-a641-4626f71c615e",
+		"f099c92e-f93f-458c-9143-7b0d3b2c1d80",
+		"54ab4889-2b67-4de0-9adc-f9cc2fdb1c88"
+	],
+	"folders_order": [],
+	"folders": [],
+	"requests": [
+		{
+			"id": "2aeb0bed-732d-44db-9b7a-309cdcc661e2",
+			"name": "/contacts",
+			"url": "http://localhost:9000/contacts",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "4ff1a5b2-d10b-41db-9b92-7da3ce17d0cc",
+			"name": "/contacts/{id}",
+			"url": "http://localhost:9000/contacts/1",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "54ab4889-2b67-4de0-9adc-f9cc2fdb1c88",
+			"name": "/contacts?firstName=x&lastName=y",
+			"url": "http://localhost:9000/contacts?firstName=oliver&lastNameOrCompanyName=jaun",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "firstName",
+					"value": "oliver",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "lastNameOrCompanyName",
+					"value": "jaun",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "5d24a696-fbca-4fd6-ad3c-f280c2c7ab05",
+			"name": "/contacts/{id} oliver",
+			"url": "http://localhost:9000/contacts/1",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"name\": {\n\t\t\"firstName\": \"Oliver\",\n\t    \"lastNameOrCompanyName\": \"Jaun\"\n\t},\n\t\"contactType\": \"PERSON\",\n\t\"emailAddress\": \"oliver@somewhere-bla.org\",\n\t\"sex\": \"MALE\",\n\t\"phoneNumber\": \"078 111 11 11\",\n\t\"birthDate\": \"1979-01-21\",\n\t\"streetAddress\": {\n\t\t\"street\": \"Einetrasse\",\n\t\t\"streetNumber\": \"71\",\n\t\t\"zip\": \"3007\",\n\t\t\"city\": \"Bern\",\n\t\t\"isoCountryCode\": \"CH\",\n\t\t\"state\": null\n\t}\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "67d44fd4-f858-47b5-a014-e841f4008738",
+			"name": "/contacts/{id}/name",
+			"url": "http://localhost:9000/contacts/2/name",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n    \"lastNameOrCompanyName\": \"Migros AG\",\n    \"firstName\": null\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "6b377335-abf4-4f0e-bcd1-8c69b5b54185",
+			"name": "/contacts/{id} migros",
+			"url": "http://localhost:9000/contacts/2",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"name\": {\n\t\t\"firstName\": null,\n\t    \"lastNameOrCompanyName\": \"Migros\"\n\t},\n\t\"contactType\": \"COMPANY\",\n\t\"emailAddress\": \"migros@migros.ch\",\n\t\"sex\": null,\n\t\"phoneNumber\": \"031 819 00 01\",\n\t\"birthDate\": \"1900-01-01\",\n\t\"streetAddress\": {\n\t\t\"street\": \"Migrostrasse\",\n\t\t\"streetNumber\": \"1\",\n\t\t\"zip\": \"4000\",\n\t\t\"city\": \"Zürich\",\n\t\t\"isoCountryCode\": \"CH\",\n\t\t\"state\": null\n\t}\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "87cc61b8-1e00-4d60-a560-b20209315fb6",
+			"name": "/contacts/{id}/commands/change-email-address",
+			"url": "http://localhost:9000/contacts/1/commands/change-email-address?email-address=oliver@blablablu.org",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "email-address",
+					"value": "oliver@blablablu.org",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "b613f55d-e202-47fe-8a7c-8af7b56da894",
+			"name": "/contacts/{id}/street-address",
+			"url": "http://localhost:9000/contacts/1/street-address",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"street\": \"Anderestrasse\",\n\t\"streetNumber\": \"88\",\n\t\"zip\": \"3000\",\n\t\"city\": \"Bern\",\n\t\"isoCountryCode\": \"CH\",\n\t\"state\": \"Bern\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "c052f454-4373-4ad3-8c31-d30d3fc45b5d",
+			"name": "/contacts/{id}/commands/change-birth-date",
+			"url": "http://localhost:9000/contacts/1/commands/change-birth-date?birth-date=1979-01-16",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "birth-date",
+					"value": "1979-01-16",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "e12f670f-2686-4821-a641-4626f71c615e",
+			"name": "/contacts/{id}/commands/change-phone-number",
+			"url": "http://localhost:9000/contacts/1/commands/change-phone-number?phone-number=031 111 11 22",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "phone-number",
+					"value": "031 111 11 22",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "f099c92e-f93f-458c-9143-7b0d3b2c1d80",
+			"name": "/contacts/{id}/commands/change-sex",
+			"url": "http://localhost:9000/contacts/1/commands/change-sex?sex=MALE",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "sex",
+					"value": "MALE",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		}
+	]
+}

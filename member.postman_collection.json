@@ -1,0 +1,274 @@
+{
+	"id": "8e14766c-672c-42b4-bab1-aa5c5d76a36a",
+	"name": "member",
+	"description": "",
+	"auth": null,
+	"events": null,
+	"variables": [],
+	"order": [
+		"f7082e68-4a85-4c9c-b1d8-1fe821bb94e1",
+		"81b32780-5565-41d4-aff3-141325f475ff",
+		"aee6545f-b6cc-4b5a-8f5b-d83e0aa42f02",
+		"ba208b64-a041-48dc-a8f6-645990b23acc",
+		"b438bca1-6b5e-46a7-a621-d27b0ca5021a",
+		"c86e6c9b-4f62-467e-8088-fc624ad2d173",
+		"0bbfaf2b-d388-45ad-a1a5-2785e28e75a5",
+		"77478cd7-3496-4b45-9f0f-6df898146a7c",
+		"9f5bd880-d5bc-44b0-8dbc-084f6312fc6b",
+		"956ae2d0-ab58-42d0-8347-9a158bb2265e",
+		"bc769f09-d68e-488d-88e1-8eb7ce25379c"
+	],
+	"folders_order": [],
+	"folders": [],
+	"requests": [
+		{
+			"id": "0bbfaf2b-d388-45ad-a1a5-2785e28e75a5",
+			"name": "/subscription-periods/{id}/types/{id}",
+			"url": "http://localhost:9000/subscription-periods/1/types/1",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipPeriodId\" : \"ce04fcdf-0adb-4943-a921-a22c469c76d9\",\n\t\"membershipTypeId\": \"2\",\n\t\"name\": \"Normale Mitgliedschft 2018\",\n\t\"amount\": 90,\n\t\"currency\": \"CHF\",\n\t\"maxSubscribers\": 1\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "77478cd7-3496-4b45-9f0f-6df898146a7c",
+			"name": "/subscriptions",
+			"url": "http://localhost:9000/subscriptions",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"subscriberId\" : \"1\",\n\t\"subscriptionPeriodId\": \"1\",\n    \"subscriptionTypeId\": \"1\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "81b32780-5565-41d4-aff3-141325f475ff",
+			"name": "/subscription-periods",
+			"url": "http://localhost:9000/subscription-periods/1",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"startDate\" : \"2018-01-01\",\n    \"endDate\": \"2018-12-31\",\n    \"name\": \"Vereinsjahr 2018\",\n    \"description\": \"Gugus dada 2018\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "956ae2d0-ab58-42d0-8347-9a158bb2265e",
+			"name": "/subscriptions/{id}",
+			"url": "http://localhost:9000/subscriptions/c40f684b-cb83-45ba-bbab-dc621c28f451",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipId\" : \"test1\",\n\t\"subscriberId\" : \"95e711cb-b0d3-46ba-ad89-4479c9e131db\",\n\t\"membershipPeriodId\": \"bff73a7a-5dcb-4ab9-89a1-3fbe96fe3bda\",\n    \"subscriptionDefinitionId\": \"32f806b0-0af5-46ed-830c-2ed8ea3e5461\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "9f5bd880-d5bc-44b0-8dbc-084f6312fc6b",
+			"name": "/subscriptions",
+			"url": "http://localhost:9000/subscriptions",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipId\" : \"test1\",\n\t\"subscriberId\" : \"95e711cb-b0d3-46ba-ad89-4479c9e131db\",\n\t\"membershipPeriodId\": \"bff73a7a-5dcb-4ab9-89a1-3fbe96fe3bda\",\n    \"subscriptionDefinitionId\": \"32f806b0-0af5-46ed-830c-2ed8ea3e5461\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "aee6545f-b6cc-4b5a-8f5b-d83e0aa42f02",
+			"name": "/subscription-periods",
+			"url": "http://localhost:9000/subscription-periods",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"id\" : \"test\",\n\t\"startDate\" : \"2018-01-01\",\n    \"endDate\": \"2018-12-31\",\n    \"name\": \"Vereinsjahr 2018\",\n    \"description\": \"Blabla bla 2018\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "b438bca1-6b5e-46a7-a621-d27b0ca5021a",
+			"name": "/subscription-periods/{id}/types",
+			"url": "http://localhost:9000/subscription-periods/1/types/1",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipTypeId\": \"1\",\n\t\"name\": \"Gönner Mitgliedschaft 2018\",\n\t\"amount\": 150,\n\t\"currency\": \"CHF\",\n\t\"maxSubscribers\": 1\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "ba208b64-a041-48dc-a8f6-645990b23acc",
+			"name": "/subscription-periods/{id}",
+			"url": "http://localhost:9000/subscription-periods/1",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "bc769f09-d68e-488d-88e1-8eb7ce25379c",
+			"name": "/subscriptions?firstName=x&lastName=y",
+			"url": "http://localhost:9000/subscriptions?subscriptionPeriodId=1",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "subscriptionPeriodId",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipId\" : \"test1\",\n\t\"subscriberId\" : \"95e711cb-b0d3-46ba-ad89-4479c9e131db\",\n\t\"membershipPeriodId\": \"bff73a7a-5dcb-4ab9-89a1-3fbe96fe3bda\",\n    \"subscriptionDefinitionId\": \"32f806b0-0af5-46ed-830c-2ed8ea3e5461\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "c86e6c9b-4f62-467e-8088-fc624ad2d173",
+			"name": "/subscription-periods/{id}/types",
+			"url": "http://localhost:9000/subscription-periods/1/types",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n\t\"membershipPeriodId\" : \"ce04fcdf-0adb-4943-a921-a22c469c76d9\",\n\t\"membershipTypeId\": \"2\",\n\t\"name\": \"Normale Mitgliedschft 2018\",\n\t\"amount\": 90,\n\t\"currency\": \"CHF\",\n\t\"maxSubscribers\": 1\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "f7082e68-4a85-4c9c-b1d8-1fe821bb94e1",
+			"name": "/membership-types",
+			"url": "http://localhost:9000/membership-types",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		}
+	]
+}

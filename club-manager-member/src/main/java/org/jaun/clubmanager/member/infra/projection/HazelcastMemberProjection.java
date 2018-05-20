@@ -115,7 +115,6 @@ public class HazelcastMemberProjection extends AbstractProjection {
         view.setSubscriptionPeriodId(subscriptionCreatedEvent.getSubscriptionPeriodId().getValue());
         view.setMemberId(subscriptionCreatedEvent.getMemberId().getValue());
         view.setSubscriptionTypeId(subscriptionCreatedEvent.getSubscriptionTypeId().getValue());
-
         subscriptionMap.put(subscriptionCreatedEvent.getSubscriptionId(), view);
 
     }
@@ -207,15 +206,16 @@ public class HazelcastMemberProjection extends AbstractProjection {
 
         MemberDTO memberDTO = memberMap.get(new MemberId(view.getMemberId()));
         SubscriptionPeriodDTO periodDTO = subscriptionPeriodMap.get(new SubscriptionPeriodId(view.getSubscriptionPeriodId()));
-        SubscriptionTypeDTO optionDTO = subscriptionTypeMap.get(new SubscriptionTypeId(view.getSubscriptionTypeId()));
+        SubscriptionTypeDTO subscriptionTypeDTO = subscriptionTypeMap.get(new SubscriptionTypeId(view.getSubscriptionTypeId()));
 
         view.setMemberLastName(memberDTO.getLastNameOrCompanyName());
         view.setMemberFirstName(memberDTO.getFirstName());
         view.setSubscriptionPeriodName(periodDTO.getName());
-        view.setSubscriptionTypeName(optionDTO.getName());
+        view.setSubscriptionTypeName(subscriptionTypeDTO.getName());
 
-        MembershipType membershipType = membershipTypeRepository.get(new MembershipTypeId(optionDTO.getMembershipTypeId()));
+        MembershipType membershipType = membershipTypeRepository.get(new MembershipTypeId(subscriptionTypeDTO.getMembershipTypeId()));
 
+        view.setMembershipTypeId(subscriptionTypeDTO.getMembershipTypeId());
         view.setMembershipTypeName(membershipType.getName());
 
         return view;
