@@ -7,9 +7,11 @@ import java.util.stream.Stream;
 import org.jaun.clubmanager.domain.model.commons.EventMapping;
 import org.jaun.clubmanager.invoice.domain.model.invoice.event.InvoiceCreatedEvent;
 import org.jaun.clubmanager.invoice.domain.model.invoice.event.InvoiceEvent;
+import org.jaun.clubmanager.invoice.domain.model.invoice.event.PaymentBookedEvent;
 
 public enum InvoiceEventMapping implements EventMapping {
-    INVOICE_CREATED("InvoiceCreated", InvoiceCreatedEvent.class);
+    INVOICE_CREATED("InvoiceCreated", InvoiceCreatedEvent.class), //
+    PAYMENT_BOOKED("PaymentBooked", PaymentBookedEvent.class);
 
     private final String name;
     private final Class<? extends InvoiceEvent> eventClass;
