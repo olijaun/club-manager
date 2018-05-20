@@ -15,7 +15,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.contact.domain.model.contact.Contact;
 import org.jaun.clubmanager.contact.domain.model.contact.ContactId;
 import org.jaun.clubmanager.contact.domain.model.contact.ContactRepository;
@@ -25,6 +24,7 @@ import org.jaun.clubmanager.contact.domain.model.contact.PhoneNumber;
 import org.jaun.clubmanager.contact.domain.model.contact.Sex;
 import org.jaun.clubmanager.contact.domain.model.contact.StreetAddress;
 import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
+import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +45,9 @@ public class ContactResource {
             @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName) {
 
         Collection<ContactDTO> contactDTOS = projection.find(firstName, lastNameOrCompanyName);
+
+        ContactsDTO contactsDTO = new ContactsDTO();
+        contactsDTO.setContacts(contactDTOS);
 
         return Response.ok(contactDTOS).build();
     }

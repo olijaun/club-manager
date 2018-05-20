@@ -10,4 +10,4 @@ You need an eventstore running (see http://geteventstore.com).
 docker run --name eventstore-node -it -p 2113:2113 -p 1113:1113 eventstore/eventstore
 ```
 
-After that you have to run the $by_category projection. This can be done using the EventStore UI. Go to http://localhost:2113, login ('admin' / 'changeit' with the defalt config) and go to 'Projections'.
+After that you have to run the $by_category projection. This can be done using the EventStore UI. Go to http://localhost:2113, login ('admin' / 'changeit' with the default config) and go to 'Projections'.

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
+import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionViewDTO;
@@ -16,9 +17,9 @@ import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
-import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
-import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeMetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
@@ -26,6 +27,7 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.Subscri
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionTypeAddedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.contact.NameChangedEvent;
 import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
+import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,13 +47,11 @@ public class HazelcastMemberProjection extends AbstractProjection {
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
     private final IMap<SubscriptionId, SubscriptionViewDTO> subscriptionMap;
+    private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    @Autowired
-    private MembershipTypeRepository membershipTypeRepository;
-
     public HazelcastMemberProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
-        super(eventStore, "$ce-contact", "$ce-subscriptionperiod", "$ce-member");
+        super(eventStore, "$ce-contact", "$ce-subscriptionperiod", "$ce-member", "$ce-membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
@@ -62,15 +62,37 @@ public class HazelcastMemberProjection extends AbstractProjection {
                 (v, r) -> update(v, toObject(r, MetadataChangedEvent.class)));
 
         registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED, (v, r) -> update(v, toObject(r, SubscriptionCreatedEvent.class)));
-
         registerMapping(MemberEventMapping.MEMBER_CREATED, (v, r) -> update(v, toObject(r, MemberCreatedEvent.class)));
+
+
+        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_CREATED,
+                (v, r) -> update(v, toObject(r, MembershipTypeCreatedEvent.class)));
+        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_METADATA_CHANGED,
+                (v, r) -> update(v, toObject(r, MembershipTypeMetadataChangedEvent.class)));
 
         registerMapping("NameChanged", (v, r) -> update(v, toObject(r, NameChangedEvent.class)));
 
         subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
         subscriptionMap = hazelcastInstance.getMap("subscriptions");
+        membershipTypeMap = hazelcastInstance.getMap("membership-type-map");
         memberMap = hazelcastInstance.getMap("members");
+    }
+
+    private void update(Long version, MembershipTypeCreatedEvent t) {
+        MembershipTypeDTO membershipTypeDTO = new MembershipTypeDTO();
+        membershipTypeDTO.setId(t.getMembershipTypeId().getValue());
+
+        membershipTypeMap.put(t.getMembershipTypeId(), membershipTypeDTO);
+    }
+
+    private void update(Long version, MembershipTypeMetadataChangedEvent t) {
+        MembershipTypeDTO membershipTypeDTO = membershipTypeMap.get(t.getMembershipTypeId());
+
+        membershipTypeDTO.setName(t.getName());
+        membershipTypeDTO.setDescription(t.getDescription().orElse(null));
+
+        membershipTypeMap.put(t.getMembershipTypeId(), membershipTypeDTO);
     }
 
     protected void update(Long version, SubscriptionTypeAddedEvent optionAddedEvent) {
@@ -213,10 +235,11 @@ public class HazelcastMemberProjection extends AbstractProjection {
         view.setSubscriptionPeriodName(periodDTO.getName());
         view.setSubscriptionTypeName(subscriptionTypeDTO.getName());
 
-        MembershipType membershipType = membershipTypeRepository.get(new MembershipTypeId(subscriptionTypeDTO.getMembershipTypeId()));
+        MembershipTypeDTO membershipTypeDTO =
+                membershipTypeMap.get(new MembershipTypeId(subscriptionTypeDTO.getMembershipTypeId()));
 
         view.setMembershipTypeId(subscriptionTypeDTO.getMembershipTypeId());
-        view.setMembershipTypeName(membershipType.getName());
+        view.setMembershipTypeName(membershipTypeDTO.getName());
 
         return view;
     }
@@ -258,5 +281,9 @@ public class HazelcastMemberProjection extends AbstractProjection {
 
     public SubscriptionPeriodDTO getById(SubscriptionPeriodId subscriptionPeriodId) {
         return subscriptionPeriodMap.get(subscriptionPeriodId);
+    }
+
+    public Collection<MembershipTypeDTO> getAllMembershipTypes() {
+        return membershipTypeMap.values();
     }
 }

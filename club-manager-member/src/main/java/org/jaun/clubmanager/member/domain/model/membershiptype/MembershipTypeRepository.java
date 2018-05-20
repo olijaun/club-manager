@@ -1,9 +1,6 @@
 package org.jaun.clubmanager.member.domain.model.membershiptype;
 
-import java.util.Collection;
+import org.jaun.clubmanager.domain.model.commons.GenericRepository;
 
-public interface MembershipTypeRepository {
-    MembershipType get(MembershipTypeId id);
-
-    Collection<MembershipType> getAll();
+public interface MembershipTypeRepository extends GenericRepository<MembershipType, MembershipTypeId> {
 }
