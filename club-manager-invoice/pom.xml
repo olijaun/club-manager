@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-springboot-app</artifactId>
-    <name>club-manager-springboot-app</name>
+    <artifactId>club-manager-invoice</artifactId>
+    <name>club-manager-invoice</name>
 
     <packaging>jar</packaging>
 
@@ -18,27 +18,14 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-identity</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-contact</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-member</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-invoice</artifactId>
+            <artifactId>club-manager-commons</artifactId>
+            <type>jar</type>
         </dependency>
 
         <!-- 3rd party -->
@@ -75,15 +62,31 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.iban4j</groupId>
+            <artifactId>iban4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+
+    <!--<build>-->
+    <!--<plugins>-->
+    <!--<plugin>-->
+    <!--<groupId>org.springframework.boot</groupId>-->
+    <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
+    <!--</plugin>-->
+    <!--</plugins>-->
+    <!--</build>-->
 
 </project>
