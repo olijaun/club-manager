@@ -7,6 +7,7 @@ Let's see where it leads. For now I'm using it to test some new stuff like event
 You need an eventstore running (see http://geteventstore.com).
 
 ```
+docker pull eventstore/eventstore
 docker run --name eventstore-node -it -p 2113:2113 -p 1113:1113 eventstore/eventstore
 ```
 

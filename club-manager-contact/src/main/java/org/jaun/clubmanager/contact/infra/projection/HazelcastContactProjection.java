@@ -127,4 +127,20 @@ public class HazelcastContactProjection extends AbstractProjection {
 
         return contactMap.values(criteriaQuery);
     }
+
+    public Collection<ContactDTO> find(String nameLine) {
+
+        ArrayList<Predicate> andPredicates = new ArrayList<>();
+
+        if (nameLine != null) {
+            andPredicates.add(Predicates.ilike("name.firstName", "%" + nameLine + "%"));
+        }
+        if (nameLine != null) {
+            andPredicates.add(Predicates.ilike("name.lastNameOrCompanyName", "%" + nameLine + "%"));
+        }
+
+        Predicate criteriaQuery = Predicates.or(andPredicates.toArray(new Predicate[andPredicates.size()]));
+
+        return contactMap.values(criteriaQuery);
+    }
 }
