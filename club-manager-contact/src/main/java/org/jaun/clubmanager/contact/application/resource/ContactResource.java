@@ -42,9 +42,14 @@ public class ContactResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("contacts")
     public Response searchContacts(@QueryParam("firstName") String firstName,
-            @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName) {
+            @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName, @QueryParam("nameLine") String nameLine) {
 
-        Collection<ContactDTO> contactDTOS = projection.find(firstName, lastNameOrCompanyName);
+        Collection<ContactDTO> contactDTOS;
+        if (nameLine != null) {
+            contactDTOS = projection.find(nameLine);
+        } else {
+            contactDTOS = projection.find(firstName, lastNameOrCompanyName);
+        }
 
         ContactsDTO contactsDTO = new ContactsDTO();
         contactsDTO.setContacts(contactDTOS);
