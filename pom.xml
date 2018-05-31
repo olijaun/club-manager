@@ -186,6 +186,7 @@
     </pluginRepositories>
 
     <modules>
+        <module>club-manager-eventstore</module>
         <module>club-manager-commons</module>
         <module>club-manager-identity</module>
         <module>club-manager-contact</module>
