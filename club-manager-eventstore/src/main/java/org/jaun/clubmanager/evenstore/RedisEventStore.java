@@ -53,7 +53,7 @@ public class RedisEventStore implements EventStore {
             + "local storeRevision = tonumber(redis.call('hlen', commitsKey))\n" //
             //+ "local commitId = storeRevision + 1 \n" //
             + "local commitData = string.format('{\"eventId\":%s,\"timestamp\":%d,\"streamId\":%s,\"eventType\":%s,\"streamRevision\":%d,\"event\":%s,\"metadata\":%s}',"
-            + "cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), actual + 1, cjson.encode(event), cjson.encode(metadata))\n"
+            + "cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), actual + 1, event, metadata)\n"
             //
             + "\n" //
             + "redis.call('hset', commitsKey, eventId, commitData)\n" //
@@ -84,15 +84,18 @@ public class RedisEventStore implements EventStore {
 
     public static void main(String[] args) throws ConcurrencyException {
         RedisEventStore testStore = new RedisEventStore("testStore");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("mycat7"));
-        EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "my payload1", "my metadata1");
-        EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "my payload2", "my metadata2");
-        EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"oliver\" }", "");
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("mycat12"));
+        EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"oliver1\" }",
+                "{ \"mymeta\": \"mymeta1\" }");
+        EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"oliver2\" }",
+                "{ \"mymeta\": \"mymeta2\" }");
+        EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"oliver3\" }",
+                "{ \"mymeta\": \"mymeta3\" }");
 
-//        StreamRevision revision = StreamRevision.INITIAL;
-//        testStore.append(streamId, eventData1, revision);
-//        testStore.append(streamId, eventData2, (revision = revision.next()));
-//        testStore.append(streamId, eventData3, (revision = revision.next()));
+        StreamRevision revision = StreamRevision.INITIAL;
+        testStore.append(streamId, eventData1, revision);
+        testStore.append(streamId, eventData2, (revision = revision.next()));
+        testStore.append(streamId, eventData3, (revision = revision.next()));
 
         List<StoredEventData> storedEvents = testStore.read(streamId);
         //List<StoredEventData> storedEvents = testStore.read(streamId, new StreamRevision(1));
@@ -166,11 +169,11 @@ public class RedisEventStore implements EventStore {
         JsonObject jsonObject = reader.readObject();
         EventType eventType = new EventType(jsonObject.getString("eventType"));
         EventId eventId = new EventId(UUID.fromString(jsonObject.getString("eventId")));
-        String payload = jsonObject.getString("event");
+        JsonObject payload = jsonObject.getJsonObject("event");
         String metadata = jsonObject.getString("metadata", null);
         long streamRevision = (long) jsonObject.getInt("streamRevision"); // TODO: use string in order to store long value?
 
-        return new StoredEventData(eventId, eventType, payload, metadata, streamRevision);
+        return new StoredEventData(eventId, eventType, payload.toString(), metadata, streamRevision);
     }
 
     private String keyForStream(StreamId streamId) {
