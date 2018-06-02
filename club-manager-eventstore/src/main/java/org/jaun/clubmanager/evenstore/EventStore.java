@@ -6,7 +6,7 @@ public interface EventStore {
 
     void append(StreamId streamId, EventData evenData, StreamRevision expectedVersion) throws ConcurrencyException;
 
-    List<EventData> read(StreamId streamId);
+    List<StoredEventData> read(StreamId streamId);
 
-    List<EventData> read(StreamId streamId, Integer versionGreaterThan);
+    List<StoredEventData> read(StreamId streamId, StreamRevision versionGreaterThan);
 }

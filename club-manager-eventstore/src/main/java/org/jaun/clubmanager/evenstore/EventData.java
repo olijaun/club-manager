@@ -3,6 +3,7 @@ package org.jaun.clubmanager.evenstore;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.google.common.base.MoreObjects;
 
@@ -12,9 +13,9 @@ import com.google.common.base.MoreObjects;
 public class EventData {
 
     private final EventId eventId;
+    private final EventType eventType;
     private final String payload;
     private final String metadata;
-    private final long streamVersion;
 
     /**
      * @param eventId
@@ -22,33 +23,36 @@ public class EventData {
      *         The actual event serialized into a string (could be a JSON).
      * @param metadata
      */
-    public EventData(EventId eventId, String payload, String metadata, long streamVersion) {
+    public EventData(EventId eventId, EventType eventType, String payload, String metadata) {
         this.eventId = requireNonNull(eventId);
+        this.eventType = requireNonNull(eventType);
         this.payload = requireNonNull(payload);
-        this.metadata = requireNonNull(metadata);
-        this.streamVersion = streamVersion;
+        this.metadata = metadata;
     }
 
     public EventId getEventId() {
         return eventId;
     }
 
+    public EventType getEventType() {
+        return eventType;
+    }
+
     public String getPayload() {
         return payload;
     }
 
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public long getStreamVersion() {
-        return streamVersion;
+    public Optional<String> getMetadata() {
+        return Optional.ofNullable(metadata);
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this) //
-                .add("id", eventId.getUuid().toString()).add("metadata", metadata).toString();
+                .add("id", eventId.getUuid().toString()) //
+                .add("eventType", eventType.getValue()) //
+                .add("payload", payload) //
+                .add("metadata", metadata).toString();
     }
 
     @Override
