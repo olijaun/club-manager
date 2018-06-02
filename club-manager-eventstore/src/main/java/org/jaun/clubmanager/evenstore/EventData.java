@@ -14,7 +14,7 @@ public class EventData {
     private final EventId eventId;
     private final String payload;
     private final String metadata;
-    private final int streamVersion;
+    private final long streamVersion;
 
     /**
      * @param eventId
@@ -22,7 +22,7 @@ public class EventData {
      *         The actual event serialized into a string (could be a JSON).
      * @param metadata
      */
-    public EventData(EventId eventId, String payload, String metadata, int streamVersion) {
+    public EventData(EventId eventId, String payload, String metadata, long streamVersion) {
         this.eventId = requireNonNull(eventId);
         this.payload = requireNonNull(payload);
         this.metadata = requireNonNull(metadata);
@@ -41,7 +41,7 @@ public class EventData {
         return metadata;
     }
 
-    public int getStreamVersion() {
+    public long getStreamVersion() {
         return streamVersion;
     }
 

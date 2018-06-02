@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface EventStore {
 
-    void append(StreamId streamId, List<EventData> eventList, Integer expectedVersion) throws ConcurrencyException;
+    void append(StreamId streamId, EventData evenData, StreamRevision expectedVersion) throws ConcurrencyException;
 
     List<EventData> read(StreamId streamId);
 
