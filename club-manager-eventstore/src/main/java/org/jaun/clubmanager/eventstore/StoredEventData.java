@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.evenstore;
+package org.jaun.clubmanager.eventstore;
 
 import com.google.common.base.MoreObjects;
 

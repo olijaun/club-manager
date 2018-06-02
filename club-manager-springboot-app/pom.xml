@@ -41,6 +41,11 @@
             <artifactId>club-manager-invoice</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-eventstore</artifactId>
+        </dependency>
+
         <!-- 3rd party -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

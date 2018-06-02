@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.evenstore;
+package org.jaun.clubmanager.eventstore;
 
 import static java.util.Objects.requireNonNull;
 
@@ -84,12 +84,12 @@ public class RedisEventStore implements EventStore {
 
     public static void main(String[] args) throws ConcurrencyException {
         RedisEventStore testStore = new RedisEventStore("testStore");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("mycat12"));
-        EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"oliver1\" }",
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("mycat13"));
+        EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta1\" }");
-        EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"oliver2\" }",
+        EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta2\" }");
-        EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"oliver3\" }",
+        EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta3\" }");
 
         StreamRevision revision = StreamRevision.INITIAL;

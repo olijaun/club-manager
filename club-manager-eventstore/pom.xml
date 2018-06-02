@@ -28,6 +28,10 @@
         </dependency>
 
         <!-- 3rd party -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jersey</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>redis.clients</groupId>

@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.evenstore;
+package org.jaun.clubmanager.eventstore;
 
 import static java.util.Objects.requireNonNull;
 
@@ -7,7 +7,6 @@ import java.util.Objects;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
-import org.jaun.clubmanager.evenstore.Category;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
