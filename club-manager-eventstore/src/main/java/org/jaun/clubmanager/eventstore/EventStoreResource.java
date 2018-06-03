@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -50,10 +52,10 @@ public class EventStoreResource {
     }
 
     private Response addEvent(UriInfo uriInfo, String eventIdAsString, String eventTypeAsString, String streamIdAsString,
-            Long expectedVersion, InputStream inputStream) {
+            Long expectedVersionAsLong, InputStream inputStream) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
-        StreamRevision streamRevision = StreamRevision.from(expectedVersion);
+        StreamRevision expectedVersion = StreamRevision.from(expectedVersionAsLong);
 
         JsonReader reader = Json.createReader(new InputStreamReader(inputStream));
 
@@ -76,7 +78,7 @@ public class EventStoreResource {
             EventData eventData = new EventData(eventId, eventType, jsonObject.toString(), null);
 
             try {
-                StreamRevision newRevision = eventStore.append(streamId, eventData, streamRevision);
+                StreamRevision newRevision = eventStore.append(streamId, Collections.singletonList(eventData), expectedVersion);
 
                 UriBuilder path = uriInfo.getAbsolutePathBuilder().path(newRevision.getValue().toString().replaceAll("\\D+", ""));
                 return Response.created(path.build()).build();
@@ -88,28 +90,29 @@ public class EventStoreResource {
         } else if (jsonStructure.getValueType().equals(JsonValue.ValueType.ARRAY)) {
 
             JsonArray jsonArray = (JsonArray) jsonStructure;
-            List<StreamRevision> revisions = new ArrayList<>();
 
             if (jsonArray.isEmpty()) {
                 // request must contain at least one event
                 throw new BadRequestException("Write request body invalid.");
             }
 
+            List<JsonObject> jsonObjectList = new ArrayList<>(jsonArray.size());
             for (int i = 0; i < jsonArray.size(); i++) {
-
                 JsonObject jsonObject = jsonArray.getJsonObject(i);
-                try {
-                    revisions.add(eventStore.append(streamId, toEventData(jsonObject), streamRevision.add(i)));
-                } catch (ConcurrencyException e) {
-                    // TODO: which return codeto use in this case?
-                    // request must contain at least one event
-                    throw new BadRequestException("Wrong expected EventNumber", e);
-                }
+                jsonObjectList.add(jsonObject);
             }
 
-            // event store returns location to first revision that was added (and not latest as one might think)
-            UriBuilder path = uriInfo.getAbsolutePathBuilder().path(revisions.get(0).getValue().toString().replaceAll("\\D+", ""));
-            return Response.created(path.build()).build();
+            List<EventData> eventDataList = jsonObjectList.stream().map(this::toEventData).collect(Collectors.toList());
+
+            try {
+                StreamRevision newRevision = eventStore.append(streamId, eventDataList, expectedVersion);
+
+                // event store returns location to first revision that was added (and not latest as one might think)
+                UriBuilder path = uriInfo.getAbsolutePathBuilder().path(newRevision.getValue().toString().replaceAll("\\D+", ""));
+                return Response.created(path.build()).build();
+            } catch (ConcurrencyException e) {
+                throw new BadRequestException("Wrong expected EventNumber", e);
+            }
         } else {
             throw new BadRequestException("Write request body invalid.");
         }

@@ -1,5 +1,6 @@
 package org.jaun.clubmanager.eventstore;
 
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -8,7 +9,9 @@ import java.io.StringReader;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PreDestroy;
 import javax.json.Json;
@@ -34,7 +37,7 @@ import redis.clients.jedis.JedisPoolConfig;
 public class RedisEventStore implements EventStore {
 
     private final JedisPool jedisPool;
-    private final String commitsKey;
+    private final String eventsKey;
     private final String keyPrefix;
     private final String streamKeyPrefix;
     private final String tryCommitScriptId;
@@ -63,7 +66,7 @@ public class RedisEventStore implements EventStore {
     public RedisEventStore(String name) {
         requireNonNull(name);
         keyPrefix = name + ":";
-        commitsKey = keyPrefix + "commits";
+        eventsKey = keyPrefix + "events";
         streamKeyPrefix = keyPrefix + "stream:";
 
         jedisPool = new JedisPool(buildPoolConfig(), "localhost", 6379);
@@ -82,7 +85,7 @@ public class RedisEventStore implements EventStore {
     public static void main(String[] args) throws ConcurrencyException {
         System.out.println(TRY_COMMIT_SCRIPT);
         RedisEventStore testStore = new RedisEventStore("testStore4");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli8"));
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli29"));
         EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta1\" }");
         EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"o\" }",
@@ -90,15 +93,20 @@ public class RedisEventStore implements EventStore {
         EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta3\" }");
 
-        StreamRevision revision = StreamRevision.NEW_STREAM;
-        testStore.append(streamId, eventData1, revision);
-        testStore.append(streamId, eventData2, (revision = revision.next()));
-        testStore.append(streamId, eventData3, (revision = revision.next()));
+        StreamRevision returnedRevision1 = testStore.append(streamId, singletonList(eventData1), StreamRevision.UNSPECIFIED);
+        StreamRevision returnedRevision2 = testStore.append(streamId, singletonList(eventData2), returnedRevision1);
+        StreamRevision returnedRevision3 = testStore.append(streamId, singletonList(eventData3), returnedRevision2);
 
         List<StoredEventData> storedEvents = testStore.read(streamId);
         //List<StoredEventData> storedEvents = testStore.read(streamId, new StreamRevision(1));
         for (StoredEventData storedEventData : storedEvents) {
             System.out.println("event: " + storedEventData);
+        }
+    }
+
+    public static void varargs(Object... objects) {
+        for (Object o : objects) {
+            System.out.println(o);
         }
     }
 
@@ -118,23 +126,46 @@ public class RedisEventStore implements EventStore {
     }
 
     @Override
-    public StreamRevision append(StreamId streamId, EventData eventData, StreamRevision expectedVersion)
+    public StreamRevision append(StreamId streamId, List<EventData> eventDataList, StreamRevision expectedVersion)
             throws ConcurrencyException {
 
         long timestamp = System.currentTimeMillis();
 
+        UUID commitId = eventDataList.size() == 1 ? eventDataList.get(0).getEventId().getUuid() : UUID.randomUUID();
+
         try (Jedis jedis = jedisPool.getResource()) {
 
-            Object response = jedis.evalsha(tryCommitScriptId, 2,
-                    /* KEYS */ commitsKey, keyForStream(streamId),
-                    /* ARGV */ String.valueOf(timestamp), streamId.getValue(), eventData.getEventId().getUuid().toString(),
-                    eventData.getEventType().getValue(), expectedVersion.getValue().toString(),
-                    toRedisEventString(eventData, expectedVersion.next(), timestamp));
+            if (expectedVersion.equals(StreamRevision.UNSPECIFIED)) {
+                // TODO: should be handled on redis side. but hey it works normally.
+                expectedVersion = StreamRevision.from(jedis.llen(keyForStream(streamId)) - 1L);
+            }
+
+            Stream<String> keyStream = Stream.of(
+                    /* KEYS */ eventsKey, keyForStream(streamId));
+
+            Stream<String> constantValuesStream = Stream.of( //
+                    streamId.getValue(), // streamId
+                    expectedVersion.getValue().toString(),  // expectedVersion
+                    String.valueOf(eventDataList.size())); // numberOfEvents
+
+            AtomicLong atomicLong = new AtomicLong(expectedVersion.getValue() + 1);
+            Stream<String> serializedEventDataStream = eventDataList.stream()
+                    .map(eventData -> toRedisEventString(eventData, StreamRevision.from(atomicLong.getAndIncrement()), commitId,
+                            timestamp));
+
+            String[] varargs =
+                    Stream.concat(Stream.concat(keyStream, constantValuesStream), serializedEventDataStream).toArray(String[]::new);
+
+//            String formatted = Stream.of(varargs).collect(Collectors.joining(",", "[", "]"));
+//            System.out.println("--------------" + formatted);
+
+            Object response = jedis.evalsha(tryCommitScriptId, 2, varargs);
 
             if (response instanceof List) {
-                List<String> responseList = ((List<String>) response);
+                List<Object> responseList = (List) response;
+                System.out.println("lua response: " + responseList);
                 if (responseList.get(0).equals("commit")) {
-                    return expectedVersion.next();
+                    return StreamRevision.from(Long.parseLong(responseList.get(1).toString()));
                 } else if (responseList.get(0).equals("streamExistsAlready")) {
                     throw new ConcurrencyException("stream exists already");
                 } else if (responseList.get(0).equals("conflict")) {
@@ -147,12 +178,18 @@ public class RedisEventStore implements EventStore {
         }
     }
 
-    private String toRedisEventString(EventData eventData, StreamRevision streamRevision, long timestamp) {
+    private String toRedisEventString(EventData eventData, StreamRevision streamRevision, UUID commitId, long timestamp) {
+
+        requireNonNull(eventData);
+        requireNonNull(streamRevision);
+        requireNonNull(commitId);
+        requireNonNull(timestamp);
 
         JsonObject jsonPayload = Json.createReader(new StringReader(eventData.getPayload())).readObject();
 
         return Json.createObjectBuilder()
                 .add("eventId", eventData.getEventId().getUuid().toString())
+                .add("commitId", commitId.toString())
                 .add("eventType", eventData.getEventType().getValue())
                 .add("timestamp", String.valueOf(timestamp))
                 .add("streamRevision", streamRevision.getValue())
@@ -178,11 +215,10 @@ public class RedisEventStore implements EventStore {
 
             List<String> commitIds = jedis.lrange(keyForStream(streamId), fromRevision.getValue(), toRevision.getValue());
 
-            return jedis.hmget(commitsKey, commitIds.toArray(new String[commitIds.size()]))
+            return jedis.hmget(eventsKey, commitIds.toArray(new String[commitIds.size()]))
                     .stream()
                     .map(this::toEventData)
                     .collect(Collectors.toList());
-
         }
     }
 
