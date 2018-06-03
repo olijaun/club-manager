@@ -82,7 +82,7 @@ public class RedisEventStore implements EventStore {
     public static void main(String[] args) throws ConcurrencyException {
         System.out.println(TRY_COMMIT_SCRIPT);
         RedisEventStore testStore = new RedisEventStore("testStore4");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli5"));
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli8"));
         EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta1\" }");
         EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"o\" }",
@@ -90,7 +90,7 @@ public class RedisEventStore implements EventStore {
         EventData eventData3 = new EventData(EventId.generate(), new EventType("MyEventType3"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta3\" }");
 
-        StreamRevision revision = StreamRevision.INITIAL;
+        StreamRevision revision = StreamRevision.NEW_STREAM;
         testStore.append(streamId, eventData1, revision);
         testStore.append(streamId, eventData2, (revision = revision.next()));
         testStore.append(streamId, eventData3, (revision = revision.next()));
@@ -128,8 +128,8 @@ public class RedisEventStore implements EventStore {
             Object response = jedis.evalsha(tryCommitScriptId, 2,
                     /* KEYS */ commitsKey, keyForStream(streamId),
                     /* ARGV */ String.valueOf(timestamp), streamId.getValue(), eventData.getEventId().getUuid().toString(),
-                    eventData.getEventType().getValue(), expectedVersion.getValue().toString(), eventData.getPayload(),
-                    eventData.getMetadata().orElse(""));
+                    eventData.getEventType().getValue(), expectedVersion.getValue().toString(),
+                    toRedisEventString(eventData, expectedVersion.next(), timestamp));
 
             if (response instanceof List) {
                 List<String> responseList = ((List<String>) response);
@@ -145,6 +145,21 @@ public class RedisEventStore implements EventStore {
             }
             throw new IllegalStateException("unexpected response from lua script: " + response);
         }
+    }
+
+    private String toRedisEventString(EventData eventData, StreamRevision streamRevision, long timestamp) {
+
+        JsonObject jsonPayload = Json.createReader(new StringReader(eventData.getPayload())).readObject();
+
+        return Json.createObjectBuilder()
+                .add("eventId", eventData.getEventId().getUuid().toString())
+                .add("eventType", eventData.getEventType().getValue())
+                .add("timestamp", String.valueOf(timestamp))
+                .add("streamRevision", streamRevision.getValue())
+                .add("metadata", eventData.getMetadata().orElse(null))
+                .add("data", jsonPayload)
+                .build()
+                .toString();
     }
 
     @Override
@@ -172,13 +187,13 @@ public class RedisEventStore implements EventStore {
     }
 
     private StoredEventData toEventData(String jsonString) {
-        System.out.println(jsonString);
+        System.out.println("json string: " + jsonString);
         JsonReader reader = Json.createReader(new StringReader(jsonString));
 
         JsonObject jsonObject = reader.readObject();
-        EventType eventType = new EventType(jsonObject.getString("eventType"));
         EventId eventId = new EventId(UUID.fromString(jsonObject.getString("eventId")));
-        JsonObject payload = jsonObject.getJsonObject("event");
+        EventType eventType = new EventType(jsonObject.getString("eventType"));
+        JsonObject payload = jsonObject.getJsonObject("data");
         String metadata = jsonObject.getString("metadata", null);
         StreamRevision streamRevision =
                 StreamRevision.from((long) jsonObject.getInt("streamRevision")); // TODO: use string in order to store long value?

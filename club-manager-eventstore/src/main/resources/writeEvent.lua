@@ -14,7 +14,8 @@ local eventType = ARGV[4]
 -- 0 means 'stream exists but no event is stored yet'
 local expected = tonumber(ARGV[5])
 local event = ARGV[6]
-local metadata = ARGV[7]
+
+--table.getn(ARGV)
 
 local exists = redis.call('exists', streamKey);
 if expected == -1 and exists == 1 then
@@ -28,7 +29,8 @@ if expected ~= -2 and currentRevision ~= expected then
 end
 
 local storeRevision = tonumber(redis.call('hlen', commitsKey))
-local commitData = string.format('{"eventId":%s,"timestamp":%d,"streamId":%s,"eventType":%s,"streamRevision":%d,"event":%s,"metadata":%s}',cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), currentRevision + 1, event, metadata)
+local commitData = event
+--string.format('{"eventId":%s,"timestamp":%d,"streamId":%s,"eventType":%s,"streamRevision":%d,"event":%s,"metadata":%s}',cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), currentRevision + 1, event, metadata)
 
 redis.call('hset', commitsKey, eventId, commitData)
 redis.call('rpush', streamKey, eventId)
