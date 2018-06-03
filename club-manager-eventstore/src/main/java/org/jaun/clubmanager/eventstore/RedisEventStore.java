@@ -2,6 +2,8 @@ package org.jaun.clubmanager.eventstore;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.time.Duration;
 import java.util.List;
@@ -14,19 +16,24 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
+import org.springframework.stereotype.Service;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteSource;
 import com.google.gson.Gson;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-// https://tech.zilverline.com/2012/07/30/simple-event-sourcing-redis-event-store-part-3
-// https://medium.com/lcom-techblog/scalable-microservices-with-event-sourcing-and-redis-6aa245574db0
+/**
+ * This is based on ideas from https://tech.zilverline.com/2012/07/30/simple-event-sourcing-redis-event-store-part-3 and
+ * https://medium.com/lcom-techblog/scalable-microservices-with-event-sourcing-and-redis-6aa245574db0
+ */
+@Service
 public class RedisEventStore implements EventStore {
 
     private final JedisPool jedisPool;
-    private final String name;
     private final String commitsKey;
     private final String keyPrefix;
     private final String streamKeyPrefix;
@@ -34,37 +41,27 @@ public class RedisEventStore implements EventStore {
 
     private final Gson gson = new Gson();
 
-    private static final String TRY_COMMIT_SCRIPT = //
-            "local commitsKey = KEYS[1]\n" //
-            + "local streamKey = KEYS[2]\n" //
-            + "local timestamp = tonumber(ARGV[1])\n" //
-            + "local streamId = ARGV[2]\n" //
-            + "local eventId = ARGV[3]\n" //
-            + "local eventType = ARGV[4]\n" //
-            + "local expected = tonumber(ARGV[5])\n" //
-            + "local event = ARGV[6]\n" //
-            + "local metadata = ARGV[7]\n" //
-            + "\n" //
-            + "local actual = tonumber(redis.call('llen', streamKey))\n" //
-            + "if actual ~= expected then \n" //
-            + "return {'conflict', tostring(actual)}\n" //
-            + "end\n" //
-            + "\n" //
-            + "local storeRevision = tonumber(redis.call('hlen', commitsKey))\n" //
-            //+ "local commitId = storeRevision + 1 \n" //
-            + "local commitData = string.format('{\"eventId\":%s,\"timestamp\":%d,\"streamId\":%s,\"eventType\":%s,\"streamRevision\":%d,\"event\":%s,\"metadata\":%s}',"
-            + "cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), actual + 1, event, metadata)\n"
-            //
-            + "\n" //
-            + "redis.call('hset', commitsKey, eventId, commitData)\n" //
-            + "redis.call('rpush', streamKey, eventId)\n" //
-            + "redis.call('publish', commitsKey, commitData)\n" //
-            + "\n" //
-            + "return {'commit', tostring(eventId)}\n";
+    private static final String TRY_COMMIT_SCRIPT;
+
+    static {
+        InputStream inputStream = RedisEventStore.class.getResourceAsStream("/writeEvent.lua");
+        ByteSource byteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return inputStream;
+            }
+        };
+
+        try {
+            String text = byteSource.asCharSource(Charsets.UTF_8).read();
+            TRY_COMMIT_SCRIPT = text;
+        } catch (IOException e) {
+            throw new IllegalStateException("failed to read stream", e);
+        }
+    }
 
     public RedisEventStore(String name) {
-        System.out.println(TRY_COMMIT_SCRIPT);
-        this.name = requireNonNull(name);
+        requireNonNull(name);
         keyPrefix = name + ":";
         commitsKey = keyPrefix + "commits";
         streamKeyPrefix = keyPrefix + "stream:";
@@ -83,8 +80,9 @@ public class RedisEventStore implements EventStore {
     }
 
     public static void main(String[] args) throws ConcurrencyException {
-        RedisEventStore testStore = new RedisEventStore("testStore");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("mycat13"));
+        System.out.println(TRY_COMMIT_SCRIPT);
+        RedisEventStore testStore = new RedisEventStore("testStore4");
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli5"));
         EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta1\" }");
         EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"o\" }",
@@ -120,7 +118,8 @@ public class RedisEventStore implements EventStore {
     }
 
     @Override
-    public void append(StreamId streamId, EventData eventData, StreamRevision expectedVersion) throws ConcurrencyException {
+    public StreamRevision append(StreamId streamId, EventData eventData, StreamRevision expectedVersion)
+            throws ConcurrencyException {
 
         long timestamp = System.currentTimeMillis();
 
@@ -133,8 +132,18 @@ public class RedisEventStore implements EventStore {
                     eventData.getMetadata().orElse(""));
 
             if (response instanceof List) {
-                System.out.println(((List) response).get(0));
+                List<String> responseList = ((List<String>) response);
+                if (responseList.get(0).equals("commit")) {
+                    return expectedVersion.next();
+                } else if (responseList.get(0).equals("streamExistsAlready")) {
+                    throw new ConcurrencyException("stream exists already");
+                } else if (responseList.get(0).equals("conflict")) {
+                    throw new ConcurrencyException("version conflict: " + responseList);
+                } else {
+                    throw new IllegalStateException("unknown response from lua script: " + responseList);
+                }
             }
+            throw new IllegalStateException("unexpected response from lua script: " + response);
         }
     }
 
@@ -171,7 +180,8 @@ public class RedisEventStore implements EventStore {
         EventId eventId = new EventId(UUID.fromString(jsonObject.getString("eventId")));
         JsonObject payload = jsonObject.getJsonObject("event");
         String metadata = jsonObject.getString("metadata", null);
-        long streamRevision = (long) jsonObject.getInt("streamRevision"); // TODO: use string in order to store long value?
+        StreamRevision streamRevision =
+                StreamRevision.from((long) jsonObject.getInt("streamRevision")); // TODO: use string in order to store long value?
 
         return new StoredEventData(eventId, eventType, payload.toString(), metadata, streamRevision);
     }

@@ -2,13 +2,16 @@ package org.jaun.clubmanager.eventstore;
 
 public class StreamRevision implements Comparable<StreamRevision> {
 
+    /** states that this write should never conflict and should always succeed */
+    public static final StreamRevision UNSPECIFIED = new StreamRevision(-2);
+    public static final StreamRevision NEW_STREAM = new StreamRevision(-1);
     public static final StreamRevision INITIAL = new StreamRevision(0);
     public static final StreamRevision MAXIMUM = new StreamRevision(Long.MAX_VALUE);
     private final Long value;
 
-    public StreamRevision(long value) {
-        if (value < 0) {
-            throw new IllegalStateException("stream revision cannot be negative: " + value);
+    private StreamRevision(long value) {
+        if (value < -2) {
+            throw new IllegalStateException("stream revision cannot be less tha -2: " + value);
         }
 
         this.value = value;
@@ -24,6 +27,23 @@ public class StreamRevision implements Comparable<StreamRevision> {
 
     public StreamRevision previous() {
         return new StreamRevision(value - 1);
+    }
+
+    public StreamRevision add(int i) {
+        return new StreamRevision(value + i);
+    }
+
+    public static StreamRevision from(Long revision) {
+        if (revision == null) {
+            return UNSPECIFIED;
+        }
+        if (revision == NEW_STREAM.getValue()) {
+            return NEW_STREAM;
+        }
+        if (revision == INITIAL.getValue()) {
+            return INITIAL;
+        }
+        return new StreamRevision(revision);
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.google.common.base.MoreObjects;
  */
 public class StoredEventData extends EventData {
 
-    private final long streamVersion;
+    private final StreamRevision streamRevision;
 
     /**
      * @param eventId
@@ -15,13 +15,13 @@ public class StoredEventData extends EventData {
      *         The actual event serialized into a string (could be a JSON).
      * @param metadata
      */
-    public StoredEventData(EventId eventId, EventType eventType, String payload, String metadata, long streamVersion) {
+    public StoredEventData(EventId eventId, EventType eventType, String payload, String metadata, StreamRevision streamRevision) {
         super(eventId, eventType, payload, metadata);
-        this.streamVersion = streamVersion;
+        this.streamRevision = streamRevision;
     }
 
-    public long getStreamVersion() {
-        return streamVersion;
+    public StreamRevision getStreamRevision() {
+        return streamRevision;
     }
 
     @Override
@@ -31,6 +31,6 @@ public class StoredEventData extends EventData {
                 .add("eventType", getEventType().getValue()) //
                 .add("payload", getPayload()) //
                 .add("metadata", getMetadata()) //
-                .add("streamVersion", streamVersion).toString();
+                .add("streamRevision", streamRevision).toString();
     }
 }
