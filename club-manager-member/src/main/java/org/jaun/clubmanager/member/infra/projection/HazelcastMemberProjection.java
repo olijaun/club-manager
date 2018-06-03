@@ -41,7 +41,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-@Service
+//@Service
 public class HazelcastMemberProjection extends AbstractProjection {
 
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;

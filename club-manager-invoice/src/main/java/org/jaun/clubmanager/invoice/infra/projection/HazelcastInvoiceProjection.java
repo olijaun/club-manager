@@ -19,7 +19,7 @@ import com.github.msemys.esjc.EventStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-@Service
+//@Service
 public class HazelcastInvoiceProjection extends AbstractProjection {
 
     private final IMap<InvoiceId, InvoiceDTO> invoiceMap;

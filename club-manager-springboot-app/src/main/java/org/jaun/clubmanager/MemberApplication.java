@@ -4,17 +4,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
-import org.jaun.clubmanager.invoice.infra.projection.HazelcastInvoiceProjection;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.jaun.clubmanager.eventstore.EventStore;
+import org.jaun.clubmanager.eventstore.RedisEventStore;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.github.msemys.esjc.EventStore;
-import com.github.msemys.esjc.EventStoreBuilder;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -31,14 +28,16 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.startSubscriptions();
+//        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+//        membershipProjection.startSubscriptions();
+//
+//        HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
+//        contactProjection.startSubscriptions();
+//
+//        HazelcastInvoiceProjection invoiceProjection = ctx.getBean(HazelcastInvoiceProjection.class);
+//        invoiceProjection.startSubscriptions();
 
-        HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-        contactProjection.startSubscriptions();
-
-        HazelcastInvoiceProjection invoiceProjection = ctx.getBean(HazelcastInvoiceProjection.class);
-        invoiceProjection.startSubscriptions();
+        //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
         return args -> {
 
@@ -67,9 +66,14 @@ public class MemberApplication {
         return Hazelcast.newHazelcastInstance(config);
     }
 
+//    @Bean
+//    public EventStore eventStore() {
+//        return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
+//    }
+
     @Bean
-    public EventStore eventStore() {
-        return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
+    public EventStore myEventStore() {
+        return new RedisEventStore("club-manager-event-store");
     }
 
     @Bean

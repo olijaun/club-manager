@@ -15,10 +15,6 @@ local expected = tonumber(ARGV[2])
 local numberOfEvents = tonumber(ARGV[3])
 -- ARGV[4] and following are events
 
---local decodedEvent = cjson.decode(ARGV[5]);
---if 1 == 1 then
---    return { 'decoded event', decodedEvent.eventId }
---end
 local exists = redis.call('exists', streamKey);
 if expected == -1 and exists == 1 then
     return { 'streamExistsAlready', streamId }
@@ -30,16 +26,16 @@ if expected ~= -2 and currentRevision ~= expected then
     return { 'conflict', tostring(expected), tostring(currentRevision) }
 end
 
---local storeRevision = tonumber(redis.call('hlen', eventsKey))
---string.format('{"eventId":%s,"timestamp":%d,"streamId":%s,"eventType":%s,"streamRevision":%d,"event":%s,"metadata":%s}',cjson.encode(eventId), timestamp, cjson.encode(streamId), cjson.encode(eventType), currentRevision + 1, event, metadata)
-
 for i = 4, (4 + numberOfEvents - 1), 1 do
 
     local decodedEvent = cjson.decode(ARGV[i])
 
-    redis.call('hset', eventsKey, decodedEvent.eventId, ARGV[i])
-    redis.call('rpush', streamKey, decodedEvent.eventId)
-    redis.call('publish', eventsKey, ARGV[i])
+    -- only add event if it does not exist yet
+    local hasBeenSet = redis.call('hsetnx', eventsKey, decodedEvent.eventId, ARGV[i])
+    if hasBeenSet == 1 then
+        redis.call('rpush', streamKey, decodedEvent.eventId)
+        redis.call('publish', eventsKey, ARGV[i])
+    end
 end
 
 local firstEvent = cjson.decode(ARGV[4])

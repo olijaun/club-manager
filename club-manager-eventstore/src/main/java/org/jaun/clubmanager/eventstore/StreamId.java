@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
@@ -15,33 +16,45 @@ public class StreamId extends ValueObject {
     private final String id;
     private final Category category;
 
-
     public StreamId(Id id, Category category) {
         this(id.getValue(), category);
     }
 
+    private StreamId(String id) {
+        this(id, null);
+    }
+
     private StreamId(String id, Category category) {
         this.id = requireNonNull(Strings.emptyToNull(id));
-        this.category = requireNonNull(category);
+        this.category = category;
     }
 
     public static StreamId parse(String value) {
         List<String> elements = Splitter.on('-').limit(2).splitToList(value);
-        String id = elements.get(1);
-        String category = elements.get(0);
-        return new StreamId(id, new Category(category));
+        if (elements.size() > 1) {
+            String category = elements.get(0);
+            String id = elements.get(1);
+            return new StreamId(id, new Category(category));
+        } else {
+            String id = elements.get(0);
+            return new StreamId(id, null);
+        }
     }
 
     public String getValue() {
-        return category.getName() + "-" + id;
+        if(category == null) {
+            return id;
+        } else {
+            return category.getName() + "-" + id;
+        }
     }
 
     public String getId() {
         return id;
     }
 
-    public Category getCategory() {
-        return category;
+    public Optional<Category> getCategory() {
+        return Optional.ofNullable(category);
     }
 
     @Override

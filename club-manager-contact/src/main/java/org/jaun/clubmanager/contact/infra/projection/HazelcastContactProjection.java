@@ -28,7 +28,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-@Service
+//@Service
 public class HazelcastContactProjection extends AbstractProjection {
 
     private IMap<String, ContactDTO> contactMap;

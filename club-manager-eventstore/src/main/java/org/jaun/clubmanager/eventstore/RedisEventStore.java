@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 import javax.annotation.PreDestroy;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
-import org.springframework.stereotype.Service;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
@@ -33,7 +33,6 @@ import redis.clients.jedis.JedisPoolConfig;
  * This is based on ideas from https://tech.zilverline.com/2012/07/30/simple-event-sourcing-redis-event-store-part-3 and
  * https://medium.com/lcom-techblog/scalable-microservices-with-event-sourcing-and-redis-6aa245574db0
  */
-@Service
 public class RedisEventStore implements EventStore {
 
     private final JedisPool jedisPool;
@@ -148,16 +147,13 @@ public class RedisEventStore implements EventStore {
                     expectedVersion.getValue().toString(),  // expectedVersion
                     String.valueOf(eventDataList.size())); // numberOfEvents
 
-            AtomicLong atomicLong = new AtomicLong(expectedVersion.getValue() + 1);
+            AtomicLong atomicLong = new AtomicLong(expectedVersion.getValue() - 1L);
             Stream<String> serializedEventDataStream = eventDataList.stream()
                     .map(eventData -> toRedisEventString(eventData, StreamRevision.from(atomicLong.getAndIncrement()), commitId,
                             timestamp));
 
             String[] varargs =
                     Stream.concat(Stream.concat(keyStream, constantValuesStream), serializedEventDataStream).toArray(String[]::new);
-
-//            String formatted = Stream.of(varargs).collect(Collectors.joining(",", "[", "]"));
-//            System.out.println("--------------" + formatted);
 
             Object response = jedis.evalsha(tryCommitScriptId, 2, varargs);
 
@@ -187,16 +183,20 @@ public class RedisEventStore implements EventStore {
 
         JsonObject jsonPayload = Json.createReader(new StringReader(eventData.getPayload())).readObject();
 
-        return Json.createObjectBuilder()
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder()
                 .add("eventId", eventData.getEventId().getUuid().toString())
                 .add("commitId", commitId.toString())
                 .add("eventType", eventData.getEventType().getValue())
                 .add("timestamp", String.valueOf(timestamp))
                 .add("streamRevision", streamRevision.getValue())
-                .add("metadata", eventData.getMetadata().orElse(null))
-                .add("data", jsonPayload)
-                .build()
-                .toString();
+                .add("data", jsonPayload);
+        if (eventData.getMetadata().isPresent()) {
+            jsonObjectBuilder.add("metadata", eventData.getMetadata().get());
+        } else {
+            jsonObjectBuilder.addNull("metadata");
+        }
+
+        return jsonObjectBuilder.build().toString();
     }
 
     @Override

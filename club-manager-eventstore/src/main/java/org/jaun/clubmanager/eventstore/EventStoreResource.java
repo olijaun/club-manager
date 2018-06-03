@@ -40,15 +40,27 @@ public class EventStoreResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{stream-id}/incoming/{event-id}")
+    public Response addEventWithIdInPath(@Context UriInfo uriInfo, @PathParam("stream-id") String streamIdAsString,
+            @PathParam("event-id") String eventIdAsString, @HeaderParam("ES-EventType") String eventTypeAsString,
+            @HeaderParam("ES-ExpectedVersion") Long expectedVersionAsLong, InputStream inputStream) {
+
+        return addEvent(uriInfo, eventIdAsString, eventTypeAsString, streamIdAsString, expectedVersionAsLong, inputStream);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{stream-id}")
-    public Response addEventWithIdInHeader(@Context UriInfo uriInfo, @HeaderParam("ES-EventId") String eventId,
-            @HeaderParam("ES-EventType") String eventType, @HeaderParam("ES-ExpectedVersion") Long expectedVersion,
+    public Response addEventWithIdInHeader(@Context UriInfo uriInfo, @HeaderParam("ES-EventId") String eventIdAsString,
+            @HeaderParam("ES-EventType") String eventTypeAsString, @HeaderParam("ES-ExpectedVersion") Long expectedVersionAsLong,
             @PathParam("stream-id") String streamId, InputStream inputStream) {
 
-        addEvent(uriInfo, eventId, eventType, streamId, expectedVersion, inputStream);
+        if (eventIdAsString == null) {
+            URI redirectLocation = uriInfo.getAbsolutePathBuilder().path("incoming").path(UUID.randomUUID().toString()).build();
+            throw new RedirectionException(Response.Status.TEMPORARY_REDIRECT, redirectLocation);
+        }
 
-        UriBuilder path = uriInfo.getAbsolutePathBuilder().path("/0");
-        return Response.created(path.build()).build();
+        return addEvent(uriInfo, eventIdAsString, eventTypeAsString, streamId, expectedVersionAsLong, inputStream);
     }
 
     private Response addEvent(UriInfo uriInfo, String eventIdAsString, String eventTypeAsString, String streamIdAsString,
@@ -63,10 +75,6 @@ public class EventStoreResource {
         if (jsonStructure.getValueType().equals(JsonValue.ValueType.OBJECT)) {
             JsonObject jsonObject = (JsonObject) jsonStructure;
 
-            if (eventIdAsString == null) {
-                URI redirectLocation = uriInfo.getAbsolutePathBuilder().path("incoming").path(UUID.randomUUID().toString()).build();
-                throw new RedirectionException(Response.Status.TEMPORARY_REDIRECT, redirectLocation);
-            }
 
             if (eventTypeAsString == null) {
                 throw new BadRequestException(
@@ -80,7 +88,9 @@ public class EventStoreResource {
             try {
                 StreamRevision newRevision = eventStore.append(streamId, Collections.singletonList(eventData), expectedVersion);
 
-                UriBuilder path = uriInfo.getAbsolutePathBuilder().path(newRevision.getValue().toString().replaceAll("\\D+", ""));
+                UriBuilder path = uriInfo.getAbsolutePathBuilder()
+                        .replacePath(uriInfo.getPath().replaceAll("/incoming.+", ""))
+                        .path(newRevision.getValue().toString().replaceAll("\\D+", ""));
                 return Response.created(path.build()).build();
 
             } catch (ConcurrencyException e) {
@@ -108,7 +118,9 @@ public class EventStoreResource {
                 StreamRevision newRevision = eventStore.append(streamId, eventDataList, expectedVersion);
 
                 // event store returns location to first revision that was added (and not latest as one might think)
-                UriBuilder path = uriInfo.getAbsolutePathBuilder().path(newRevision.getValue().toString().replaceAll("\\D+", ""));
+                UriBuilder path = uriInfo.getAbsolutePathBuilder()
+                        .replacePath("/" + streamIdAsString)
+                        .path(newRevision.getValue().toString().replaceAll("\\D+", ""));
                 return Response.created(path.build()).build();
             } catch (ConcurrencyException e) {
                 throw new BadRequestException("Wrong expected EventNumber", e);
@@ -122,7 +134,7 @@ public class EventStoreResource {
 
         String eventIdAsString = jsonObject.getString("eventId");
         String eventTypeAsString = jsonObject.getString("eventType");
-        String data = jsonObject.getString("data");
+        String data = jsonObject.getJsonObject("data").toString();
 
         if (eventIdAsString == null) {
             throw new BadRequestException("Empty eventId provided.");
@@ -137,15 +149,6 @@ public class EventStoreResource {
         return new EventData(eventId, eventType, data, null);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{stream-id}/incoming/{event-id}")
-    public Response addEventWithIdInPath(@Context UriInfo uriInfo, @HeaderParam("event-id") String eventId,
-            @HeaderParam("ES-EventType") String eventType, @PathParam("stream-id") String streamId,
-            @HeaderParam("ES-ExpectedVersion") Long expectedVersion, InputStream inputStream) {
-
-        return addEvent(uriInfo, eventId, eventType, streamId, expectedVersion, inputStream);
-    }
 
     @POST
     @Consumes("application/vnd.eventstore.events+json")
