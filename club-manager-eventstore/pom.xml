@@ -51,6 +51,11 @@
             <artifactId>javax.json</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+        </dependency>
+
         <!-- testing stuff -->
         <dependency>
             <groupId>junit</groupId>
