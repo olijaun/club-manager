@@ -5,7 +5,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
 import org.jaun.clubmanager.eventstore.EventStore;
-import org.jaun.clubmanager.eventstore.RedisEventStore;
+import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

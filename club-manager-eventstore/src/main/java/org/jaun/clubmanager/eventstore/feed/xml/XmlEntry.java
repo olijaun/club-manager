@@ -1,6 +1,5 @@
 package org.jaun.clubmanager.eventstore.feed.xml;
 
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -9,13 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(propOrder = { "title", "id", "updated", "author", "summary", "links" })
-public class Entry {
+public class XmlEntry {
     private String title;
     private String id;
     private Date updated;
-    private Author author;
+    private XmlAuthor author;
     private String summary;
-    private List<Link> links = Collections.emptyList();
+    private List<XmlLink> links = Collections.emptyList();
 
     public String getTitle() {
         return title;
@@ -41,11 +40,11 @@ public class Entry {
         this.updated = updated;
     }
 
-    public Author getAuthor() {
+    public XmlAuthor getAuthor() {
         return author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(XmlAuthor author) {
         this.author = author;
     }
 
@@ -58,11 +57,11 @@ public class Entry {
     }
 
     @XmlElement(name = "link")
-    public List<Link> getLinks() {
+    public List<XmlLink> getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(List<XmlLink> links) {
         this.links = links;
     }
 }

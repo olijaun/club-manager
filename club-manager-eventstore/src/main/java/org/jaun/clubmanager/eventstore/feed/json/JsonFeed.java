@@ -1,5 +1,9 @@
 package org.jaun.clubmanager.eventstore.feed.json;
 
+import java.net.URI;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -16,10 +20,11 @@ public class JsonFeed {
 
     private String title;
     private String id;
-    private Date updated;
-    private Author author;
-    private List<Link> links = Collections.emptyList();
-    private List<Entry> entries = Collections.emptyList();
+    private String updated;
+    private JsonAuthor author;
+    private Boolean headOfStream;
+    private List<JsonLink> links = new ArrayList();
+    private List<JsonEntry> entries = new ArrayList<>();
 
     public String getTitle() {
         return title;
@@ -33,41 +38,49 @@ public class JsonFeed {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(URI id) {
+        this.id = id.toASCIIString();
     }
 
-    public Date getUpdated() {
+    public String getUpdated() {
         return updated;
     }
 
-    public void setUpdated(Date date) {
-        this.updated = updated;
+    public void setUpdated(ZonedDateTime time) {
+        this.updated = time.format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    public Author getAuthor() {
+    public JsonAuthor getAuthor() {
         return author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(JsonAuthor author) {
         this.author = author;
     }
 
+    public void setUpdated(String updated) {
+        this.updated = updated;
+    }
+
+    public Boolean getHeadOfStream() {
+        return headOfStream;
+    }
+
+    public void setHeadOfStream(Boolean headOfStream) {
+        this.headOfStream = headOfStream;
+    }
+
     @XmlElement(name = "link")
-    public List<Link> getLinks() {
+    public List<JsonLink> getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
-        this.links = links;
-    }
-
     @XmlElement(name = "entry")
-    public List<Entry> getEntries() {
+    public List<JsonEntry> getEntries() {
         return entries;
     }
 
-    public void setEntries(List<Entry> entries) {
+    public void setEntries(List<JsonEntry> entries) {
         if (entries == null) {
             this.entries = Collections.emptyList();
         } else {

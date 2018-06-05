@@ -1,5 +1,8 @@
 package org.jaun.clubmanager.eventstore.feed.xml;
 
+import java.net.URI;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -16,10 +19,10 @@ public class XmlFeed {
 
     private String title;
     private String id;
-    private Date updated;
-    private Author author;
-    private List<Link> links = Collections.emptyList();
-    private List<Entry> entries = Collections.emptyList();
+    private String updated;
+    private XmlAuthor author;
+    private List<XmlLink> links = Collections.emptyList();
+    private List<XmlEntry> entries = Collections.emptyList();
 
     public String getTitle() {
         return title;
@@ -33,41 +36,41 @@ public class XmlFeed {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(URI id) {
+        this.id = id.toASCIIString();
     }
 
-    public Date getUpdated() {
+    public String getUpdated() {
         return updated;
     }
 
-    public void setUpdated(Date date) {
-        this.updated = updated;
+    public void setUpdated(ZonedDateTime time) {
+        this.updated = time.format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    public Author getAuthor() {
+    public XmlAuthor getAuthor() {
         return author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(XmlAuthor author) {
         this.author = author;
     }
 
     @XmlElement(name = "link")
-    public List<Link> getLinks() {
+    public List<XmlLink> getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(List<XmlLink> links) {
         this.links = links;
     }
 
     @XmlElement(name = "entry")
-    public List<Entry> getEntries() {
+    public List<XmlEntry> getEntries() {
         return entries;
     }
 
-    public void setEntries(List<Entry> entries) {
+    public void setEntries(List<XmlEntry> entries) {
         if (entries == null) {
             this.entries = Collections.emptyList();
         } else {

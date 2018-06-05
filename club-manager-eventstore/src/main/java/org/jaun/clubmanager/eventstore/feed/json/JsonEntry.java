@@ -8,13 +8,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(propOrder = { "title", "id", "updated", "author", "summary", "links" })
-public class Entry {
+public class JsonEntry {
     private String title;
     private String id;
     private Date updated;
-    private Author author;
+    private JsonAuthor author;
     private String summary;
-    private List<Link> links = Collections.emptyList();
+    private List<JsonLink> links = Collections.emptyList();
 
     public String getTitle() {
         return title;
@@ -40,11 +40,11 @@ public class Entry {
         this.updated = updated;
     }
 
-    public Author getAuthor() {
+    public JsonAuthor getAuthor() {
         return author;
     }
 
-    public void setAuthor(Author author) {
+    public void setAuthor(JsonAuthor author) {
         this.author = author;
     }
 
@@ -57,11 +57,11 @@ public class Entry {
     }
 
     @XmlElement(name = "link")
-    public List<Link> getLinks() {
+    public List<JsonLink> getLinks() {
         return links;
     }
 
-    public void setLinks(List<Link> links) {
+    public void setLinks(List<JsonLink> links) {
         this.links = links;
     }
 }

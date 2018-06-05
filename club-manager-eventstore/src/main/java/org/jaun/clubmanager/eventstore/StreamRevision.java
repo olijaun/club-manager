@@ -33,6 +33,17 @@ public class StreamRevision implements Comparable<StreamRevision> {
         return new StreamRevision(value + i);
     }
 
+    public StreamRevision sub(int i) {
+        return new StreamRevision(value - i);
+    }
+
+    public static StreamRevision from(Integer revision) {
+        if (revision == null) {
+            return UNSPECIFIED;
+        }
+        return from(revision.longValue());
+    }
+
     public static StreamRevision from(Long revision) {
         if (revision == null) {
             return UNSPECIFIED;

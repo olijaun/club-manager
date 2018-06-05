@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.eventstore;
+package org.jaun.clubmanager.eventstore.redis;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,6 +21,16 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 
 import org.jaun.clubmanager.domain.model.commons.Id;
+import org.jaun.clubmanager.eventstore.Category;
+import org.jaun.clubmanager.eventstore.ConcurrencyException;
+import org.jaun.clubmanager.eventstore.EventData;
+import org.jaun.clubmanager.eventstore.StoredEvents;
+import org.jaun.clubmanager.eventstore.EventId;
+import org.jaun.clubmanager.eventstore.EventStore;
+import org.jaun.clubmanager.eventstore.EventType;
+import org.jaun.clubmanager.eventstore.StoredEventData;
+import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamRevision;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
@@ -96,7 +107,7 @@ public class RedisEventStore implements EventStore {
         StreamRevision returnedRevision2 = testStore.append(streamId, singletonList(eventData2), returnedRevision1);
         StreamRevision returnedRevision3 = testStore.append(streamId, singletonList(eventData3), returnedRevision2);
 
-        List<StoredEventData> storedEvents = testStore.read(streamId);
+        StoredEvents storedEvents = testStore.read(streamId);
         //List<StoredEventData> storedEvents = testStore.read(streamId, new StreamRevision(1));
         for (StoredEventData storedEventData : storedEvents) {
             System.out.println("event: " + storedEventData);
@@ -147,9 +158,16 @@ public class RedisEventStore implements EventStore {
                     expectedVersion.getValue().toString(),  // expectedVersion
                     String.valueOf(eventDataList.size())); // numberOfEvents
 
-            AtomicLong atomicLong = new AtomicLong(expectedVersion.getValue() - 1L);
+            AtomicLong revisionOfNewEvent;
+            if(expectedVersion.equals(StreamRevision.NEW_STREAM)) {
+                revisionOfNewEvent = new AtomicLong(0);
+            } else {
+
+                revisionOfNewEvent = new AtomicLong(expectedVersion.add(1).getValue());
+            }
+
             Stream<String> serializedEventDataStream = eventDataList.stream()
-                    .map(eventData -> toRedisEventString(eventData, StreamRevision.from(atomicLong.getAndIncrement()), commitId,
+                    .map(eventData -> toRedisEventString(eventData, StreamRevision.from(revisionOfNewEvent.getAndIncrement()), commitId,
                             timestamp));
 
             String[] varargs =
@@ -200,25 +218,39 @@ public class RedisEventStore implements EventStore {
     }
 
     @Override
-    public List<StoredEventData> read(StreamId streamId) {
+    public StoredEvents read(StreamId streamId) {
         return read(streamId, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public List<StoredEventData> read(StreamId streamId, StreamRevision versionGreaterThan) {
+    public StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan) {
         return read(streamId, versionGreaterThan, StreamRevision.MAXIMUM);
     }
 
-    private List<StoredEventData> read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) {
+    @Override
+    public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) {
 
         try (Jedis jedis = jedisPool.getResource()) {
 
             List<String> commitIds = jedis.lrange(keyForStream(streamId), fromRevision.getValue(), toRevision.getValue());
 
-            return jedis.hmget(eventsKey, commitIds.toArray(new String[commitIds.size()]))
+            if(commitIds.isEmpty()) {
+                return new StoredEvents(Collections.emptyList());
+            }
+
+            List<StoredEventData> eventDataList = jedis.hmget(eventsKey, commitIds.toArray(new String[commitIds.size()]))
                     .stream()
                     .map(this::toEventData)
                     .collect(Collectors.toList());
+
+            return new StoredEvents(eventDataList);
+        }
+    }
+
+    @Override
+    public long length(StreamId streamId) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.llen(keyForStream(streamId));
         }
     }
 

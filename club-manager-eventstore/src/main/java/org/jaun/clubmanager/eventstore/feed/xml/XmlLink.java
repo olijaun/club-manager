@@ -1,10 +1,17 @@
 package org.jaun.clubmanager.eventstore.feed.xml;
 
+import java.net.URI;
+
 import javax.xml.bind.annotation.XmlAttribute;
 
-public class Link {
+public class XmlLink {
     private String href;
     private String rel;
+
+    public XmlLink(URI href, String rel) {
+        this.href = href.toString();
+        this.rel = rel;
+    }
 
     @XmlAttribute
     public String getHref() {

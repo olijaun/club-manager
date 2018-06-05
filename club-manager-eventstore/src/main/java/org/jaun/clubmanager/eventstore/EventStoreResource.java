@@ -3,6 +3,8 @@ package org.jaun.clubmanager.eventstore;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,10 +35,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.jaun.clubmanager.eventstore.feed.xml.Author;
-import org.jaun.clubmanager.eventstore.feed.xml.Entry;
-import org.jaun.clubmanager.eventstore.feed.xml.Link;
+import org.jaun.clubmanager.eventstore.feed.json.JsonAuthor;
+import org.jaun.clubmanager.eventstore.feed.json.JsonFeed;
+import org.jaun.clubmanager.eventstore.feed.json.JsonLink;
+import org.jaun.clubmanager.eventstore.feed.xml.XmlAuthor;
+import org.jaun.clubmanager.eventstore.feed.xml.XmlEntry;
 import org.jaun.clubmanager.eventstore.feed.xml.XmlFeed;
+import org.jaun.clubmanager.eventstore.feed.xml.XmlLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +51,8 @@ public class EventStoreResource {
 
     @Autowired
     private EventStore eventStore;
+
+    public static final int PAGE_SIZE = 20;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -177,49 +184,35 @@ public class EventStoreResource {
 
         XmlFeed feed = new XmlFeed();
         feed.setTitle("EventStream '" + streamId + "'");
-        feed.setId(selfBuilder.build().toASCIIString());
-        feed.setUpdated(new Date());
+        feed.setId(selfBuilder.build());
+        feed.setUpdated(ZonedDateTime.now(ZoneId.of("UTC")));
 
-        Author author = new Author();
-        author.setName("EventStore");
-        feed.setAuthor(author);
+        feed.setAuthor(new XmlAuthor("EventStore"));
 
-        Link selfLink = new Link();
-        selfLink.setRel("self");
-        selfLink.setHref(selfBuilder.build().toString());
+        XmlLink selfLink = new XmlLink(selfBuilder.build(), "self");
+        XmlLink firstLink = new XmlLink(selfBuilder.path("head/backward/20").build(), "first");
+        XmlLink metadataLink = new XmlLink(selfBuilder.path("metadata").build(), "metadata");
 
-        Link firstLink = new Link();
-        firstLink.setRel("first");
-        firstLink.setHref(selfBuilder.path("head/backward/20").build().toString());
+        feed.setLinks(Arrays.asList(selfLink, firstLink, metadataLink));
 
-        Link previousLink = new Link();
-        previousLink.setRel("previous");
-        previousLink.setHref(selfBuilder.path("8/forward/20").build().toString());
-
-        Link metadataLink = new Link();
-        metadataLink.setRel("metadata");
-        metadataLink.setHref(selfBuilder.path("metadata").build().toString());
-
-        feed.setLinks(Arrays.asList(selfLink, firstLink, previousLink, metadataLink));
-
-        Entry entry = new Entry();
+        XmlEntry entry = new XmlEntry();
         entry.setTitle("0@" + streamId);
         entry.setId(selfBuilder.path("0").build().toString());
         entry.setUpdated(new Date());
-        entry.setAuthor(author);
+        entry.setAuthor(new XmlAuthor("EventStore"));
         entry.setSummary("eventType");
 
         feed.setEntries(Arrays.asList(entry));
+//
+//        XmlLink editLink = new XmlLink();
+//        editLink.setRel("edit");
+//        editLink.setHref(selfBuilder.path("0").build().toString());
+//
+//        XmlLink alternateLink = new XmlLink();
+//        alternateLink.setRel("alternate");
+//        alternateLink.setHref(selfBuilder.path("head/backward/20").build().toString());
 
-        Link editLink = new Link();
-        editLink.setRel("edit");
-        editLink.setHref(selfBuilder.path("0").build().toString());
-
-        Link alternateLink = new Link();
-        alternateLink.setRel("alternate");
-        alternateLink.setHref(selfBuilder.path("head/backward/20").build().toString());
-
-        entry.setLinks(Arrays.asList(editLink, alternateLink));
+//        entry.setLinks(Arrays.asList(editLink, alternateLink));
 
 
         return Response.ok(feed, "application/atom+xml").build();
@@ -230,61 +223,82 @@ public class EventStoreResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}")
     public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOption,
-            @PathParam("stream-id") String streamId) {
+            @PathParam("stream-id") String streamIdAsString) {
 
         boolean rich = false;
         boolean body = false;
 
-        switch (embedOption) {
-            case "rich":
-                rich = true;
-                break;
-            case "body":
-            case "PrettyBody":
-            case "TryHarder":
-                rich = true;
-                body = true;
-            default:
-                throw new IllegalArgumentException("unknown embed option" + embedOption);
+        if (embedOption != null) {
+
+            switch (embedOption) {
+                case "rich":
+                    rich = true;
+                    break;
+                case "body":
+                case "PrettyBody":
+                case "TryHarder":
+                    rich = true;
+                    body = true;
+                default:
+                    throw new IllegalArgumentException("unknown embed option" + embedOption);
+            }
         }
 
-//        SyndFeed feed = new SyndFeedImpl();
-//        feed.setFeedType("atom_1.0");
-//
-//        feed.setTitle("Event stream " + streamId);
-//        feed.setUri(uriInfo.getAbsolutePathBuilder().build().toASCIIString());
-//        feed.setPublishedDate(new Date());
-//        feed.setAuthor("EventStore");
-//        feed.setDocs("eventType");
+        StreamId streamId = StreamId.parse(streamIdAsString);
 
-//        feed.setLink("http://rome.dev.java.net");
-//        feed.setDescription("This feed has been created using ROME (Java syndication utilities");
+        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.INITIAL, StreamRevision.from(PAGE_SIZE));
 
+        long totalStreamLength = eventStore.length(streamId);
 
-//        StreamingOutput stream = new StreamingOutput() {
-//            @Override
-//            public void write(OutputStream os) throws IOException, WebApplicationException {
-//                Writer writer = new BufferedWriter(new OutputStreamWriter(os));
-//
-//                for (org.neo4j.graphdb.Path path : paths) {
-//                    writer.write(path.toString() + "\n");
-//                }
-//                writer.flush();
-//            }
-//        };
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
 
-        return Response.ok(null, MediaType.APPLICATION_JSON).build();
+        return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
 
-//        SyndFeedOutput output = new SyndFeedOutput();
-//        try(StringWriter writer = new StringWriter()) {
-//            output.output(feed, writer);
-//            writer.close();
-//
-//            return Response.ok(writer.toString(), "application/atom+xml").build();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } catch (FeedException e) {
-//            throw new RuntimeException(e);
-//        }
+    }
+
+    private JsonFeed toJsonFeed(@Context UriInfo uriInfo, StreamId streamId, StoredEvents storedEvents, long totalStreamLength) {
+
+        JsonFeed jsonFeed = new JsonFeed();
+
+        jsonFeed.setAuthor(new JsonAuthor("EventStore"));
+        jsonFeed.setId(uriInfo.getAbsolutePath());
+        jsonFeed.setUpdated(ZonedDateTime.now(ZoneId.of("UTC")));
+        jsonFeed.setTitle("EventStream '" + streamId.getValue() + "'");
+
+        JsonLink selfLink = new JsonLink(uriInfo.getAbsolutePathBuilder().build(), "self");
+        jsonFeed.getLinks().add(selfLink);
+
+        JsonLink firstLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("head/backward/" + PAGE_SIZE).build(), "first");
+        jsonFeed.getLinks().add(firstLink);
+
+        boolean headOfStream = (totalStreamLength - 1) == storedEvents.highestRevision().getValue();
+        jsonFeed.setHeadOfStream(headOfStream);
+
+        // always exist and can be used to read future events
+        JsonLink previous = new JsonLink(uriInfo.getAbsolutePathBuilder()
+                .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + PAGE_SIZE)
+                .build(), "previous");
+
+        jsonFeed.getLinks().add(previous);
+
+        if (totalStreamLength > PAGE_SIZE) {
+            // only exists if there is more than one page
+            JsonLink lastLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("0/forward/" + PAGE_SIZE).build(), "last");
+            jsonFeed.getLinks().add(lastLink);
+        }
+
+        if (storedEvents.lowestRevision().getValue() > 0) {
+            JsonLink nextLink = new JsonLink(uriInfo.getAbsolutePathBuilder()
+                    .path(storedEvents.highestRevision().getValue() - PAGE_SIZE + "/backward/" + PAGE_SIZE)
+                    .build(), "next");
+            jsonFeed.getLinks().add(nextLink);
+        }
+
+        JsonLink metadataLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("metadata").build(), "metadata");
+
+        jsonFeed.getLinks().add(metadataLink);
+
+        return jsonFeed;
+
     }
 }
