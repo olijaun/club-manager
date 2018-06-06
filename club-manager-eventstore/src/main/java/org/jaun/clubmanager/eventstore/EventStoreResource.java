@@ -222,16 +222,55 @@ public class EventStoreResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
+    @Path("/{stream-id}/{stream-revision}/{direction}/{page-size}")
+    public Response getEvents(@Context UriInfo uriInfo, @PathParam("stream-revision") String streamRevisionAsString,
+            @PathParam("stream-id") String streamIdAsString, @PathParam("direction") String direction, @PathParam("page-size") Integer pageSize) {
+
+        StreamId streamId = StreamId.parse(streamIdAsString);
+
+        boolean foreward;
+        if(direction.equals("foreward")) {
+            foreward = true;
+        } else if(direction.equals("backward")) {
+            foreward = false;
+        } else {
+            throw new NotFoundException("not found " + direction);
+        }
+
+        long totalStreamLength = eventStore.length(streamId);
+
+        StreamRevision streamRevision =
+                streamRevisionAsString.equals("head") ? StreamRevision.from(totalStreamLength - 1) : StreamRevision.from(
+                        Long.parseLong(streamRevisionAsString));
+
+        long begin;
+        long end;
+        if(foreward) {
+            begin = streamRevision.getValue();
+            end = streamRevision.getValue() + pageSize;
+        } else {
+            long tmpBegin = streamRevision.getValue() - PAGE_SIZE;
+            begin = tmpBegin < 0 ? 0 : tmpBegin;
+            long tmpEnd = streamRevision.getValue();
+            end = tmpEnd > (totalStreamLength - 1) ? (totalStreamLength - 1) : tmpEnd;
+        }
+
+        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
+
+        return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}/{stream-revision}")
     public Response getEvent(@Context UriInfo uriInfo, @PathParam("stream-revision") String streamRevisionAsString,
             @PathParam("stream-id") String streamIdAsString) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
 
-        StreamRevision streamRevision =
-                streamRevisionAsString.equals("head") ? StreamRevision.from(eventStore.length(streamId) - 1) : StreamRevision.from(
-                        Long.parseLong(streamRevisionAsString));
-
+        StreamRevision streamRevision = toStreamRevision(streamId, streamRevisionAsString);
 
         StoredEvents storedEvents = eventStore.read(streamId, streamRevision, streamRevision);
 
@@ -240,6 +279,11 @@ public class EventStoreResource {
         }
 
         return Response.ok(storedEvents.iterator().next().getPayload(), MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
+    private StreamRevision toStreamRevision(StreamId streamId, String streamRevisionAsString) {
+        return  streamRevisionAsString.equals("head") ? StreamRevision.from(eventStore.length(streamId) - 1) : StreamRevision.from(
+                        Long.parseLong(streamRevisionAsString));
     }
 
     @GET
