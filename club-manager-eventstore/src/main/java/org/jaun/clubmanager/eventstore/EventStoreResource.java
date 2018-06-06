@@ -36,8 +36,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.jaun.clubmanager.eventstore.feed.json.JsonAuthor;
+import org.jaun.clubmanager.eventstore.feed.json.JsonEntry;
 import org.jaun.clubmanager.eventstore.feed.json.JsonFeed;
-import org.jaun.clubmanager.eventstore.feed.json.JsonLink;
 import org.jaun.clubmanager.eventstore.feed.xml.XmlAuthor;
 import org.jaun.clubmanager.eventstore.feed.xml.XmlEntry;
 import org.jaun.clubmanager.eventstore.feed.xml.XmlFeed;
@@ -246,9 +246,13 @@ public class EventStoreResource {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
 
-        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.INITIAL, StreamRevision.from(PAGE_SIZE));
-
         long totalStreamLength = eventStore.length(streamId);
+
+        long begin = Math.min()totalStreamLength - PAGE_SIZE;
+        long end = totalStreamLength - 1;
+
+        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+
 
         JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
 
@@ -263,40 +267,50 @@ public class EventStoreResource {
         jsonFeed.setAuthor(new JsonAuthor("EventStore"));
         jsonFeed.setId(uriInfo.getAbsolutePath());
         jsonFeed.setUpdated(ZonedDateTime.now(ZoneId.of("UTC")));
+        jsonFeed.setStreamId(streamId.getValue());
         jsonFeed.setTitle("EventStream '" + streamId.getValue() + "'");
+        jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
 
-        JsonLink selfLink = new JsonLink(uriInfo.getAbsolutePathBuilder().build(), "self");
-        jsonFeed.getLinks().add(selfLink);
+        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().build(), "self");
+        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("head/backward/" + PAGE_SIZE).build(), "first");
 
-        JsonLink firstLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("head/backward/" + PAGE_SIZE).build(), "first");
-        jsonFeed.getLinks().add(firstLink);
+        if (totalStreamLength > PAGE_SIZE) {
+            // only exists if there is more than one page
+            jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("0/forward/" + PAGE_SIZE).build(), "last");
+        }
+
+        if (storedEvents.lowestRevision().getValue() > 0) {
+            jsonFeed.addLink(uriInfo.getAbsolutePathBuilder()
+                    .path(storedEvents.highestRevision().getValue() - PAGE_SIZE + "/backward/" + PAGE_SIZE)
+                    .build(), "next");
+        }
+
+        // always exist and can be used to read future events
+        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder()
+                .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + PAGE_SIZE)
+                .build(), "previous");
 
         boolean headOfStream = (totalStreamLength - 1) == storedEvents.highestRevision().getValue();
         jsonFeed.setHeadOfStream(headOfStream);
 
-        // always exist and can be used to read future events
-        JsonLink previous = new JsonLink(uriInfo.getAbsolutePathBuilder()
-                .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + PAGE_SIZE)
-                .build(), "previous");
+        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("metadata").build(), "metadata");
 
-        jsonFeed.getLinks().add(previous);
+        for (StoredEventData eventData : storedEvents.newestFirstList()) {
+            JsonEntry entry = new JsonEntry();
+            entry.setTitle(eventData.getStreamRevision().getValue() + "@" + streamId.getValue());
+            entry.setId(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build());
+            entry.setUpdated(eventData.getTimestamp().atZone(ZoneId.of("UTC")));
+            entry.setAuthor("EventStore");
+            entry.setSummary(eventData.getEventType().getValue());
+            entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
+                    "self");
+            entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
+                    "alternate");
 
-        if (totalStreamLength > PAGE_SIZE) {
-            // only exists if there is more than one page
-            JsonLink lastLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("0/forward/" + PAGE_SIZE).build(), "last");
-            jsonFeed.getLinks().add(lastLink);
+            jsonFeed.getEntries().add(entry);
         }
 
-        if (storedEvents.lowestRevision().getValue() > 0) {
-            JsonLink nextLink = new JsonLink(uriInfo.getAbsolutePathBuilder()
-                    .path(storedEvents.highestRevision().getValue() - PAGE_SIZE + "/backward/" + PAGE_SIZE)
-                    .build(), "next");
-            jsonFeed.getLinks().add(nextLink);
-        }
-
-        JsonLink metadataLink = new JsonLink(uriInfo.getAbsolutePathBuilder().path("metadata").build(), "metadata");
-
-        jsonFeed.getLinks().add(metadataLink);
+        jsonFeed.seteTag(storedEvents.highestRevision().getValue() + ";" + storedEvents.size()); // TODO
 
         return jsonFeed;
 

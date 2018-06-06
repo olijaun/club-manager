@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -266,7 +267,9 @@ public class RedisEventStore implements EventStore {
         StreamRevision streamRevision =
                 StreamRevision.from((long) jsonObject.getInt("streamRevision")); // TODO: use string in order to store long value?
 
-        return new StoredEventData(eventId, eventType, payload.toString(), metadata, streamRevision);
+        long timestamp = Long.valueOf(jsonObject.getString("timestamp"));
+
+        return new StoredEventData(eventId, eventType, payload.toString(), metadata, streamRevision, Instant.ofEpochMilli(timestamp));
     }
 
     private String keyForStream(StreamId streamId) {

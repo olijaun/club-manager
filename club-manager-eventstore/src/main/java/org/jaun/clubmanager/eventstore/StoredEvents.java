@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class StoredEvents implements Iterable<StoredEventData> {
 
@@ -29,5 +30,13 @@ public class StoredEvents implements Iterable<StoredEventData> {
     @Override
     public Iterator<StoredEventData> iterator() {
         return eventDataList.iterator();
+    }
+
+    public List<StoredEventData> newestFirstList() {
+        return Lists.reverse(eventDataList);
+    }
+
+    public int size() {
+        return eventDataList.size();
     }
 }

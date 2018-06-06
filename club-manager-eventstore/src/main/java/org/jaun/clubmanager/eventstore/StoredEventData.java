@@ -1,5 +1,7 @@
 package org.jaun.clubmanager.eventstore;
 
+import java.time.Instant;
+
 import com.google.common.base.MoreObjects;
 
 /**
@@ -8,6 +10,7 @@ import com.google.common.base.MoreObjects;
 public class StoredEventData extends EventData {
 
     private final StreamRevision streamRevision;
+    private final Instant timestamp;
 
     /**
      * @param eventId
@@ -15,13 +18,19 @@ public class StoredEventData extends EventData {
      *         The actual event serialized into a string (could be a JSON).
      * @param metadata
      */
-    public StoredEventData(EventId eventId, EventType eventType, String payload, String metadata, StreamRevision streamRevision) {
+    public StoredEventData(EventId eventId, EventType eventType, String payload, String metadata, StreamRevision streamRevision,
+            Instant timestamp) {
         super(eventId, eventType, payload, metadata);
         this.streamRevision = streamRevision;
+        this.timestamp = timestamp;
     }
 
     public StreamRevision getStreamRevision() {
         return streamRevision;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
     }
 
     @Override

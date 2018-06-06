@@ -5,7 +5,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -15,14 +14,17 @@ import javax.xml.bind.annotation.XmlType;
 import com.google.common.collect.ImmutableList;
 
 @XmlRootElement()
-@XmlType(propOrder = { "title", "id", "updated", "author", "links", "entries" })
+@XmlType(propOrder = {"title", "id", "updated", "streamId", "author", "headOfStream", "selfUrl", "eTag", "links", "entries"})
 public class JsonFeed {
 
     private String title;
     private String id;
     private String updated;
+    private String streamId;
     private JsonAuthor author;
     private Boolean headOfStream;
+    private String selfUrl;
+    private String eTag;
     private List<JsonLink> links = new ArrayList();
     private List<JsonEntry> entries = new ArrayList<>();
 
@@ -40,6 +42,14 @@ public class JsonFeed {
 
     public void setId(URI id) {
         this.id = id.toASCIIString();
+    }
+
+    public String getStreamId() {
+        return streamId;
+    }
+
+    public void setStreamId(String streamId) {
+        this.streamId = streamId;
     }
 
     public String getUpdated() {
@@ -70,12 +80,30 @@ public class JsonFeed {
         this.headOfStream = headOfStream;
     }
 
-    @XmlElement(name = "link")
+    public String geteTag() {
+        return eTag;
+    }
+
+    public void seteTag(String eTag) {
+        this.eTag = eTag;
+    }
+
+    public String getSelfUrl() {
+        return selfUrl;
+    }
+
+    public void setSelfUrl(URI selfUrl) {
+        this.selfUrl = selfUrl.toASCIIString();
+    }
+
     public List<JsonLink> getLinks() {
         return links;
     }
 
-    @XmlElement(name = "entry")
+    public void addLink(URI uri, String relation) {
+        links.add(new JsonLink(uri, relation));
+    }
+
     public List<JsonEntry> getEntries() {
         return entries;
     }
