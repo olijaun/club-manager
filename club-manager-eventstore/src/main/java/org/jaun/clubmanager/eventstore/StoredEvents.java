@@ -39,4 +39,8 @@ public class StoredEvents implements Iterable<StoredEventData> {
     public int size() {
         return eventDataList.size();
     }
+
+    public boolean isEmpty() {
+        return eventDataList.isEmpty();
+    }
 }

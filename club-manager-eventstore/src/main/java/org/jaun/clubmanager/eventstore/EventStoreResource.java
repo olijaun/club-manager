@@ -23,6 +23,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -221,6 +222,28 @@ public class EventStoreResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
+    @Path("/{stream-id}/{stream-revision}")
+    public Response getEvent(@Context UriInfo uriInfo, @PathParam("stream-revision") String streamRevisionAsString,
+            @PathParam("stream-id") String streamIdAsString) {
+
+        StreamId streamId = StreamId.parse(streamIdAsString);
+
+        StreamRevision streamRevision =
+                streamRevisionAsString.equals("head") ? StreamRevision.from(eventStore.length(streamId) - 1) : StreamRevision.from(
+                        Long.parseLong(streamRevisionAsString));
+
+
+        StoredEvents storedEvents = eventStore.read(streamId, streamRevision, streamRevision);
+
+        if (storedEvents.isEmpty()) {
+            throw new NotFoundException("Event with revision " + streamIdAsString + " does not exist");
+        }
+
+        return Response.ok(storedEvents.iterator().next().getPayload(), MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}")
     public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOption,
             @PathParam("stream-id") String streamIdAsString) {
@@ -248,11 +271,11 @@ public class EventStoreResource {
 
         long totalStreamLength = eventStore.length(streamId);
 
-        long begin = Math.min()totalStreamLength - PAGE_SIZE;
+        long tmpBegin = totalStreamLength - PAGE_SIZE;
+        long begin = tmpBegin < 0 ? 0 : tmpBegin;
         long end = totalStreamLength - 1;
 
         StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
-
 
         JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
 
