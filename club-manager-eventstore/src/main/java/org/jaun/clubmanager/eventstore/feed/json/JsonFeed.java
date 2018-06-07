@@ -1,13 +1,13 @@
 package org.jaun.clubmanager.eventstore.feed.json;
 
 import java.net.URI;
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -56,8 +56,8 @@ public class JsonFeed {
         return updated;
     }
 
-    public void setUpdated(ZonedDateTime time) {
-        this.updated = time.format(DateTimeFormatter.ISO_DATE_TIME);
+    public void setUpdated(Instant timestamp) {
+        this.updated = timestamp.atZone(ZoneId.of("Z")).format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
     public JsonAuthor getAuthor() {

@@ -32,6 +32,10 @@ public class StoredEvents implements Iterable<StoredEventData> {
         return eventDataList.iterator();
     }
 
+    public StoredEventData highestRevisionEvent() {
+        return eventDataList.get(eventDataList.size()-1);
+    }
+
     public List<StoredEventData> newestFirstList() {
         return Lists.reverse(eventDataList);
     }

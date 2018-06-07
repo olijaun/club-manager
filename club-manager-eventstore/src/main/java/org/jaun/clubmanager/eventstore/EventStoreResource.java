@@ -224,15 +224,16 @@ public class EventStoreResource {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}/{stream-revision}/{direction}/{page-size}")
     public Response getEvents(@Context UriInfo uriInfo, @PathParam("stream-revision") String streamRevisionAsString,
-            @PathParam("stream-id") String streamIdAsString, @PathParam("direction") String direction, @PathParam("page-size") Integer pageSize) {
+            @PathParam("stream-id") String streamIdAsString, @PathParam("direction") String direction,
+            @PathParam("page-size") Integer pageSize) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
 
-        boolean foreward;
-        if(direction.equals("foreward")) {
-            foreward = true;
-        } else if(direction.equals("backward")) {
-            foreward = false;
+        boolean forward;
+        if (direction.equals("forward")) {
+            forward = true;
+        } else if (direction.equals("backward")) {
+            forward = false;
         } else {
             throw new NotFoundException("not found " + direction);
         }
@@ -245,11 +246,11 @@ public class EventStoreResource {
 
         long begin;
         long end;
-        if(foreward) {
+        if (forward) {
             begin = streamRevision.getValue();
-            end = streamRevision.getValue() + pageSize;
+            end = streamRevision.getValue() + pageSize - 1;
         } else {
-            long tmpBegin = streamRevision.getValue() - PAGE_SIZE;
+            long tmpBegin = streamRevision.getValue() - PAGE_SIZE + 1;
             begin = tmpBegin < 0 ? 0 : tmpBegin;
             long tmpEnd = streamRevision.getValue();
             end = tmpEnd > (totalStreamLength - 1) ? (totalStreamLength - 1) : tmpEnd;
@@ -282,8 +283,8 @@ public class EventStoreResource {
     }
 
     private StreamRevision toStreamRevision(StreamId streamId, String streamRevisionAsString) {
-        return  streamRevisionAsString.equals("head") ? StreamRevision.from(eventStore.length(streamId) - 1) : StreamRevision.from(
-                        Long.parseLong(streamRevisionAsString));
+        return streamRevisionAsString.equals("head") ? StreamRevision.from(eventStore.length(streamId) - 1) : StreamRevision.from(
+                Long.parseLong(streamRevisionAsString));
     }
 
     @GET
@@ -333,40 +334,52 @@ public class EventStoreResource {
 
         jsonFeed.setAuthor(new JsonAuthor("EventStore"));
         jsonFeed.setId(uriInfo.getAbsolutePath());
-        jsonFeed.setUpdated(ZonedDateTime.now(ZoneId.of("UTC")));
+        jsonFeed.setUpdated(storedEvents.highestRevisionEvent().getTimestamp());
         jsonFeed.setStreamId(streamId.getValue());
         jsonFeed.setTitle("EventStream '" + streamId.getValue() + "'");
-        jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
 
-        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().build(), "self");
-        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("head/backward/" + PAGE_SIZE).build(), "first");
+        jsonFeed.addLink(uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).build(), "self");
+        jsonFeed.addLink(
+                uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("head/backward/" + PAGE_SIZE).build(),
+                "first");
 
         if (totalStreamLength > PAGE_SIZE) {
             // only exists if there is more than one page
-            jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("0/forward/" + PAGE_SIZE).build(), "last");
+            jsonFeed.addLink(
+                    uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("0/forward/" + PAGE_SIZE).build(),
+                    "last");
         }
 
         if (storedEvents.lowestRevision().getValue() > 0) {
-            jsonFeed.addLink(uriInfo.getAbsolutePathBuilder()
+            jsonFeed.addLink(uriInfo.getBaseUriBuilder()
+                    .path("streams")
+                    .path(streamId.getValue())
                     .path(storedEvents.highestRevision().getValue() - PAGE_SIZE + "/backward/" + PAGE_SIZE)
                     .build(), "next");
         }
 
         // always exist and can be used to read future events
-        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder()
+        jsonFeed.addLink(uriInfo.getBaseUriBuilder()
+                .path("streams")
+                .path(streamId.getValue())
                 .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + PAGE_SIZE)
                 .build(), "previous");
 
         boolean headOfStream = (totalStreamLength - 1) == storedEvents.highestRevision().getValue();
         jsonFeed.setHeadOfStream(headOfStream);
 
-        jsonFeed.addLink(uriInfo.getAbsolutePathBuilder().path("metadata").build(), "metadata");
+        if (headOfStream) {
+            jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
+        }
+
+        jsonFeed.addLink(uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("metadata").build(),
+                "metadata");
 
         for (StoredEventData eventData : storedEvents.newestFirstList()) {
             JsonEntry entry = new JsonEntry();
             entry.setTitle(eventData.getStreamRevision().getValue() + "@" + streamId.getValue());
             entry.setId(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build());
-            entry.setUpdated(eventData.getTimestamp().atZone(ZoneId.of("UTC")));
+            entry.setUpdated(eventData.getTimestamp());
             entry.setAuthor("EventStore");
             entry.setSummary(eventData.getEventType().getValue());
             entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
