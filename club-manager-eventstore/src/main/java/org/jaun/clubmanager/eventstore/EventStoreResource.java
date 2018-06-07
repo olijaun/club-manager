@@ -44,6 +44,10 @@ public class EventStoreResource {
 
     private static final int DEFAULT_PAGE_SIZE = 20;
 
+    private static enum EmbedOption {
+        NONE, RICH, BODY
+    }
+
     @Autowired
     private EventStore eventStore;
 
@@ -171,11 +175,11 @@ public class EventStoreResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}")
-    public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOption,
+    public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOptionAsString,
             @PathParam("stream-id") String streamIdAsString) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
-
+        EmbedOption embedOption = parseEmbedOption(embedOptionAsString);
         long totalStreamLength = eventStore.length(streamId);
 
         StreamRevision streamRevision = totalStreamLength > 0 ? StreamRevision.from(totalStreamLength - 1) : StreamRevision.from(0);
@@ -184,7 +188,7 @@ public class EventStoreResource {
         StoredEvents storedEvents =
                 getEventsBackward(streamId, totalStreamLength, DEFAULT_PAGE_SIZE, StreamRevision.from(totalStreamLength - 1));
 
-        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, DEFAULT_PAGE_SIZE);
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, DEFAULT_PAGE_SIZE, embedOption);
 
         return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
     }
@@ -192,12 +196,13 @@ public class EventStoreResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}/{stream-revision}/{direction}/{page-size}")
-    public Response getEventFeedAsJsonWithDirections(@Context UriInfo uriInfo,
+    public Response getEventFeedAsJsonWithDirections(@Context UriInfo uriInfo, @QueryParam("embed") String embedOptionAsString,
             @PathParam("stream-revision") String streamRevisionAsString, @PathParam("stream-id") String streamIdAsString,
             @PathParam("direction") String direction, @PathParam("page-size") Integer pageSize) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
         boolean forward = parseIsForward(direction);
+        EmbedOption embedOption = parseEmbedOption(embedOptionAsString);
         long totalStreamLength = eventStore.length(streamId);
         StreamRevision streamRevision =
                 streamRevisionAsString.equals("head") ? StreamRevision.from(totalStreamLength - 1) : StreamRevision.from(
@@ -207,7 +212,7 @@ public class EventStoreResource {
                 getEventsForward(streamId, totalStreamLength, pageSize, streamRevision) //
                 : getEventsBackward(streamId, totalStreamLength, pageSize, streamRevision);
 
-        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, pageSize);
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, pageSize, embedOption);
 
         return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
     }
@@ -255,7 +260,7 @@ public class EventStoreResource {
     }
 
     private JsonFeed toJsonFeed(@Context UriInfo uriInfo, StreamId streamId, StoredEvents storedEvents, long totalStreamLength,
-            int pageSize) {
+            int pageSize, EmbedOption embedOption) {
 
         JsonFeed jsonFeed = new JsonFeed();
 
@@ -312,6 +317,22 @@ public class EventStoreResource {
             entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
                     "alternate");
 
+            if (embedOption.equals(EmbedOption.RICH) || embedOption.equals(EmbedOption.BODY)) {
+                entry.setEventId(eventData.getEventId().getUuid().toString());
+                entry.setEventType(eventData.getEventType().getValue());
+                entry.setEventNumber(Math.toIntExact(eventData.getStreamRevision().getValue()));
+                entry.setStreamId(streamId.getValue());
+                entry.setJson(true);
+                entry.setMetaData(false); // TODO
+                entry.setLinkMetaData(false); // TODO
+                entry.setPositionEventNumber(Math.toIntExact(eventData.getStreamRevision().getValue())); // TODO
+                entry.setPositionStreamId(streamId.getValue()); // TODO
+            }
+
+            if (embedOption.equals(EmbedOption.BODY)) {
+                entry.setData(eventData.getPayload());
+            }
+
             jsonFeed.getEntries().add(entry);
         }
 
@@ -329,6 +350,23 @@ public class EventStoreResource {
             return false;
         } else {
             throw new NotFoundException("not found " + direction);
+        }
+    }
+
+    private EmbedOption parseEmbedOption(String embedOption) {
+
+        if (embedOption == null) {
+            return EmbedOption.NONE;
+        }
+
+        switch (embedOption) {
+            case "rich":
+                return EmbedOption.RICH;
+            case "body":
+                return EmbedOption.BODY;
+            default:
+                throw new BadRequestException("unknown embed option: " + embedOption);
+
         }
     }
 }

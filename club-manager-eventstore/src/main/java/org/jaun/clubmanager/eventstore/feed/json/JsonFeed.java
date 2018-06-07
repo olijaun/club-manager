@@ -11,12 +11,13 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableList;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement()
 @XmlType(propOrder = {"title", "id", "updated", "streamId", "author", "headOfStream", "selfUrl", "eTag", "links", "entries"})
 public class JsonFeed {
-
     private String title;
     private String id;
     private String updated;
