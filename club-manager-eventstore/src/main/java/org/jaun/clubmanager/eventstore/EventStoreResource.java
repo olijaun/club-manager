@@ -3,12 +3,8 @@ package org.jaun.clubmanager.eventstore;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,10 +35,6 @@ import javax.ws.rs.core.UriInfo;
 import org.jaun.clubmanager.eventstore.feed.json.JsonAuthor;
 import org.jaun.clubmanager.eventstore.feed.json.JsonEntry;
 import org.jaun.clubmanager.eventstore.feed.json.JsonFeed;
-import org.jaun.clubmanager.eventstore.feed.xml.XmlAuthor;
-import org.jaun.clubmanager.eventstore.feed.xml.XmlEntry;
-import org.jaun.clubmanager.eventstore.feed.xml.XmlFeed;
-import org.jaun.clubmanager.eventstore.feed.xml.XmlLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,10 +42,10 @@ import org.springframework.stereotype.Component;
 @Path("/streams")
 public class EventStoreResource {
 
+    private static final int DEFAULT_PAGE_SIZE = 20;
+
     @Autowired
     private EventStore eventStore;
-
-    public static final int PAGE_SIZE = 20;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -177,90 +169,65 @@ public class EventStoreResource {
     }
 
     @GET
-    @Produces({"application/atom+xml"})
+    @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}")
-    public Response getEventFeedAsXml(@Context UriInfo uriInfo, @PathParam("stream-id") String streamId) {
+    public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOption,
+            @PathParam("stream-id") String streamIdAsString) {
 
-        UriBuilder selfBuilder = uriInfo.getAbsolutePathBuilder();
+        StreamId streamId = StreamId.parse(streamIdAsString);
 
-        XmlFeed feed = new XmlFeed();
-        feed.setTitle("EventStream '" + streamId + "'");
-        feed.setId(selfBuilder.build());
-        feed.setUpdated(ZonedDateTime.now(ZoneId.of("UTC")));
+        long totalStreamLength = eventStore.length(streamId);
 
-        feed.setAuthor(new XmlAuthor("EventStore"));
+        StreamRevision streamRevision = totalStreamLength > 0 ? StreamRevision.from(totalStreamLength - 1) : StreamRevision.from(0);
 
-        XmlLink selfLink = new XmlLink(selfBuilder.build(), "self");
-        XmlLink firstLink = new XmlLink(selfBuilder.path("head/backward/20").build(), "first");
-        XmlLink metadataLink = new XmlLink(selfBuilder.path("metadata").build(), "metadata");
+        // get the "first" page. Means: the page with the highest revision
+        StoredEvents storedEvents =
+                getEventsBackward(streamId, totalStreamLength, DEFAULT_PAGE_SIZE, StreamRevision.from(totalStreamLength - 1));
 
-        feed.setLinks(Arrays.asList(selfLink, firstLink, metadataLink));
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, DEFAULT_PAGE_SIZE);
 
-        XmlEntry entry = new XmlEntry();
-        entry.setTitle("0@" + streamId);
-        entry.setId(selfBuilder.path("0").build().toString());
-        entry.setUpdated(new Date());
-        entry.setAuthor(new XmlAuthor("EventStore"));
-        entry.setSummary("eventType");
-
-        feed.setEntries(Arrays.asList(entry));
-//
-//        XmlLink editLink = new XmlLink();
-//        editLink.setRel("edit");
-//        editLink.setHref(selfBuilder.path("0").build().toString());
-//
-//        XmlLink alternateLink = new XmlLink();
-//        alternateLink.setRel("alternate");
-//        alternateLink.setHref(selfBuilder.path("head/backward/20").build().toString());
-
-//        entry.setLinks(Arrays.asList(editLink, alternateLink));
-
-
-        return Response.ok(feed, "application/atom+xml").build();
+        return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
     }
-
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/{stream-id}/{stream-revision}/{direction}/{page-size}")
-    public Response getEvents(@Context UriInfo uriInfo, @PathParam("stream-revision") String streamRevisionAsString,
-            @PathParam("stream-id") String streamIdAsString, @PathParam("direction") String direction,
-            @PathParam("page-size") Integer pageSize) {
+    public Response getEventFeedAsJsonWithDirections(@Context UriInfo uriInfo,
+            @PathParam("stream-revision") String streamRevisionAsString, @PathParam("stream-id") String streamIdAsString,
+            @PathParam("direction") String direction, @PathParam("page-size") Integer pageSize) {
 
         StreamId streamId = StreamId.parse(streamIdAsString);
-
-        boolean forward;
-        if (direction.equals("forward")) {
-            forward = true;
-        } else if (direction.equals("backward")) {
-            forward = false;
-        } else {
-            throw new NotFoundException("not found " + direction);
-        }
-
+        boolean forward = parseIsForward(direction);
         long totalStreamLength = eventStore.length(streamId);
-
         StreamRevision streamRevision =
                 streamRevisionAsString.equals("head") ? StreamRevision.from(totalStreamLength - 1) : StreamRevision.from(
                         Long.parseLong(streamRevisionAsString));
 
-        long begin;
-        long end;
-        if (forward) {
-            begin = streamRevision.getValue();
-            end = streamRevision.getValue() + pageSize - 1;
-        } else {
-            long tmpBegin = streamRevision.getValue() - PAGE_SIZE + 1;
-            begin = tmpBegin < 0 ? 0 : tmpBegin;
-            long tmpEnd = streamRevision.getValue();
-            end = tmpEnd > (totalStreamLength - 1) ? (totalStreamLength - 1) : tmpEnd;
-        }
+        StoredEvents storedEvents = forward ? //
+                getEventsForward(streamId, totalStreamLength, pageSize, streamRevision) //
+                : getEventsBackward(streamId, totalStreamLength, pageSize, streamRevision);
 
-        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
-
-        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
+        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, storedEvents, totalStreamLength, pageSize);
 
         return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
+    }
+
+    public StoredEvents getEventsForward(StreamId streamId, long totalStreamLength, int pageSize, StreamRevision streamRevision) {
+
+        long begin = streamRevision.getValue();
+        long end = streamRevision.getValue() + pageSize - 1;
+
+        return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+    }
+
+    public StoredEvents getEventsBackward(StreamId streamId, long totalStreamLength, int pageSize, StreamRevision streamRevision) {
+
+        long tmpBegin = streamRevision.getValue() - pageSize + 1;
+        long begin = tmpBegin < 0 ? 0 : tmpBegin;
+        long tmpEnd = streamRevision.getValue();
+        long end = tmpEnd > (totalStreamLength - 1) ? (totalStreamLength - 1) : tmpEnd;
+
+        return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
     }
 
     @GET
@@ -287,48 +254,8 @@ public class EventStoreResource {
                 Long.parseLong(streamRevisionAsString));
     }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @Path("/{stream-id}")
-    public Response getEventFeedAsJson(@Context UriInfo uriInfo, @QueryParam("embed") String embedOption,
-            @PathParam("stream-id") String streamIdAsString) {
-
-        boolean rich = false;
-        boolean body = false;
-
-        if (embedOption != null) {
-
-            switch (embedOption) {
-                case "rich":
-                    rich = true;
-                    break;
-                case "body":
-                case "PrettyBody":
-                case "TryHarder":
-                    rich = true;
-                    body = true;
-                default:
-                    throw new IllegalArgumentException("unknown embed option" + embedOption);
-            }
-        }
-
-        StreamId streamId = StreamId.parse(streamIdAsString);
-
-        long totalStreamLength = eventStore.length(streamId);
-
-        long tmpBegin = totalStreamLength - PAGE_SIZE;
-        long begin = tmpBegin < 0 ? 0 : tmpBegin;
-        long end = totalStreamLength - 1;
-
-        StoredEvents eventDataList = eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
-
-        JsonFeed jsonFeed = toJsonFeed(uriInfo, streamId, eventDataList, totalStreamLength);
-
-        return Response.ok(jsonFeed, MediaType.APPLICATION_JSON).build();
-
-    }
-
-    private JsonFeed toJsonFeed(@Context UriInfo uriInfo, StreamId streamId, StoredEvents storedEvents, long totalStreamLength) {
+    private JsonFeed toJsonFeed(@Context UriInfo uriInfo, StreamId streamId, StoredEvents storedEvents, long totalStreamLength,
+            int pageSize) {
 
         JsonFeed jsonFeed = new JsonFeed();
 
@@ -340,13 +267,13 @@ public class EventStoreResource {
 
         jsonFeed.addLink(uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).build(), "self");
         jsonFeed.addLink(
-                uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("head/backward/" + PAGE_SIZE).build(),
+                uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("head/backward/" + pageSize).build(),
                 "first");
 
-        if (totalStreamLength > PAGE_SIZE) {
+        if (totalStreamLength > pageSize) {
             // only exists if there is more than one page
             jsonFeed.addLink(
-                    uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("0/forward/" + PAGE_SIZE).build(),
+                    uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("0/forward/" + pageSize).build(),
                     "last");
         }
 
@@ -354,7 +281,7 @@ public class EventStoreResource {
             jsonFeed.addLink(uriInfo.getBaseUriBuilder()
                     .path("streams")
                     .path(streamId.getValue())
-                    .path(storedEvents.highestRevision().getValue() - PAGE_SIZE + "/backward/" + PAGE_SIZE)
+                    .path(storedEvents.highestRevision().getValue() - pageSize + "/backward/" + pageSize)
                     .build(), "next");
         }
 
@@ -362,15 +289,13 @@ public class EventStoreResource {
         jsonFeed.addLink(uriInfo.getBaseUriBuilder()
                 .path("streams")
                 .path(streamId.getValue())
-                .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + PAGE_SIZE)
+                .path(storedEvents.highestRevision().add(1).getValue() + "/forward/" + pageSize)
                 .build(), "previous");
 
         boolean headOfStream = (totalStreamLength - 1) == storedEvents.highestRevision().getValue();
         jsonFeed.setHeadOfStream(headOfStream);
 
-        if (headOfStream) {
-            jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
-        }
+        jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
 
         jsonFeed.addLink(uriInfo.getBaseUriBuilder().path("streams").path(streamId.getValue()).path("metadata").build(),
                 "metadata");
@@ -390,9 +315,20 @@ public class EventStoreResource {
             jsonFeed.getEntries().add(entry);
         }
 
-        jsonFeed.seteTag(storedEvents.highestRevision().getValue() + ";" + storedEvents.size()); // TODO
+        jsonFeed.seteTag(storedEvents.highestRevision().getValue() + "-" + storedEvents.lowestRevision().getValue() + ";"
+                         + storedEvents.size()); // TODO
 
         return jsonFeed;
+    }
 
+    private boolean parseIsForward(String direction) {
+
+        if (direction.equals("forward")) {
+            return true;
+        } else if (direction.equals("backward")) {
+            return false;
+        } else {
+            throw new NotFoundException("not found " + direction);
+        }
     }
 }
