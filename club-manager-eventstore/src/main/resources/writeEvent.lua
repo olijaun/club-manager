@@ -6,6 +6,9 @@
 -- keys
 local eventsKey = KEYS[1]
 local streamKey = KEYS[2]
+local allKey = KEYS[3]
+local categoryStreamKey = KEYS[4]
+local eventTypeKey = KEYS[4]
 -- argv
 local streamId = ARGV[1]
 -- -2 means 'do not check version'
@@ -33,6 +36,10 @@ for i = 4, (4 + numberOfEvents - 1), 1 do
     -- only add event if it does not exist yet
     local hasBeenSet = redis.call('hsetnx', eventsKey, decodedEvent.eventId, ARGV[i])
     if hasBeenSet == 1 then
+        redis.call('rpush', allKey, decodedEvent.eventId)
+        if categoryStreamKey ~= "" then
+            redis.call('rpush', categoryStreamKey, decodedEvent.eventId)
+        end
         redis.call('rpush', streamKey, decodedEvent.eventId)
         redis.call('publish', eventsKey, ARGV[i])
     end

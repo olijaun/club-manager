@@ -58,7 +58,9 @@ public class JsonFeed {
     }
 
     public void setUpdated(Instant timestamp) {
-        this.updated = timestamp.atZone(ZoneId.of("Z")).format(DateTimeFormatter.ISO_DATE_TIME);
+        if (timestamp != null) {
+            this.updated = timestamp.atZone(ZoneId.of("Z")).format(DateTimeFormatter.ISO_DATE_TIME);
+        }
     }
 
     public JsonAuthor getAuthor() {

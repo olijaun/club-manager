@@ -25,11 +25,11 @@ import org.jaun.clubmanager.domain.model.commons.Id;
 import org.jaun.clubmanager.eventstore.Category;
 import org.jaun.clubmanager.eventstore.ConcurrencyException;
 import org.jaun.clubmanager.eventstore.EventData;
-import org.jaun.clubmanager.eventstore.StoredEvents;
 import org.jaun.clubmanager.eventstore.EventId;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
+import org.jaun.clubmanager.eventstore.StoredEvents;
 import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamRevision;
 
@@ -49,6 +49,7 @@ public class RedisEventStore implements EventStore {
 
     private final JedisPool jedisPool;
     private final String eventsKey;
+    private final String allKey;
     private final String keyPrefix;
     private final String streamKeyPrefix;
     private final String tryCommitScriptId;
@@ -79,12 +80,14 @@ public class RedisEventStore implements EventStore {
         keyPrefix = name + ":";
         eventsKey = keyPrefix + "events";
         streamKeyPrefix = keyPrefix + "stream:";
+        allKey = streamKeyPrefix + "$all";
 
         jedisPool = new JedisPool(buildPoolConfig(), "localhost", 6379);
 
         try (Jedis jedis = jedisPool.getResource()) {
             tryCommitScriptId = jedis.scriptLoad(TRY_COMMIT_SCRIPT);
         }
+
     }
 
     public static class DummyId extends Id {
@@ -95,8 +98,8 @@ public class RedisEventStore implements EventStore {
 
     public static void main(String[] args) throws ConcurrencyException {
         System.out.println(TRY_COMMIT_SCRIPT);
-        RedisEventStore testStore = new RedisEventStore("testStore4");
-        StreamId streamId = new StreamId(new DummyId("1"), new Category("newcatoli29"));
+        RedisEventStore testStore = new RedisEventStore("teststore");
+        StreamId streamId = new StreamId(new DummyId("1"), new Category("cat1"));
         EventData eventData1 = new EventData(EventId.generate(), new EventType("MyEventType1"), "{ \"name\": \"o\" }",
                 "{ \"mymeta\": \"mymeta1\" }");
         EventData eventData2 = new EventData(EventId.generate(), new EventType("MyEventType2"), "{ \"name\": \"o\" }",
@@ -151,8 +154,11 @@ public class RedisEventStore implements EventStore {
                 expectedVersion = StreamRevision.from(jedis.llen(keyForStream(streamId)) - 1L);
             }
 
+            String categoryStreamKey =
+                    streamId.getCategory().isPresent() ? streamKeyPrefix + "$ce-" + streamId.getCategory().get().getName() : "";
+
             Stream<String> keyStream = Stream.of(
-                    /* KEYS */ eventsKey, keyForStream(streamId));
+                    /* KEYS */ eventsKey, keyForStream(streamId), allKey, categoryStreamKey);
 
             Stream<String> constantValuesStream = Stream.of( //
                     streamId.getValue(), // streamId
@@ -160,21 +166,20 @@ public class RedisEventStore implements EventStore {
                     String.valueOf(eventDataList.size())); // numberOfEvents
 
             AtomicLong revisionOfNewEvent;
-            if(expectedVersion.equals(StreamRevision.NEW_STREAM)) {
+            if (expectedVersion.equals(StreamRevision.NEW_STREAM)) {
                 revisionOfNewEvent = new AtomicLong(0);
             } else {
-
                 revisionOfNewEvent = new AtomicLong(expectedVersion.add(1).getValue());
             }
 
             Stream<String> serializedEventDataStream = eventDataList.stream()
-                    .map(eventData -> toRedisEventString(eventData, StreamRevision.from(revisionOfNewEvent.getAndIncrement()), commitId,
-                            timestamp));
+                    .map(eventData -> toRedisEventString(streamId, eventData,
+                            StreamRevision.from(revisionOfNewEvent.getAndIncrement()), commitId, timestamp));
 
             String[] varargs =
                     Stream.concat(Stream.concat(keyStream, constantValuesStream), serializedEventDataStream).toArray(String[]::new);
 
-            Object response = jedis.evalsha(tryCommitScriptId, 2, varargs);
+            Object response = jedis.evalsha(tryCommitScriptId, 4, varargs);
 
             if (response instanceof List) {
                 List<Object> responseList = (List) response;
@@ -193,7 +198,8 @@ public class RedisEventStore implements EventStore {
         }
     }
 
-    private String toRedisEventString(EventData eventData, StreamRevision streamRevision, UUID commitId, long timestamp) {
+    private String toRedisEventString(StreamId streamId, EventData eventData, StreamRevision streamRevision, UUID commitId,
+            long timestamp) {
 
         requireNonNull(eventData);
         requireNonNull(streamRevision);
@@ -204,6 +210,7 @@ public class RedisEventStore implements EventStore {
 
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder()
                 .add("eventId", eventData.getEventId().getUuid().toString())
+                .add("streamId", streamId.getValue())
                 .add("commitId", commitId.toString())
                 .add("eventType", eventData.getEventType().getValue())
                 .add("timestamp", String.valueOf(timestamp))
@@ -235,7 +242,7 @@ public class RedisEventStore implements EventStore {
 
             List<String> commitIds = jedis.lrange(keyForStream(streamId), fromRevision.getValue(), toRevision.getValue());
 
-            if(commitIds.isEmpty()) {
+            if (commitIds.isEmpty()) {
                 return new StoredEvents(Collections.emptyList());
             }
 
@@ -268,8 +275,10 @@ public class RedisEventStore implements EventStore {
                 StreamRevision.from((long) jsonObject.getInt("streamRevision")); // TODO: use string in order to store long value?
 
         long timestamp = Long.valueOf(jsonObject.getString("timestamp"));
+        StreamId streamId = StreamId.parse(jsonObject.getString("streamId"));
 
-        return new StoredEventData(eventId, eventType, payload.toString(), metadata, streamRevision, Instant.ofEpochMilli(timestamp));
+        return new StoredEventData(streamId, eventId, eventType, payload.toString(), metadata, streamRevision,
+                Instant.ofEpochMilli(timestamp));
     }
 
     private String keyForStream(StreamId streamId) {
