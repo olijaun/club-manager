@@ -308,26 +308,39 @@ public class EventStoreResource {
 
         for (StoredEventData eventData : storedEvents.newestFirstList()) {
             JsonEntry entry = new JsonEntry();
-            entry.setTitle(eventData.getStreamRevision().getValue() + "@" + streamId.getValue());
-            entry.setId(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build());
+            entry.setTitle(eventData.getStreamRevision().getValue() + "@" + eventData.getStreamId().getValue());
+
+            entry.setId(uriInfo.getBaseUriBuilder()
+                    .path("streams")
+                    .path(eventData.getStreamId().getValue())
+                    .path(eventData.getStreamRevision().getValue().toString())
+                    .build());
             entry.setUpdated(eventData.getTimestamp());
             entry.setAuthor("EventStore");
             entry.setSummary(eventData.getEventType().getValue());
-            entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
-                    "self");
-            entry.addLink(uriInfo.getAbsolutePathBuilder().path(eventData.getStreamRevision().getValue().toString()).build(),
-                    "alternate");
+
+            entry.addLink(uriInfo.getBaseUriBuilder()
+                    .path("streams")
+                    .path(eventData.getStreamId().getValue())
+                    .path(eventData.getStreamRevision().getValue().toString())
+                    .build(), "self");
+
+            entry.addLink(uriInfo.getBaseUriBuilder()
+                    .path("streams")
+                    .path(eventData.getStreamId().getValue())
+                    .path(eventData.getStreamRevision().getValue().toString())
+                    .build(), "alternate");
 
             if (embedOption.equals(EmbedOption.RICH) || embedOption.equals(EmbedOption.BODY)) {
                 entry.setEventId(eventData.getEventId().getUuid().toString());
                 entry.setEventType(eventData.getEventType().getValue());
                 entry.setEventNumber(Math.toIntExact(eventData.getStreamRevision().getValue()));
-                entry.setStreamId(streamId.getValue());
+                entry.setStreamId(eventData.getStreamId().getValue());
                 entry.setJson(true);
                 entry.setMetaData(false); // TODO
                 entry.setLinkMetaData(false); // TODO
-                entry.setPositionEventNumber(Math.toIntExact(eventData.getStreamRevision().getValue())); // TODO
-                entry.setPositionStreamId(streamId.getValue()); // TODO
+                entry.setPositionEventNumber(Math.toIntExact(eventData.getPosition())); // TODO
+                entry.setPositionStreamId(streamId.getValue());
             }
 
             if (embedOption.equals(EmbedOption.BODY)) {

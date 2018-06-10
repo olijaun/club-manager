@@ -246,9 +246,10 @@ public class RedisEventStore implements EventStore {
                 return new StoredEvents(Collections.emptyList());
             }
 
+            AtomicLong position = new AtomicLong(fromRevision.getValue());
             List<StoredEventData> eventDataList = jedis.hmget(eventsKey, commitIds.toArray(new String[commitIds.size()]))
                     .stream()
-                    .map(this::toEventData)
+                    .map(s -> toEventData(s, position.getAndIncrement()))
                     .collect(Collectors.toList());
 
             return new StoredEvents(eventDataList);
@@ -262,7 +263,7 @@ public class RedisEventStore implements EventStore {
         }
     }
 
-    private StoredEventData toEventData(String jsonString) {
+    private StoredEventData toEventData(String jsonString, long position) {
         System.out.println("json string: " + jsonString);
         JsonReader reader = Json.createReader(new StringReader(jsonString));
 
@@ -278,7 +279,7 @@ public class RedisEventStore implements EventStore {
         StreamId streamId = StreamId.parse(jsonObject.getString("streamId"));
 
         return new StoredEventData(streamId, eventId, eventType, payload.toString(), metadata, streamRevision,
-                Instant.ofEpochMilli(timestamp));
+                Instant.ofEpochMilli(timestamp), position);
     }
 
     private String keyForStream(StreamId streamId) {

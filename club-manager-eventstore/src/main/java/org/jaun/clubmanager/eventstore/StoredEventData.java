@@ -12,6 +12,7 @@ public class StoredEventData extends EventData {
     private final StreamRevision streamRevision;
     private final Instant timestamp;
     private final StreamId streamId;
+    private final long position;
 
     /**
      * @param eventId
@@ -19,12 +20,14 @@ public class StoredEventData extends EventData {
      *         The actual event serialized into a string (could be a JSON).
      * @param metadata
      */
-    public StoredEventData(StreamId streamId, EventId eventId, EventType eventType, String payload, String metadata, StreamRevision streamRevision,
-            Instant timestamp) {
+    public StoredEventData(StreamId streamId, EventId eventId, EventType eventType, String payload, String metadata,
+            StreamRevision streamRevision, Instant timestamp, long position) {
+
         super(eventId, eventType, payload, metadata);
         this.streamRevision = streamRevision;
         this.timestamp = timestamp;
         this.streamId = streamId;
+        this.position = position;
     }
 
     public StreamRevision getStreamRevision() {
@@ -39,6 +42,10 @@ public class StoredEventData extends EventData {
         return streamId;
     }
 
+    public long getPosition() {
+        return position;
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this) //
@@ -48,6 +55,7 @@ public class StoredEventData extends EventData {
                 .add("eventType", getEventType().getValue()) //
                 .add("payload", getPayload()) //
                 .add("metadata", getMetadata()) //
-                .add("streamRevision", streamRevision).toString();
+                .add("streamRevision", streamRevision)
+                .toString();
     }
 }
