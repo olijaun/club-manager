@@ -26,7 +26,7 @@ import org.jaun.clubmanager.eventstore.Category;
 import org.jaun.clubmanager.eventstore.ConcurrencyException;
 import org.jaun.clubmanager.eventstore.EventData;
 import org.jaun.clubmanager.eventstore.EventId;
-import org.jaun.clubmanager.eventstore.EventStore;
+import org.jaun.clubmanager.eventstore.EventStoreInternal;
 import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StoredEvents;
@@ -45,7 +45,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * This is based on ideas from https://tech.zilverline.com/2012/07/30/simple-event-sourcing-redis-event-store-part-3 and
  * https://medium.com/lcom-techblog/scalable-microservices-with-event-sourcing-and-redis-6aa245574db0
  */
-public class RedisEventStore implements EventStore {
+public class RedisEventStore implements EventStoreInternal {
 
     private final JedisPool jedisPool;
     private final String eventsKey;

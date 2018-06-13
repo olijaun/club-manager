@@ -49,7 +49,7 @@ public class EventStoreResource {
     }
 
     @Autowired
-    private EventStore eventStore;
+    private EventStoreInternal eventStore;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

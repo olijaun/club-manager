@@ -2,22 +2,19 @@ package org.jaun.clubmanager.eventstore;
 
 import java.util.List;
 
-public interface EventStore {
+public interface EventStoreClient {
 
     /**
      * @param streamId
-     * @param evenData
+     * @param evenDataList
      * @param expectedVersion
-     * @return Returns the revision of the first event in the list.
      * @throws ConcurrencyException
      */
-    StreamRevision append(StreamId streamId, List<EventData> evenData, StreamRevision expectedVersion) throws ConcurrencyException;
+    void append(StreamId streamId, List<EventData> evenDataList, StreamRevision expectedVersion) throws ConcurrencyException;
 
     StoredEvents read(StreamId streamId);
 
     StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan);
 
     StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision);
-
-    long length(StreamId streamId);
 }

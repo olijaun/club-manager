@@ -38,6 +38,16 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-eventstore-iface</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-eventstore-rest-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-contact</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -204,7 +214,9 @@
 
     <modules>
         <module>club-manager-commons</module>
+        <module>club-manager-eventstore-iface</module>
         <module>club-manager-eventstore</module>
+        <module>club-manager-eventstore-rest-client</module>
         <module>club-manager-identity</module>
         <module>club-manager-contact</module>
         <module>club-manager-member</module>

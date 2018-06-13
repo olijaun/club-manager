@@ -9,18 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-eventstore</artifactId>
-    <name>club-manager-eventstore</name>
+    <artifactId>club-manager-eventstore-rest-client</artifactId>
+    <name>club-manager-eventstore-rest-client</name>
 
     <packaging>jar</packaging>
 
     <dependencies>
 
         <!-- project dependencies -->
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-eventstore-iface</artifactId>
