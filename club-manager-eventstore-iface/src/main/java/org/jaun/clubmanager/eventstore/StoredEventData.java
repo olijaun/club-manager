@@ -55,7 +55,8 @@ public class StoredEventData extends EventData {
                 .add("eventType", getEventType().getValue()) //
                 .add("payload", getPayload()) //
                 .add("metadata", getMetadata()) //
-                .add("streamRevision", streamRevision)
+                .add("streamRevision", streamRevision) //
+                .add("position", position) //
                 .toString();
     }
 }

@@ -52,6 +52,15 @@ public class EventStoreResource {
     private EventStoreInternal eventStore;
 
     @POST
+    @Consumes("application/vnd.eventstore.events+json")
+    @Path("/{stream-id}")
+    public Response addEvents(@Context UriInfo uriInfo, @PathParam("stream-id") String streamId,
+            @HeaderParam("ES-ExpectedVersion") Long expectedVersion, InputStream inputStream) {
+
+        return addEvent(uriInfo, null, null, streamId, expectedVersion, inputStream);
+    }
+
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{stream-id}/incoming/{event-id}")
     public Response addEventWithIdInPath(@Context UriInfo uriInfo, @PathParam("stream-id") String streamIdAsString,
@@ -163,14 +172,7 @@ public class EventStoreResource {
     }
 
 
-    @POST
-    @Consumes("application/vnd.eventstore.events+json")
-    @Path("/{stream-id}")
-    public Response addEvents(@Context UriInfo uriInfo, @PathParam("stream-id") String streamId,
-            @HeaderParam("ES-ExpectedVersion") Long expectedVersion, InputStream inputStream) {
 
-        return addEvent(uriInfo, null, null, streamId, expectedVersion, inputStream);
-    }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})

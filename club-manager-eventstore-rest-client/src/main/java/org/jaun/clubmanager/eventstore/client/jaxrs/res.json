@@ -1,0 +1,298 @@
+{
+  "title": "EventStream 'jax-2'",
+  "id": "http://localhost:9001/api/streams/jax-2",
+  "updated": "2018-06-14T19:15:46.106Z",
+  "streamId": "jax-2",
+  "author": {
+    "name": "EventStore"
+  },
+  "headOfStream": true,
+  "selfUrl": "http://localhost:9001/api/streams/jax-2",
+  "eTag": "13-0;14",
+  "links": [
+    {
+      "uri": "http://localhost:9001/api/streams/jax-2",
+      "relation": "self"
+    },
+    {
+      "uri": "http://localhost:9001/api/streams/jax-2/head/backward/20",
+      "relation": "first"
+    },
+    {
+      "uri": "http://localhost:9001/api/streams/jax-2/14/forward/20",
+      "relation": "previous"
+    },
+    {
+      "uri": "http://localhost:9001/api/streams/jax-2/metadata",
+      "relation": "metadata"
+    }
+  ],
+  "entries": [
+    {
+      "title": "13@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/13",
+      "updated": "2018-06-14T19:15:46.106Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/13",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/13",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "12@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/12",
+      "updated": "2018-06-14T19:15:46.106Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/12",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/12",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "11@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/11",
+      "updated": "2018-06-14T19:14:00.669Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/11",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/11",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "10@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/10",
+      "updated": "2018-06-14T19:14:00.669Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/10",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/10",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "9@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/9",
+      "updated": "2018-06-14T19:12:49.749Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/9",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/9",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "8@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/8",
+      "updated": "2018-06-14T19:12:49.749Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/8",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/8",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "7@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/7",
+      "updated": "2018-06-14T18:52:14.693Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/7",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/7",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "6@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/6",
+      "updated": "2018-06-14T18:52:14.693Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/6",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/6",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "5@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/5",
+      "updated": "2018-06-14T18:51:42.454Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/5",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/5",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "4@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/4",
+      "updated": "2018-06-14T18:51:42.454Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/4",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/4",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "3@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/3",
+      "updated": "2018-06-14T18:50:41.133Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/3",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/3",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "2@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/2",
+      "updated": "2018-06-14T18:50:41.133Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/2",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/2",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "1@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/1",
+      "updated": "2018-06-14T18:47:47.887Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc2",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/1",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/1",
+          "relation": "alternate"
+        }
+      ]
+    },
+    {
+      "title": "0@jax-2",
+      "id": "http://localhost:9001/api/streams/jax-2/0",
+      "updated": "2018-06-14T18:47:47.887Z",
+      "author": {
+        "name": "EventStore"
+      },
+      "summary": "abc1",
+      "link": [
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/0",
+          "relation": "self"
+        },
+        {
+          "uri": "http://localhost:9001/api/streams/jax-2/0",
+          "relation": "alternate"
+        }
+      ]
+    }
+  ]
+}
