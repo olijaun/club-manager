@@ -28,12 +28,7 @@
             <!-- own dependencies -->
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-eventstore</artifactId>
+                <artifactId>club-manager-commons-ddd</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -43,7 +38,22 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-eventstore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-eventstore-rest-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-commons-ddd-es</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-commons-projection</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -213,14 +223,15 @@
     </pluginRepositories>
 
     <modules>
-        <module>club-manager-commons</module>
+        <module>club-manager-commons-ddd</module>
         <module>club-manager-eventstore-iface</module>
         <module>club-manager-eventstore</module>
         <module>club-manager-eventstore-rest-client</module>
+        <module>club-manager-commons-projection</module>
+        <module>club-manager-commons-ddd-es</module>
         <module>club-manager-identity</module>
         <module>club-manager-contact</module>
         <module>club-manager-member</module>
-        <module>club-manager-invoice</module>
         <module>club-manager-springboot-app</module>
     </modules>
 

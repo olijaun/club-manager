@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.json.Json;
@@ -22,9 +23,11 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
+import org.jaun.clubmanager.domain.model.commons.EventId;
+import org.jaun.clubmanager.eventstore.CatchUpSubscription;
+import org.jaun.clubmanager.eventstore.CatchUpSubscriptionListener;
 import org.jaun.clubmanager.eventstore.ConcurrencyException;
 import org.jaun.clubmanager.eventstore.EventData;
-import org.jaun.clubmanager.eventstore.EventId;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
@@ -111,9 +114,20 @@ public class JaxRsRestClient implements EventStoreClient {
         JsonFeed jsonFeed = client.target(target)
                 .path("streams")
                 .path(streamId.getValue())
+                .path("0")
+                .path("forward")
+                .path(String.valueOf(fromRevision.getValue()))
                 .queryParam("embed", "body")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(JsonFeed.class);
+
+        while (getPreviousLink(jsonFeed).isPresent()) {
+
+            jsonFeed = client.target(getPreviousLink(jsonFeed).get())
+                    .queryParam("embed", "body")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(JsonFeed.class);
+        }
 
         List<StoredEventData> storedEventDataList = new ArrayList<>();
 
@@ -129,6 +143,21 @@ public class JaxRsRestClient implements EventStoreClient {
         }
 
         return new StoredEvents(storedEventDataList);
+    }
+
+    private Optional<URI> getPreviousLink(JsonFeed feed) {
+
+        List<JsonLink> links = feed.getLinks();
+
+        Optional<JsonLink> previous = links.stream().filter(l -> l.getRelation().equals("previous")).findFirst();
+
+        return previous.map(p -> {
+            try {
+                return new URI(p.getUri());
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("not a valid uri: " + p.getUri());
+            }
+        });
     }
 
 
@@ -149,6 +178,15 @@ public class JaxRsRestClient implements EventStoreClient {
         for (StoredEventData e : storedEvents) {
             System.out.println(e);
         }
+
+        JaxRsCatchUpSubscription subscription =
+                new JaxRsCatchUpSubscription(client, jaxRsStream, StreamRevision.INITIAL, new CatchUpSubscriptionListener() {
+                    @Override
+                    public void onEvent(CatchUpSubscription subscription, StoredEventData eventData) {
+                        System.out.println("got event: " + storedEvents);
+                    }
+                });
+        subscription.start();
     }
 
     private static URI toURI(String stringUri) {

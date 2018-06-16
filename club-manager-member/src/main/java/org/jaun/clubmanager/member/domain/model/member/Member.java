@@ -1,7 +1,7 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;

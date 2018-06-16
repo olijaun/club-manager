@@ -2,6 +2,8 @@ package org.jaun.clubmanager.eventstore;
 
 import java.time.Instant;
 
+import org.jaun.clubmanager.domain.model.commons.EventId;
+
 import com.google.common.base.MoreObjects;
 
 /**
@@ -55,7 +57,7 @@ public class StoredEventData extends EventData {
                 .add("eventType", getEventType().getValue()) //
                 .add("payload", getPayload()) //
                 .add("metadata", getMetadata()) //
-                .add("streamRevision", streamRevision) //
+                .add("streamRevision", streamRevision.getValue()) //
                 .add("position", position) //
                 .toString();
     }

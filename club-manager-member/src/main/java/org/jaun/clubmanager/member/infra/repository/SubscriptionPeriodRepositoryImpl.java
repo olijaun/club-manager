@@ -1,7 +1,7 @@
 package org.jaun.clubmanager.member.infra.repository;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;

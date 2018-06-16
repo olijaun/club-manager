@@ -3,11 +3,10 @@ package org.jaun.clubmanager.member.infra.projection;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
+import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
+import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
@@ -30,19 +29,14 @@ import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import com.github.msemys.esjc.EventStore;
-import com.github.msemys.esjc.ResolvedEvent;
-import com.github.msemys.esjc.StreamEventsSlice;
-import com.github.msemys.esjc.StreamPosition;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 //@Service
-public class HazelcastMemberProjection extends AbstractProjection {
+public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
@@ -50,7 +44,7 @@ public class HazelcastMemberProjection extends AbstractProjection {
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
+    public HazelcastMemberProjection(@Autowired EventStoreClient eventStore, @Autowired HazelcastInstance hazelcastInstance) {
         super(eventStore, "$ce-contact", "$ce-subscriptionperiod", "$ce-member", "$ce-membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
@@ -158,25 +152,26 @@ public class HazelcastMemberProjection extends AbstractProjection {
 
         stopSubscription("$ce-contact");
 
-        try {
-            StreamEventsSlice streamEventsSlice =
-                    eventStore.readStreamEventsBackward("contact-" + memberCreatedEvent.getMemberId().getValue(),
-                            StreamPosition.END, 4096, false).get();
-
-            Optional<ResolvedEvent> nameChangedResolvedEvent = streamEventsSlice.events.stream()
-                    .filter(resolvedEvent -> resolvedEvent.event.eventType.equals("NameChanged"))
-                    .findFirst();
-
-            if (nameChangedResolvedEvent.isPresent()) {
-                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
-                update(nameChangedResolvedEvent.get().event.eventNumber, nameChangedEvent);
-            }
-
-            startSubscription("$ce-contact", version);
-
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        // TODO: activate again
+//        try {
+//            StreamEventsSlice streamEventsSlice =
+//                    eventStore.readStreamEventsBackward("contact-" + memberCreatedEvent.getMemberId().getValue(),
+//                            StreamPosition.END, 4096, false).get();
+//
+//            Optional<ResolvedEvent> nameChangedResolvedEvent = streamEventsSlice.events.stream()
+//                    .filter(resolvedEvent -> resolvedEvent.event.eventType.equals("NameChanged"))
+//                    .findFirst();
+//
+//            if (nameChangedResolvedEvent.isPresent()) {
+//                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
+//                update(nameChangedResolvedEvent.get().event.eventNumber, nameChangedEvent);
+//            }
+//
+//            startSubscription("$ce-contact", version);
+//
+//        } catch (InterruptedException | ExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     protected synchronized void update(Long version, NameChangedEvent nameChangedEvent) {

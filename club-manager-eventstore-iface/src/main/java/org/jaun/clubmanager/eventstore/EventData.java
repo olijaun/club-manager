@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jaun.clubmanager.domain.model.commons.EventId;
+
 import com.google.common.base.MoreObjects;
 
 /**

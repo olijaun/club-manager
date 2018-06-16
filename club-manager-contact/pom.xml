@@ -18,7 +18,13 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
+            <artifactId>club-manager-commons-ddd-es</artifactId>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-commons-projection</artifactId>
             <type>jar</type>
         </dependency>
 
@@ -39,10 +45,6 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.msemys</groupId>
-            <artifactId>esjc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

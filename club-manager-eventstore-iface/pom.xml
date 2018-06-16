@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>club-manager-eventstore-iface</artifactId>
-    <name>club-manager-eventstore-iface</name>
 
     <packaging>jar</packaging>
 
@@ -19,7 +18,7 @@
         <!-- project dependencies -->
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
+            <artifactId>club-manager-commons-ddd</artifactId>
         </dependency>
 
         <!-- 3rd party -->

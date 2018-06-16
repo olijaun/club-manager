@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeMetadataChangedEvent;

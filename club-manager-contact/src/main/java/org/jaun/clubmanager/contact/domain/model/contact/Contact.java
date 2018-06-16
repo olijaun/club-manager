@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.contact.domain.model.contact.event.BirthDateChangedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.ContactCreatedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.ContactEvent;
@@ -16,6 +15,7 @@ import org.jaun.clubmanager.contact.domain.model.contact.event.NameChangedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.PhoneNumberChangedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.SexChangedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.StreetAddressChangedEvent;
+import org.jaun.clubmanager.eventstore.EventStream;
 
 public class Contact extends EventSourcingAggregate<ContactId, ContactEvent> {
 

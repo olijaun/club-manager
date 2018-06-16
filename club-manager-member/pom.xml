@@ -16,15 +16,14 @@
 
     <dependencies>
 
-        <!--<dependency>-->
-            <!--<groupId>org.jaun.club-manager</groupId>-->
-            <!--<artifactId>club-manager-identity</artifactId>-->
-            <!--<type>jar</type>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
+            <artifactId>club-manager-commons-ddd-es</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-commons-projection</artifactId>
             <type>jar</type>
         </dependency>
 
@@ -35,16 +34,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.libphonenumber</groupId>
-            <artifactId>libphonenumber</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.msemys</groupId>

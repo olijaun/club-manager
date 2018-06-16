@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.jaun.clubmanager.domain.model.commons.EventId;
 import org.jaun.clubmanager.eventstore.feed.json.JsonAuthor;
 import org.jaun.clubmanager.eventstore.feed.json.JsonEntry;
 import org.jaun.clubmanager.eventstore.feed.json.JsonFeed;
@@ -49,7 +50,7 @@ public class EventStoreResource {
     }
 
     @Autowired
-    private EventStoreInternal eventStore;
+    private EventStore eventStore;
 
     @POST
     @Consumes("application/vnd.eventstore.events+json")
@@ -170,9 +171,6 @@ public class EventStoreResource {
         EventType eventType = new EventType(eventTypeAsString);
         return new EventData(eventId, eventType, data, null);
     }
-
-
-
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})

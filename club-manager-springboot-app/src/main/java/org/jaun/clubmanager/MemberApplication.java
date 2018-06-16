@@ -4,7 +4,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.eventstore.EventStoreInternal;
+import org.jaun.clubmanager.eventstore.EventStore;
+import org.jaun.clubmanager.eventstore.EventStoreClient;
+import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -72,7 +74,12 @@ public class MemberApplication {
 //    }
 
     @Bean
-    public EventStoreInternal myEventStore() {
+    public EventStoreClient myEventStoreClient() {
+        return new JaxRsRestClient("http://localhost:9001/api");
+    }
+
+    @Bean
+    public EventStore myEventStore() {
         return new RedisEventStore("club-manager-event-store");
     }
 

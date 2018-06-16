@@ -18,22 +18,21 @@ import org.jaun.clubmanager.contact.domain.model.contact.event.PhoneNumberChange
 import org.jaun.clubmanager.contact.domain.model.contact.event.SexChangedEvent;
 import org.jaun.clubmanager.contact.domain.model.contact.event.StreetAddressChangedEvent;
 import org.jaun.clubmanager.contact.infra.repository.ContactEventMapping;
-import org.jaun.clubmanager.domain.model.commons.AbstractProjection;
+import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
+import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import com.github.msemys.esjc.EventStore;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 //@Service
-public class HazelcastContactProjection extends AbstractProjection {
+public class HazelcastContactProjection extends AbstractPollingProjection {
 
     private IMap<String, ContactDTO> contactMap;
 
-    public HazelcastContactProjection(@Autowired EventStore eventStore, @Autowired HazelcastInstance hazelcastInstance) {
+    public HazelcastContactProjection(@Autowired EventStoreClient eventStore, @Autowired HazelcastInstance hazelcastInstance) {
         super(eventStore, "$ce-contact");
 
         registerMapping(ContactEventMapping.CONTACT_CREATED, (v, r) -> update(toObject(r, ContactCreatedEvent.class)));
@@ -70,8 +69,7 @@ public class HazelcastContactProjection extends AbstractProjection {
     protected void update(StreetAddressChangedEvent streetAddressChangedEvent) {
 
         ContactDTO contactDTO = contactMap.get(streetAddressChangedEvent.getContactId().getValue());
-        contactDTO.setStreetAddress(
-                streetAddressChangedEvent.getStreetAddress().map(ContactConverter::toAddressDTO).orElse(null));
+        contactDTO.setStreetAddress(streetAddressChangedEvent.getStreetAddress().map(ContactConverter::toAddressDTO).orElse(null));
 
         contactMap.put(streetAddressChangedEvent.getContactId().getValue(), contactDTO);
     }

@@ -1,11 +1,11 @@
 package org.jaun.clubmanager.contact.infra.repository;
 
-import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
 import org.jaun.clubmanager.contact.domain.model.contact.Contact;
 import org.jaun.clubmanager.contact.domain.model.contact.ContactId;
 import org.jaun.clubmanager.contact.domain.model.contact.ContactRepository;
 import org.jaun.clubmanager.contact.domain.model.contact.event.ContactEvent;
+import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.springframework.stereotype.Service;
 
 @Service

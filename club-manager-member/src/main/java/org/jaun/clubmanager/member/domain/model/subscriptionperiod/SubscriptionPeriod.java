@@ -9,13 +9,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.domain.model.commons.EventStream;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.Member;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodEvent;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionTypeAddedEvent;
-import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 
 import com.google.common.collect.ImmutableList;
 
@@ -64,8 +64,8 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
 
     private void mutate(SubscriptionTypeAddedEvent event) {
         SubscriptionType def =
-                new SubscriptionType(event.getSubscriptionTypeId(), event.getMembershipTypeId(), event.getName(),
-                        event.getAmount(), event.getCurrency(), event.getMaxSubscribers());
+                new SubscriptionType(event.getSubscriptionTypeId(), event.getMembershipTypeId(), event.getName(), event.getAmount(),
+                        event.getCurrency(), event.getMaxSubscribers());
 
         subscriptionTypes.add(def);
     }
@@ -106,8 +106,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
     public void addMembershipOption(SubscriptionTypeId subscriptionTypeId, MembershipTypeId membershipTypeId, String name,
             double amount, Currency currency, int maxSubscribers) {
 
-        apply(new SubscriptionTypeAddedEvent(id, subscriptionTypeId, membershipTypeId, name, amount, currency,
-                maxSubscribers));
+        apply(new SubscriptionTypeAddedEvent(id, subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers));
 
     }
 

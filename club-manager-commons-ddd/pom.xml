@@ -9,32 +9,22 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-identity</artifactId>
-    <name>club-manager-identity</name>
+    <artifactId>club-manager-commons-ddd</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
 
-        <!-- project dependencies -->
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons-ddd</artifactId>
-        </dependency>
-
         <!-- 3rd party -->
-
-        <!-- testing stuff -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
     </dependencies>
-
 </project>

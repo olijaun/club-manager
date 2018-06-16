@@ -10,17 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>club-manager-eventstore</artifactId>
-    <name>club-manager-eventstore</name>
 
     <packaging>jar</packaging>
 
     <dependencies>
 
         <!-- project dependencies -->
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-commons</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-eventstore-iface</artifactId>
@@ -58,11 +53,6 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.msemys</groupId>
-            <artifactId>esjc</artifactId>
         </dependency>
 
         <!-- testing stuff -->
