@@ -21,13 +21,14 @@ import org.jaun.clubmanager.contact.infra.repository.ContactEventMapping;
 import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-//@Service
+@Service
 public class HazelcastContactProjection extends AbstractPollingProjection {
 
     private IMap<String, ContactDTO> contactMap;

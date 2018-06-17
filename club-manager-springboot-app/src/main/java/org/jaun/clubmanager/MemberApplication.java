@@ -4,10 +4,12 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,14 +32,11 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-//        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-//        membershipProjection.startSubscriptions();
-//
-//        HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-//        contactProjection.startSubscriptions();
-//
-//        HazelcastInvoiceProjection invoiceProjection = ctx.getBean(HazelcastInvoiceProjection.class);
-//        invoiceProjection.startSubscriptions();
+        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+        membershipProjection.startSubscriptions();
+
+        HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
+        contactProjection.startSubscriptions();
 
         //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 

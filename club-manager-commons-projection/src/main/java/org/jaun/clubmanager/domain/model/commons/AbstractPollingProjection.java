@@ -4,19 +4,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import org.jaun.clubmanager.eventstore.CatchUpSubscription;
 import org.jaun.clubmanager.eventstore.CatchUpSubscriptionListener;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamRevision;
-import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsCatchUpSubscription;
+import org.jaun.clubmanager.eventstore.client.jaxrs.PollingCatchUpSubscription;
 
-import com.github.msemys.esjc.CatchUpSubscription;
-import com.github.msemys.esjc.CatchUpSubscriptionSettings;
-import com.github.msemys.esjc.SubscriptionDropReason;
 import com.google.gson.Gson;
 
 public abstract class AbstractPollingProjection {
@@ -25,7 +24,7 @@ public abstract class AbstractPollingProjection {
     private final List<String> streams;
     private final Gson gson = new Gson();
 
-    private final Map<String, org.jaun.clubmanager.eventstore.CatchUpSubscription> subscriptionMap = new ConcurrentHashMap<>();
+    private final Map<String, CatchUpSubscription> subscriptionMap = new ConcurrentHashMap<>();
 
     // TODO: make private
     protected final EventStoreClient eventStoreClient;
@@ -46,7 +45,7 @@ public abstract class AbstractPollingProjection {
     private class MyCatchUpSubscriptionListener implements CatchUpSubscriptionListener {
 
         @Override
-        public void onEvent(org.jaun.clubmanager.eventstore.CatchUpSubscription subscription, StoredEventData event) {
+        public void onEvent(CatchUpSubscription subscription, StoredEventData event) {
             try {
                 if (map.containsKey(event.getEventType().getValue())) {
                     map.get(event.getEventType()).accept(event.getStreamRevision().getValue(), event);
@@ -56,11 +55,10 @@ public abstract class AbstractPollingProjection {
             }
         }
 
-        public void onClose(CatchUpSubscription subscription, SubscriptionDropReason reason, Exception exception) {
-            System.out.println("Subscription closed: " + reason);
-            if (exception != null) {
-                exception.printStackTrace();
-            }
+        @Override
+        public void onClose(CatchUpSubscription subscription, Optional<Exception> exception) {
+            System.out.println("Subscription closed.");
+            exception.ifPresent(Exception::printStackTrace);
         }
     }
 
@@ -78,11 +76,10 @@ public abstract class AbstractPollingProjection {
      */
     public void startSubscription(String streamName, Long fromVersion) {
 
-        CatchUpSubscriptionSettings settings = CatchUpSubscriptionSettings.newBuilder().resolveLinkTos(true).build();
-
-        org.jaun.clubmanager.eventstore.CatchUpSubscription catchupSubscription =
-                new JaxRsCatchUpSubscription(eventStoreClient, StreamId.parse(streamName), StreamRevision.from(fromVersion),
-                        new MyCatchUpSubscriptionListener());
+        CatchUpSubscription catchupSubscription =
+                new PollingCatchUpSubscription(eventStoreClient, StreamId.parse(streamName), StreamRevision.from(fromVersion),
+                        2 * 2000, new MyCatchUpSubscriptionListener());
+        catchupSubscription.start();
 
         subscriptionMap.put(streamName, catchupSubscription);
     }
@@ -99,7 +96,7 @@ public abstract class AbstractPollingProjection {
 
     public void stopSubscriptions() {
 
-        for (org.jaun.clubmanager.eventstore.CatchUpSubscription subscription : subscriptionMap.values()) {
+        for (CatchUpSubscription subscription : subscriptionMap.values()) {
 
             try {
                 subscription.stop(); //Duration.of(5, ChronoUnit.SECONDS));

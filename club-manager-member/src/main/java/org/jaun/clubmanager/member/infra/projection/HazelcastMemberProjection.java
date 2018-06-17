@@ -29,13 +29,14 @@ import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
-//@Service
+@Service
 public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;

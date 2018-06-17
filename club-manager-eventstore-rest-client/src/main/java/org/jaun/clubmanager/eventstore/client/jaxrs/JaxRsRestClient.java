@@ -129,13 +129,13 @@ public class JaxRsRestClient implements EventStoreClient {
 
         long to = (long) jsonFeed.getEntries().get(0).getEventNumber(); // TODO: position Number
 
-        if(from > to || to == 0) {
+        if (from > to || to == 0) {
             return new StoredEvents(Collections.emptyList());
         }
 
         int arraySize = Math.toIntExact(to - from + 1);
 
-        if(arraySize == 0) {
+        if (arraySize == 0) {
             return new StoredEvents(Collections.emptyList());
         }
 
@@ -209,24 +209,25 @@ public class JaxRsRestClient implements EventStoreClient {
     public static void main(String[] args) throws Exception {
 
         StreamId jaxRsStream = StreamId.parse("jax-4");
-
         EventData eventData1 = new EventData(EventId.generate(), new EventType("abc1"), "{ \"jax\": \"rs1\" }", null);
         EventData eventData2 = new EventData(EventId.generate(), new EventType("abc2"), "{ \"jax\": \"rs2\" }", null);
 
         JaxRsRestClient client = new JaxRsRestClient("http://localhost:9001/api");
-
         client.append(jaxRsStream, Arrays.asList(eventData1, eventData2), StreamRevision.UNSPECIFIED);
 
+        PollingCatchUpSubscription subscription =
+                new PollingCatchUpSubscription(client, jaxRsStream, StreamRevision.INITIAL, 2 * 1000,
+                        new CatchUpSubscriptionListener() {
+                            @Override
+                            public void onEvent(CatchUpSubscription subscription, StoredEventData eventData) {
+                                System.out.println("got event: " + eventData);
+                            }
 
-        //StoredEvents storedEvents = client.read(jaxRsStream, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
-
-        JaxRsCatchUpSubscription subscription =
-                new JaxRsCatchUpSubscription(client, jaxRsStream, StreamRevision.INITIAL, new CatchUpSubscriptionListener() {
-                    @Override
-                    public void onEvent(CatchUpSubscription subscription, StoredEventData eventData) {
-                        System.out.println("got event: " + eventData);
-                    }
-                });
+                            @Override
+                            public void onClose(CatchUpSubscription subscription, Optional<Exception> e) {
+                                System.out.println("closed subscription");
+                            }
+                        });
         subscription.start();
     }
 
