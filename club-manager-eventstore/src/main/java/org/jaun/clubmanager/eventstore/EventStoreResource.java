@@ -222,7 +222,11 @@ public class EventStoreResource {
         long begin = streamRevision.getValue();
         long end = streamRevision.getValue() + pageSize - 1;
 
-        return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+        try {
+            return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+        } catch (StreamNotFoundException e) {
+            throw new NotFoundException(e);
+        }
     }
 
     public StoredEvents getEventsBackward(StreamId streamId, long totalStreamLength, int pageSize, StreamRevision streamRevision) {
@@ -232,7 +236,11 @@ public class EventStoreResource {
         long tmpEnd = streamRevision.getValue();
         long end = tmpEnd > (totalStreamLength - 1) ? (totalStreamLength - 1) : tmpEnd;
 
-        return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+        try {
+            return eventStore.read(streamId, StreamRevision.from(begin), StreamRevision.from(end));
+        } catch (StreamNotFoundException e) {
+            throw new NotFoundException(e);
+        }
     }
 
     @GET
@@ -245,7 +253,12 @@ public class EventStoreResource {
 
         StreamRevision streamRevision = toStreamRevision(streamId, streamRevisionAsString);
 
-        StoredEvents storedEvents = eventStore.read(streamId, streamRevision, streamRevision);
+        StoredEvents storedEvents = null;
+        try {
+            storedEvents = eventStore.read(streamId, streamRevision, streamRevision);
+        } catch (StreamNotFoundException e) {
+            throw new NotFoundException(e);
+        }
 
         if (storedEvents.isEmpty()) {
             throw new NotFoundException("Event with revision " + streamIdAsString + " does not exist");

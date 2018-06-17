@@ -12,9 +12,9 @@ public interface EventStoreClient {
      */
     void append(StreamId streamId, List<EventData> evenDataList, StreamRevision expectedVersion) throws ConcurrencyException;
 
-    StoredEvents read(StreamId streamId);
+    StoredEvents read(StreamId streamId) throws StreamNotFoundException;
 
-    StoredEvents read(StreamId streamId, StreamRevision fromRevision);
+    StoredEvents read(StreamId streamId, StreamRevision fromRevision) throws StreamNotFoundException;
 
-    StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision);
+    StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) throws StreamNotFoundException;
 }

@@ -11,7 +11,7 @@ public class StreamRevision implements Comparable<StreamRevision> {
 
     private StreamRevision(long value) {
         if (value < -2) {
-            throw new IllegalStateException("stream revision cannot be less tha -2: " + value);
+            throw new IllegalStateException("stream revision cannot be less than -2: " + value);
         }
 
         this.value = value;

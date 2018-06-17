@@ -18,6 +18,7 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -33,6 +34,7 @@ import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StoredEvents;
 import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamNotFoundException;
 import org.jaun.clubmanager.eventstore.StreamRevision;
 
 public class JaxRsRestClient implements EventStoreClient {
@@ -101,25 +103,32 @@ public class JaxRsRestClient implements EventStoreClient {
     }
 
     @Override
-    public StoredEvents read(StreamId streamId) {
+    public StoredEvents read(StreamId streamId) throws StreamNotFoundException {
         return read(streamId, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public StoredEvents read(StreamId streamId, StreamRevision fromRevision) {
+    public StoredEvents read(StreamId streamId, StreamRevision fromRevision) throws StreamNotFoundException {
         return read(streamId, fromRevision, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) {
+    public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision)
+            throws StreamNotFoundException {
 
         // query the head of stream
-        JsonFeed jsonFeed = client.target(target)
-                .path("streams")
-                .path(streamId.getValue())
-                .queryParam("embed", "body")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(JsonFeed.class);
+        JsonFeed jsonFeed;
+
+        try {
+            jsonFeed = client.target(target)
+                    .path("streams")
+                    .path(streamId.getValue())
+                    .queryParam("embed", "body")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(JsonFeed.class);
+        } catch (NotFoundException e) {
+            throw new StreamNotFoundException(streamId);
+        }
 
         long from = fromRevision.getValue();
 
@@ -127,7 +136,7 @@ public class JaxRsRestClient implements EventStoreClient {
             return new StoredEvents(Collections.emptyList());
         }
 
-        long to = (long) jsonFeed.getEntries().get(0).getEventNumber(); // TODO: position Number
+        long to = (long) jsonFeed.getEntries().get(0).getPositionEventNumber();
 
         if (from > to || to == 0) {
             return new StoredEvents(Collections.emptyList());

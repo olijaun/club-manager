@@ -9,6 +9,7 @@ import org.jaun.clubmanager.eventstore.CatchUpSubscriptionListener;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StoredEvents;
 import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamNotFoundException;
 import org.jaun.clubmanager.eventstore.StreamRevision;
 
 public class PollingCatchUpSubscription implements CatchUpSubscription {
@@ -37,7 +38,17 @@ public class PollingCatchUpSubscription implements CatchUpSubscription {
             @Override
             public void run() {
                 System.out.println(streamId.getValue() + ": checking for events");
-                StoredEvents storedEvents = eventStoreClient.read(streamId, currentRevision, StreamRevision.MAXIMUM);
+                StoredEvents storedEvents = null;
+                try {
+                    storedEvents = eventStoreClient.read(streamId, currentRevision, StreamRevision.MAXIMUM);
+                } catch (StreamNotFoundException e) {
+                    System.out.println("stream not found: " + streamId.getValue());
+                    // do noting as long as the stream does not exist
+                    return;
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
 
                 storedEvents.stream().forEach(e -> catchUpSubscriptionListener.onEvent(me, e));
 

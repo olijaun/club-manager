@@ -13,11 +13,11 @@ public interface EventStore {
      */
     StreamRevision append(StreamId streamId, List<EventData> evenData, StreamRevision expectedVersion) throws ConcurrencyException;
 
-    StoredEvents read(StreamId streamId);
+    StoredEvents read(StreamId streamId) throws StreamNotFoundException;
 
-    StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan);
+    StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan) throws StreamNotFoundException;
 
-    StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision);
+    StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) throws StreamNotFoundException;
 
     long length(StreamId streamId);
 }

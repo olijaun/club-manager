@@ -66,7 +66,7 @@ public abstract class AbstractPollingProjection {
     public void startSubscriptions() {
 
         for (String streamName : streams) {
-            startSubscription(streamName, null);
+            startSubscription(streamName, StreamRevision.INITIAL);
         }
     }
 
@@ -75,11 +75,11 @@ public abstract class AbstractPollingProjection {
      * @param fromVersion
      *         NULL is from start... oh dear
      */
-    public void startSubscription(String streamName, Long fromVersion) {
+    public void startSubscription(String streamName, StreamRevision fromVersion) {
 
         CatchUpSubscription catchupSubscription =
-                new PollingCatchUpSubscription(eventStoreClient, StreamId.parse(streamName), StreamRevision.from(fromVersion),
-                        2 * 2000, new MyCatchUpSubscriptionListener());
+                new PollingCatchUpSubscription(eventStoreClient, StreamId.parse(streamName), fromVersion, 2 * 2000,
+                        new MyCatchUpSubscriptionListener());
         catchupSubscription.start();
 
         subscriptionMap.put(streamName, catchupSubscription);

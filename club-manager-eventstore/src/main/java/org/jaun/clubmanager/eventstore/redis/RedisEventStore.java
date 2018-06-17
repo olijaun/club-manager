@@ -31,6 +31,7 @@ import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StoredEvents;
 import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamNotFoundException;
 import org.jaun.clubmanager.eventstore.StreamRevision;
 
 import com.google.common.base.Charsets;
@@ -96,7 +97,7 @@ public class RedisEventStore implements EventStore {
         }
     }
 
-    public static void main(String[] args) throws ConcurrencyException {
+    public static void main(String[] args) throws Exception {
         System.out.println(TRY_COMMIT_SCRIPT);
         RedisEventStore testStore = new RedisEventStore("teststore");
         StreamId streamId = new StreamId(new DummyId("1"), new Category("cat1"));
@@ -115,12 +116,6 @@ public class RedisEventStore implements EventStore {
         //List<StoredEventData> storedEvents = testStore.read(streamId, new StreamRevision(1));
         for (StoredEventData storedEventData : storedEvents) {
             System.out.println("event: " + storedEventData);
-        }
-    }
-
-    public static void varargs(Object... objects) {
-        for (Object o : objects) {
-            System.out.println(o);
         }
     }
 
@@ -226,19 +221,26 @@ public class RedisEventStore implements EventStore {
     }
 
     @Override
-    public StoredEvents read(StreamId streamId) {
+    public StoredEvents read(StreamId streamId) throws StreamNotFoundException {
         return read(streamId, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan) {
+    public StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan) throws StreamNotFoundException {
         return read(streamId, versionGreaterThan, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) {
+    public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision)
+            throws StreamNotFoundException {
 
         try (Jedis jedis = jedisPool.getResource()) {
+
+            Boolean exists = jedis.exists(keyForStream(streamId));
+
+            if (!exists) {
+                throw new StreamNotFoundException(streamId);
+            }
 
             List<String> commitIds = jedis.lrange(keyForStream(streamId), fromRevision.getValue(), toRevision.getValue());
 
