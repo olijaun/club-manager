@@ -30,7 +30,7 @@ public class JaxRsCatchUpSubscription implements CatchUpSubscription {
     }
 
     public void start() {
-        timer.scheduleAtFixedRate(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 System.out.println("checking for events");
@@ -41,10 +41,10 @@ public class JaxRsCatchUpSubscription implements CatchUpSubscription {
                 if (storedEvents.isEmpty()) {
                     return;
                 } else {
-                    currentRevision = storedEvents.highestRevision().get();
+                    currentRevision = storedEvents.highestRevision().get().add(1);
                 }
             }
-        }, 0, 5 * 1000);
+        }, 0, 2 * 1000);
     }
 
     public void stop() {

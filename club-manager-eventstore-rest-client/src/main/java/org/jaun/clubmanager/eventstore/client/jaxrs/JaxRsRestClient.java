@@ -8,8 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,7 +82,8 @@ public class JaxRsRestClient implements EventStoreClient {
                     .path("streams")
                     .path(streamId.getValue())
                     .request()
-                    .post(Entity.entity(arrayBuilder.build().toString(), EVENTSTORE_JSON_TYPE));
+                    .header("ES-ExpectedVersion", expectedVersion.getValue().intValue())
+                    .post(Entity.entity(arrayBuilder.build().toString(), EVENTSTORE_JSON_TYPE), String.class);
 
         } else {
 
@@ -94,42 +95,72 @@ public class JaxRsRestClient implements EventStoreClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header("ES-EventId", eventData.getEventId().getUuid().toString())
                     .header("ES-EventType", eventData.getEventType().getValue())
+                    .header("ES-ExpectedVersion", expectedVersion.getValue().intValue())
                     .post(Entity.json(eventData.getPayload()), String.class);
         }
     }
 
     @Override
     public StoredEvents read(StreamId streamId) {
-        return null;
+        return read(streamId, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
     }
 
     @Override
-    public StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan) {
-        return null;
+    public StoredEvents read(StreamId streamId, StreamRevision fromRevision) {
+        return read(streamId, fromRevision, StreamRevision.MAXIMUM);
     }
 
     @Override
     public StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision) {
 
+        // query the head of stream
         JsonFeed jsonFeed = client.target(target)
                 .path("streams")
                 .path(streamId.getValue())
-                .path("0")
-                .path("forward")
-                .path(String.valueOf(fromRevision.getValue()))
                 .queryParam("embed", "body")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(JsonFeed.class);
 
-        while (getPreviousLink(jsonFeed).isPresent()) {
+        long from = fromRevision.getValue();
 
-            jsonFeed = client.target(getPreviousLink(jsonFeed).get())
+        if (jsonFeed.getEntries().isEmpty()) {
+            return new StoredEvents(Collections.emptyList());
+        }
+
+        long to = (long) jsonFeed.getEntries().get(0).getEventNumber(); // TODO: position Number
+
+        if(from > to || to == 0) {
+            return new StoredEvents(Collections.emptyList());
+        }
+
+        int arraySize = Math.toIntExact(to - from + 1);
+
+        if(arraySize == 0) {
+            return new StoredEvents(Collections.emptyList());
+        }
+
+        StoredEventData[] storedEventDataArray = new StoredEventData[arraySize];
+        readEvents(streamId, fromRevision, toRevision, jsonFeed, storedEventDataArray);
+
+        while (getNextLink(jsonFeed).isPresent()) {
+
+            jsonFeed = client.target(getNextLink(jsonFeed).get())
                     .queryParam("embed", "body")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(JsonFeed.class);
+
+            readEvents(streamId, fromRevision, toRevision, jsonFeed, storedEventDataArray);
+
+            if (storedEventDataArray[0] != null && storedEventDataArray[arraySize - 1] != null) {
+                break;
+            }
         }
 
-        List<StoredEventData> storedEventDataList = new ArrayList<>();
+        return new StoredEvents(Arrays.asList(storedEventDataArray));
+    }
+
+    private void readEvents(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision, JsonFeed jsonFeed,
+            StoredEventData[] storedEventDataArray) {
 
         for (JsonEntry entry : jsonFeed.getEntries()) {
 
@@ -139,19 +170,33 @@ public class JaxRsRestClient implements EventStoreClient {
                     new EventType(entry.getEventType()), entry.getData(), null, StreamRevision.from(entry.getEventNumber()),
                     timestamp, Math.toIntExact(entry.getPositionEventNumber()));
 
-            storedEventDataList.add(storedEventData);
-        }
+            if (storedEventData.getStreamRevision().getValue() <= toRevision.getValue()
+                && storedEventData.getStreamRevision().getValue() >= fromRevision.getValue()) {
 
-        return new StoredEvents(storedEventDataList);
+                int arrayOffset = -1 * fromRevision.getValue().intValue();
+                int arrayPosition = storedEventData.getStreamRevision().getValue().intValue() + arrayOffset;
+                storedEventDataArray[arrayPosition] = storedEventData;
+            }
+        }
+    }
+
+    private Optional<URI> getNextLink(JsonFeed feed) {
+
+        return getLink(feed, "next");
     }
 
     private Optional<URI> getPreviousLink(JsonFeed feed) {
 
+        return getLink(feed, "previous");
+    }
+
+    private Optional<URI> getLink(JsonFeed feed, String relation) {
+
         List<JsonLink> links = feed.getLinks();
 
-        Optional<JsonLink> previous = links.stream().filter(l -> l.getRelation().equals("previous")).findFirst();
+        Optional<JsonLink> link = links.stream().filter(l -> l.getRelation().equals(relation)).findFirst();
 
-        return previous.map(p -> {
+        return link.map(p -> {
             try {
                 return new URI(p.getUri());
             } catch (URISyntaxException e) {
@@ -163,27 +208,23 @@ public class JaxRsRestClient implements EventStoreClient {
 
     public static void main(String[] args) throws Exception {
 
-        StreamId jaxRsStream = StreamId.parse("jax-2");
+        StreamId jaxRsStream = StreamId.parse("jax-4");
 
         EventData eventData1 = new EventData(EventId.generate(), new EventType("abc1"), "{ \"jax\": \"rs1\" }", null);
         EventData eventData2 = new EventData(EventId.generate(), new EventType("abc2"), "{ \"jax\": \"rs2\" }", null);
 
         JaxRsRestClient client = new JaxRsRestClient("http://localhost:9001/api");
 
-        client.append(jaxRsStream, Arrays.asList(eventData1, eventData2), StreamRevision.NEW_STREAM);
+        client.append(jaxRsStream, Arrays.asList(eventData1, eventData2), StreamRevision.UNSPECIFIED);
 
 
-        StoredEvents storedEvents = client.read(jaxRsStream, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
-
-        for (StoredEventData e : storedEvents) {
-            System.out.println(e);
-        }
+        //StoredEvents storedEvents = client.read(jaxRsStream, StreamRevision.INITIAL, StreamRevision.MAXIMUM);
 
         JaxRsCatchUpSubscription subscription =
                 new JaxRsCatchUpSubscription(client, jaxRsStream, StreamRevision.INITIAL, new CatchUpSubscriptionListener() {
                     @Override
                     public void onEvent(CatchUpSubscription subscription, StoredEventData eventData) {
-                        System.out.println("got event: " + storedEvents);
+                        System.out.println("got event: " + eventData);
                     }
                 });
         subscription.start();

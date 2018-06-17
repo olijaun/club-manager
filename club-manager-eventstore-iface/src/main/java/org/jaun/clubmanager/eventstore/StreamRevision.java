@@ -61,4 +61,17 @@ public class StreamRevision implements Comparable<StreamRevision> {
     public int compareTo(StreamRevision that) {
         return this.value.compareTo(that.value);
     }
+
+    public boolean equals(Object other) {
+
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || !(other instanceof StreamRevision)) {
+            return false;
+        }
+
+        return this.compareTo((StreamRevision) other) == 0;
+    }
 }

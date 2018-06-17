@@ -14,7 +14,7 @@ public interface EventStoreClient {
 
     StoredEvents read(StreamId streamId);
 
-    StoredEvents read(StreamId streamId, StreamRevision versionGreaterThan);
+    StoredEvents read(StreamId streamId, StreamRevision fromRevision);
 
     StoredEvents read(StreamId streamId, StreamRevision fromRevision, StreamRevision toRevision);
 }

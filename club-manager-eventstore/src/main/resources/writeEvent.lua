@@ -18,8 +18,8 @@ local expected = tonumber(ARGV[2])
 local numberOfEvents = tonumber(ARGV[3])
 -- ARGV[4] and following are events
 
-local exists = redis.call('exists', streamKey);
-if expected == -1 and exists == 1 then
+local streamExists = redis.call('exists', streamKey);
+if expected == -1 and streamExists == 1 then
     return { 'streamExistsAlready', streamId }
 end
 
