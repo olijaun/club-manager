@@ -17,6 +17,11 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-commons-ddd-es</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-eventstore-rest-client</artifactId>
         </dependency>
 

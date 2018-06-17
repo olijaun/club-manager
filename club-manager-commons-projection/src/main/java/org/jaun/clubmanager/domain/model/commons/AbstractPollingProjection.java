@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 import org.jaun.clubmanager.eventstore.CatchUpSubscription;
 import org.jaun.clubmanager.eventstore.CatchUpSubscriptionListener;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
+import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamRevision;
@@ -20,7 +21,7 @@ import com.google.gson.Gson;
 
 public abstract class AbstractPollingProjection {
 
-    private Map<String, BiConsumer<Long, StoredEventData>> map = new HashMap<>();
+    private Map<EventType, BiConsumer<Long, StoredEventData>> map = new HashMap<>();
     private final List<String> streams;
     private final Gson gson = new Gson();
 
@@ -38,7 +39,7 @@ public abstract class AbstractPollingProjection {
         map.put(eventMapping.getEventType(), event);
     }
 
-    protected void registerMapping(String eventType, BiConsumer<Long, StoredEventData> event) {
+    protected void registerMapping(EventType eventType, BiConsumer<Long, StoredEventData> event) {
         map.put(eventType, event);
     }
 

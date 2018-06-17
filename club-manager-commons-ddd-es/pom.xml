@@ -20,6 +20,11 @@
             <artifactId>club-manager-eventstore-iface</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-eventstore-rest-client</artifactId>
+        </dependency>
+
         <!-- 3rd party -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -32,9 +37,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.msemys</groupId>
-            <artifactId>esjc</artifactId>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>com.github.msemys</groupId>-->
+            <!--<artifactId>esjc</artifactId>-->
+        <!--</dependency>-->
 
     </dependencies>
 </project>

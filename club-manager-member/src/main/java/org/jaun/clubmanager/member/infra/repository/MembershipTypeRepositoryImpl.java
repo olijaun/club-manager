@@ -1,16 +1,23 @@
 package org.jaun.clubmanager.member.infra.repository;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
+import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventStream;
+import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MembershipTypeRepositoryImpl extends
         AbstractGenericRepository<MembershipType, MembershipTypeId, MembershipTypeEvent> implements MembershipTypeRepository {
+
+    public MembershipTypeRepositoryImpl(@Autowired EventStoreClient eventStoreClient) {
+        super(eventStoreClient);
+    }
 
     @Override
     protected String getAggregateName() {
@@ -23,12 +30,12 @@ public class MembershipTypeRepositoryImpl extends
     }
 
     @Override
-    protected Class<? extends MembershipTypeEvent> getClassByName(String name) {
+    protected Class<? extends MembershipTypeEvent> getClassByName(EventType name) {
         return MembershipTypeEventMapping.of(name).getEventClass();
     }
 
     @Override
-    protected String getNameByEvent(MembershipTypeEvent event) {
+    protected EventType getNameByEvent(MembershipTypeEvent event) {
         return MembershipTypeEventMapping.of(event).getEventType();
     }
 }

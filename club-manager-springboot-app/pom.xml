@@ -59,10 +59,10 @@
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.msemys</groupId>
-            <artifactId>esjc</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.msemys</groupId>-->
+            <!--<artifactId>esjc</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

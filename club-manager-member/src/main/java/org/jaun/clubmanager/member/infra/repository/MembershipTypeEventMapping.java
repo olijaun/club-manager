@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.stream.Stream;
 
 import org.jaun.clubmanager.domain.model.commons.EventMapping;
+import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeMetadataChangedEvent;
@@ -28,11 +29,11 @@ public enum MembershipTypeEventMapping implements EventMapping {
     }
 
     @Override
-    public String getEventType() {
-        return name;
+    public EventType getEventType() {
+        return new EventType(name);
     }
 
-    public static MembershipTypeEventMapping of(String name) {
+    public static MembershipTypeEventMapping of(EventType name) {
         return Stream.of(MembershipTypeEventMapping.values())
                 .filter(m -> m.getEventType().equals(name))
                 .findFirst()

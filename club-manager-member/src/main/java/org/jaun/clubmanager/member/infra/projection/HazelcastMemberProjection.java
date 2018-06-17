@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
+import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
@@ -65,7 +66,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_METADATA_CHANGED,
                 (v, r) -> update(v, toObject(r, MembershipTypeMetadataChangedEvent.class)));
 
-        registerMapping("NameChanged", (v, r) -> update(v, toObject(r, NameChangedEvent.class)));
+        registerMapping(new EventType("NameChanged"), (v, r) -> update(v, toObject(r, NameChangedEvent.class)));
 
         subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");

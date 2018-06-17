@@ -38,7 +38,7 @@ public class MemberApplication {
         HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
         contactProjection.startSubscriptions();
 
-        //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
+        RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
         return args -> {
 

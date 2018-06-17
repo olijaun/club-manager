@@ -1,48 +1,47 @@
 package org.jaun.clubmanager.domain.model.commons;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.eventstore.Category;
+import org.jaun.clubmanager.eventstore.EventData;
+import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventStream;
+import org.jaun.clubmanager.eventstore.EventType;
+import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamRevision;
 
-import com.github.msemys.esjc.EventData;
-import com.github.msemys.esjc.EventStore;
-import com.github.msemys.esjc.EventStoreBuilder;
-import com.github.msemys.esjc.ExpectedVersion;
-import com.github.msemys.esjc.ResolvedEvent;
 import com.google.gson.Gson;
-
 
 public abstract class AbstractGenericRepository<A extends EventSourcingAggregate<I, E>, I extends Id, E extends DomainEvent> implements
         GenericRepository<A, I> {
 
-    private EventStore eventStore;
+    private EventStoreClient eventStoreClient;
     private Gson gson = new Gson();
 
     protected abstract String getAggregateName();
 
     protected abstract A toAggregate(EventStream<E> eventStream);
 
-    public AbstractGenericRepository() {
-        this.eventStore =
-                EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
+    public AbstractGenericRepository(EventStoreClient eventStoreClient) {
+        this.eventStoreClient = eventStoreClient;
     }
 
     public void save(A m) throws ConcurrencyException {
 
         Long expectedVersion = (long) m.getVersion() - m.getChanges().size();
 
-        if (expectedVersion == -1) {
-            expectedVersion = ExpectedVersion.ANY;
-        }
+        StreamId streamId = new StreamId(m.getId(), new Category(getAggregateName()));
 
         if (m.hasChanges()) {
-            eventStore.appendToStream(new StreamId(m.getId(), new Category(getAggregateName())).getValue(), expectedVersion,
-                    toEventData(m.getChanges()));
+            try {
+                eventStoreClient.append(streamId, toEventData(m.getChanges()), StreamRevision.from(expectedVersion));
+            } catch (org.jaun.clubmanager.eventstore.ConcurrencyException e) {
+                throw new ConcurrencyException(e,
+                        "failed to append event to stream " + streamId.getValue() + " with expected revision " + expectedVersion);
+            }
             m.clearChanges();
         }
     }
@@ -53,7 +52,7 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
 
         List<E> domainEventList = null;
         try {
-            domainEventList = eventStore.streamEventsForward(streamId.getValue(), 0, 4096, false) //
+            domainEventList = eventStoreClient.read(streamId, StreamRevision.INITIAL, StreamRevision.MAXIMUM).stream() //
                     .map(e -> toObject(e)).collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -77,28 +76,26 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
 
         try {
 
-            return EventData.newBuilder() //
-                    .eventId(event.getEventId().getUuid()) //
-                    .type(getNameByEvent(event)) //
-                    .jsonData(gson.toJson(event)).build();
+            return new EventData(event.getEventId(), getNameByEvent(event), gson.toJson(event), null);
 
         } catch (RuntimeException e) {
             throw new IllegalStateException("could not serialize event to string: " + event, e);
         }
     }
 
-    private E toObject(ResolvedEvent resolvedEvent) {
+    private E toObject(StoredEventData resolvedEvent) {
 
         try {
-            return gson.fromJson(new String(resolvedEvent.event.data, "UTF-8"), getClassByName(resolvedEvent.event.eventType));
+            return gson.fromJson(resolvedEvent.getPayload(), getClassByName(resolvedEvent.getEventType()));
             // getEventClass(resolvedEvent.event.eventType));
-        } catch (RuntimeException | UnsupportedEncodingException e) {
-            throw new IllegalStateException("could not deserialize event string to object: " + resolvedEvent.event.eventType, e);
+        } catch (RuntimeException e) {
+            throw new IllegalStateException(
+                    "could not deserialize event string to object: " + resolvedEvent.getEventType().getValue(), e);
         }
     }
 
-    protected abstract Class<? extends E> getClassByName(String name);
+    protected abstract Class<? extends E> getClassByName(EventType name);
 
-    protected abstract String getNameByEvent(E event);
+    protected abstract EventType getNameByEvent(E event);
 
 }
