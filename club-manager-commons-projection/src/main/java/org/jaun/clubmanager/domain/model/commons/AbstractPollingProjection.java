@@ -48,7 +48,7 @@ public abstract class AbstractPollingProjection {
         @Override
         public void onEvent(CatchUpSubscription subscription, StoredEventData event) {
             try {
-                if (map.containsKey(event.getEventType().getValue())) {
+                if (map.containsKey(event.getEventType())) {
                     map.get(event.getEventType()).accept(event.getStreamRevision().getValue(), event);
                 }
             } catch (NullPointerException e) {
