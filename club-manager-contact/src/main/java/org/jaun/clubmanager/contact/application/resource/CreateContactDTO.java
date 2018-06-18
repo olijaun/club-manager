@@ -3,7 +3,7 @@ package org.jaun.clubmanager.contact.application.resource;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class CreateContactDTO implements Serializable {
+public class CreateContactDTO extends DTO {
 
     private NameDTO name;
     private StreetAddressDTO streetAddressDTO;

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
-public class StreetAddressDTO implements Serializable {
+public class StreetAddressDTO extends DTO {
 
     private String street;
     private String streetNumber;

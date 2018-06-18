@@ -2,7 +2,7 @@ package org.jaun.clubmanager.contact.application.resource;
 
 import java.io.Serializable;
 
-public class NameDTO implements Serializable {
+public class NameDTO extends DTO {
     private String lastNameOrCompanyName;
     private String firstName;
 
