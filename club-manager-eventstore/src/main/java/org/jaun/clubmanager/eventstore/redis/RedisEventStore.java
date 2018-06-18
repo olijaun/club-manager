@@ -266,7 +266,7 @@ public class RedisEventStore implements EventStore {
     }
 
     private StoredEventData toEventData(String jsonString, long position) {
-        System.out.println("json string: " + jsonString);
+        //System.out.println("json string: " + jsonString);
         JsonReader reader = Json.createReader(new StringReader(jsonString));
 
         JsonObject jsonObject = reader.readObject();

@@ -55,7 +55,7 @@ public class PollingCatchUpSubscription implements CatchUpSubscription {
                 if (storedEvents.isEmpty()) {
                     return;
                 } else {
-                    currentRevision = storedEvents.highestRevision().get().add(1);
+                    currentRevision = storedEvents.highestPosition().get().add(1);
                 }
             }
         }, 0, periodInMilliSeconds);

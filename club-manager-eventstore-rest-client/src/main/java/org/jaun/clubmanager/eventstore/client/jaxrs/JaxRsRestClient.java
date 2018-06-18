@@ -149,7 +149,7 @@ public class JaxRsRestClient implements EventStoreClient {
         }
 
         StoredEventData[] storedEventDataArray = new StoredEventData[arraySize];
-        readEvents(streamId, fromRevision, toRevision, jsonFeed, storedEventDataArray);
+        readEvents(streamId, StreamRevision.from(from), StreamRevision.from(to), jsonFeed, storedEventDataArray);
 
         while (getNextLink(jsonFeed).isPresent()) {
 
@@ -179,11 +179,11 @@ public class JaxRsRestClient implements EventStoreClient {
                     new EventType(entry.getEventType()), entry.getData(), null, StreamRevision.from(entry.getEventNumber()),
                     timestamp, Math.toIntExact(entry.getPositionEventNumber()));
 
-            if (storedEventData.getStreamRevision().getValue() <= toRevision.getValue()
-                && storedEventData.getStreamRevision().getValue() >= fromRevision.getValue()) {
+            if (storedEventData.getPosition() <= toRevision.getValue()
+                && storedEventData.getPosition() >= fromRevision.getValue()) {
 
                 int arrayOffset = -1 * fromRevision.getValue().intValue();
-                int arrayPosition = storedEventData.getStreamRevision().getValue().intValue() + arrayOffset;
+                int arrayPosition = Math.toIntExact(storedEventData.getPosition() + arrayOffset);
                 storedEventDataArray[arrayPosition] = storedEventData;
             }
         }

@@ -13,21 +13,26 @@ public class StoredEvents implements Iterable<StoredEventData> {
     private final List<StoredEventData> eventDataList;
 
     public StoredEvents(List<StoredEventData> eventDataList) {
-        this.eventDataList = ImmutableList.copyOf(eventDataList);
+        try {
+            this.eventDataList = ImmutableList.copyOf(eventDataList);
+        } catch(NullPointerException e) {
+            System.out.println("hello world");
+            throw e;
+        }
     }
 
-    public Optional<StreamRevision> lowestRevision() {
-        if(eventDataList.isEmpty()) {
+    public Optional<StreamRevision> lowestPosition() {
+        if (eventDataList.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(eventDataList.get(0).getStreamRevision());
+        return Optional.of(StreamRevision.from(eventDataList.get(0).getPosition()));
     }
 
-    public Optional<StreamRevision> highestRevision() {
-        if(eventDataList.isEmpty()) {
+    public Optional<StreamRevision> highestPosition() {
+        if (eventDataList.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(eventDataList.get(eventDataList.size()-1).getStreamRevision());
+        return Optional.of(StreamRevision.from(eventDataList.get(eventDataList.size() - 1).getPosition()));
     }
 
     public Stream<StoredEventData> stream() {
@@ -39,11 +44,11 @@ public class StoredEvents implements Iterable<StoredEventData> {
         return eventDataList.iterator();
     }
 
-    public Optional<StoredEventData> highestRevisionEvent() {
-        if(eventDataList.isEmpty()) {
+    public Optional<StoredEventData> highestPositionEvent() {
+        if (eventDataList.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(eventDataList.get(eventDataList.size()-1));
+        return Optional.of(eventDataList.get(eventDataList.size() - 1));
     }
 
     public List<StoredEventData> newestFirstList() {

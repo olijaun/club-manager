@@ -279,7 +279,7 @@ public class EventStoreResource {
 
         jsonFeed.setAuthor(new JsonAuthor("EventStore"));
         jsonFeed.setId(uriInfo.getAbsolutePath());
-        jsonFeed.setUpdated(storedEvents.highestRevisionEvent().map(StoredEventData::getTimestamp).orElse(null));
+        jsonFeed.setUpdated(storedEvents.highestPositionEvent().map(StoredEventData::getTimestamp).orElse(null));
         jsonFeed.setStreamId(streamId.getValue());
         jsonFeed.setTitle("EventStream '" + streamId.getValue() + "'");
 
@@ -295,11 +295,11 @@ public class EventStoreResource {
                     "last");
         }
 
-        if (storedEvents.lowestRevision().isPresent() && storedEvents.lowestRevision().get().getValue() > 0) {
+        if (storedEvents.lowestPosition().isPresent() && storedEvents.lowestPosition().get().getValue() > 0) {
             jsonFeed.addLink(uriInfo.getBaseUriBuilder()
                     .path("streams")
                     .path(streamId.getValue())
-                    .path(storedEvents.highestRevision().get().getValue() - pageSize + "/backward/" + pageSize)
+                    .path(storedEvents.highestPosition().get().getValue() - pageSize + "/backward/" + pageSize)
                     .build(), "next");
         }
 
@@ -307,11 +307,11 @@ public class EventStoreResource {
         jsonFeed.addLink(uriInfo.getBaseUriBuilder()
                 .path("streams")
                 .path(streamId.getValue())
-                .path(storedEvents.highestRevision().orElseGet(() -> StreamRevision.NEW_STREAM).add(1).getValue() + "/forward/"
+                .path(storedEvents.highestPosition().orElseGet(() -> StreamRevision.NEW_STREAM).add(1).getValue() + "/forward/"
                       + pageSize)
                 .build(), "previous");
 
-        boolean headOfStream = storedEvents.isEmpty() || (totalStreamLength - 1) == storedEvents.highestRevision().get().getValue();
+        boolean headOfStream = storedEvents.isEmpty() || (totalStreamLength - 1) == storedEvents.highestPosition().get().getValue();
         jsonFeed.setHeadOfStream(headOfStream);
 
         jsonFeed.setSelfUrl(uriInfo.getAbsolutePathBuilder().build());
@@ -363,9 +363,9 @@ public class EventStoreResource {
             jsonFeed.getEntries().add(entry);
         }
 
-        if (storedEvents.lowestRevision().isPresent()) {
+        if (storedEvents.lowestPosition().isPresent()) {
             jsonFeed.seteTag(
-                    storedEvents.highestRevision().get().getValue() + "-" + storedEvents.lowestRevision().get().getValue() + ";"
+                    storedEvents.highestPosition().get().getValue() + "-" + storedEvents.lowestPosition().get().getValue() + ";"
                     + storedEvents.size()); // TODO
         }
 
