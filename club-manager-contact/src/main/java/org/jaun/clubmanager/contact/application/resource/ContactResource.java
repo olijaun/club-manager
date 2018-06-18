@@ -61,14 +61,33 @@ public class ContactResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("contacts/{id}")
-    public Response createContact(@PathParam("id") String contactId, CreateContactDTO contactDTO) {
+    public Response createContact(@PathParam("id") String contactIdAsString, CreateContactDTO contactDTO) {
 
-        Contact contact = ContactConverter.toContact(new ContactId(contactId), contactDTO);
+        ContactId contactId = new ContactId(contactIdAsString);
+        Contact contactNew = ContactConverter.toContact(contactId, contactDTO);
 
-        try {
-            contactRepository.save(contact);
-        } catch (ConcurrencyException e) {
-            throw new IllegalStateException(e);
+        Contact contact = contactRepository.get(contactId);
+
+        if(contact == null) {
+
+            try {
+                contactRepository.save(contactNew);
+            } catch (ConcurrencyException e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            contact.changeName(contactNew.getName());
+            contact.changeStreetAddress(contactNew.getStreetAddress());
+            contact.changeBirthdate(contactNew.getBirthDate().orElse(null));
+            contact.changeSex(contactNew.getSex().orElse(null));
+            contact.changeEmailAddress(contactNew.getEmailAddress().orElse(null));
+            contact.changePhoneNumber(contactNew.getPhoneNumber().orElse(null));
+
+            try {
+                contactRepository.save(contact);
+            } catch (ConcurrencyException e) {
+                throw new IllegalStateException(e);
+            }
         }
 
         return Response.ok(contact.getId().getValue()).build();

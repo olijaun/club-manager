@@ -159,8 +159,8 @@ public class Contact extends EventSourcingAggregate<ContactId, ContactEvent> {
         return streetAddress;
     }
 
-    public PhoneNumber getPhoneNumber() {
-        return phoneNumber;
+    public Optional<PhoneNumber> getPhoneNumber() {
+        return Optional.ofNullable(phoneNumber);
     }
 
     public Optional<EmailAddress> getEmailAddress() {
