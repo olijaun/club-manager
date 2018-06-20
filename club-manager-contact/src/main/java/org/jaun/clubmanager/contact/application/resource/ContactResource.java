@@ -76,6 +76,8 @@ public class ContactResource {
             } catch (ConcurrencyException e) {
                 throw new IllegalStateException(e);
             }
+
+            contact = contactNew;
         } else {
             contact.changeName(contactNew.getName());
             contact.changeStreetAddress(contactNew.getStreetAddress());
