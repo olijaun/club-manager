@@ -22,6 +22,10 @@ public class Subscriptions implements Iterable {
         subscriptions.add(subscription);
     }
 
+    public boolean contains(Subscription subscription) {
+        return subscriptions.stream().filter(s -> subscription.getId().equals(subscription.getId())).findFirst().isPresent();
+    }
+
     public boolean containsMembershipWith(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
         return subscriptions.stream()
                 .filter(m -> m.matchesPeriodAndOption(subscriptionPeriodId, subscriptionTypeId))

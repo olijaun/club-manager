@@ -39,6 +39,10 @@ public class StoredEvents implements Iterable<StoredEventData> {
         return eventDataList.stream();
     }
 
+    public Stream<StoredEventData> reverseStream() {
+        return Lists.reverse(eventDataList).stream();
+    }
+
     @Override
     public Iterator<StoredEventData> iterator() {
         return eventDataList.iterator();

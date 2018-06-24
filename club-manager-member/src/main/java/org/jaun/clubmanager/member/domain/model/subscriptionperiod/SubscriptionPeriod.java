@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.Member;
+import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodCreatedEvent;
@@ -110,7 +111,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
 
     }
 
-    public SubscriptionRequest createSubscriptionRequest(SubscriptionTypeId subscriptionTypeId,
+    public SubscriptionRequest createSubscriptionRequest(SubscriptionId subscriptionId, SubscriptionTypeId subscriptionTypeId,
             Collection<Member> additionalSubscribers) {
 
         SubscriptionType option = getMembershipOptionById(subscriptionTypeId).orElseThrow(
@@ -121,7 +122,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
                     "a maximum of " + option.getMaxSubscribers() + " is possible for this subscription type");
         }
 
-        return new SubscriptionRequest(id, subscriptionTypeId,
+        return new SubscriptionRequest(subscriptionId, id, subscriptionTypeId,
                 additionalSubscribers.stream().map(Member::getId).collect(Collectors.toSet()));
 
     }

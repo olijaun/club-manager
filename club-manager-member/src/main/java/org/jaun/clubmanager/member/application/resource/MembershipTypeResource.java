@@ -1,7 +1,6 @@
 package org.jaun.clubmanager.member.application.resource;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -35,14 +34,21 @@ public class MembershipTypeResource {
     public Response createMembershipType(@PathParam("id") String membershipTypeIdAsString,
             CreateMembershipTypeDTO createMembershipTypeDTO) {
 
-        MembershipType membershipType =
-                new MembershipType(new MembershipTypeId(membershipTypeIdAsString), createMembershipTypeDTO.getName(),
-                        createMembershipTypeDTO.getDescription());
+        MembershipTypeId membershipTypeId = new MembershipTypeId(membershipTypeIdAsString);
+
+        MembershipType membershipType = membershipTypeRepository.get(membershipTypeId);
+
+        if (membershipType == null) {
+            membershipType = new MembershipType(membershipTypeId, createMembershipTypeDTO.getName(),
+                    createMembershipTypeDTO.getDescription());
+        }
 
         try {
             membershipTypeRepository.save(membershipType);
         } catch (ConcurrencyException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return Response.noContent().build();

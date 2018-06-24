@@ -32,8 +32,8 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-//        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-//        membershipProjection.startSubscriptions();
+        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+        membershipProjection.startSubscriptions();
 
         HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
         contactProjection.startSubscriptions();
@@ -89,6 +89,6 @@ public class MemberApplication {
 
     @Bean
     public WebTarget clubManagerContactServiceTarget() {
-        return jaxRsClient().target("http://localhost:9000/contacts");
+        return jaxRsClient().target("http://localhost:9001/api/contacts");
     }
 }

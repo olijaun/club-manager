@@ -45,8 +45,13 @@ public class SubscriptionPeriodResource {
     @Path("/{id}")
     public Response createSubscriptionPeriod(@PathParam("id") String id, CreateSubscriptionPeriodDTO subscriptionPeriodDTO) {
 
-        SubscriptionPeriod period = MembershipConverter.toSubscriptionPeriod(new SubscriptionPeriodId(id), subscriptionPeriodDTO);
+        SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(id);
 
+        SubscriptionPeriod period = subscriptionPeriodRepository.get(subscriptionPeriodId);
+
+        if (period == null) {
+            period = MembershipConverter.toSubscriptionPeriod(subscriptionPeriodId, subscriptionPeriodDTO);
+        }
         try {
             subscriptionPeriodRepository.save(period);
         } catch (ConcurrencyException e) {

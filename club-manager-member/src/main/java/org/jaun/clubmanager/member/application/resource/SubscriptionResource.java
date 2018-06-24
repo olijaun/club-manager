@@ -7,7 +7,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -52,23 +52,24 @@ public class SubscriptionResource {
     @Autowired
     private ContactService contactService;
 
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/")
-    public Response addSubscription(CreateSubscriptionDTO createSubscriptionDTO) {
+    @Path("/{id}")
+    public Response addSubscription(@PathParam("id") String subscriptionIdAsString, CreateSubscriptionDTO createSubscriptionDTO) {
 
         MemberId memberId = new MemberId(createSubscriptionDTO.getSubscriberId());
+        SubscriptionId subscriptionId = new SubscriptionId(subscriptionIdAsString);
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(createSubscriptionDTO.getSubscriptionTypeId());
         SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(createSubscriptionDTO.getSubscriptionPeriodId());
 
         Member member = getOrCreateMember(memberId);
 
         SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
-        SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionTypeId,
+        SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
                 Collections.emptyList());// TODO: support additional subscribers
 
-        SubscriptionId subscriptionId = member.subscribe(subscriptionRequest);
+        member.subscribe(subscriptionRequest);
 
         try {
             memberRepository.save(member);

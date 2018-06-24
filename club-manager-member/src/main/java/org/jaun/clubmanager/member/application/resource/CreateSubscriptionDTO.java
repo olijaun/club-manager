@@ -2,7 +2,7 @@ package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
 
-public class CreateSubscriptionDTO implements Serializable {
+public class CreateSubscriptionDTO extends DTO {
 
     private String subscriberId;
     private String subscriptionPeriodId;

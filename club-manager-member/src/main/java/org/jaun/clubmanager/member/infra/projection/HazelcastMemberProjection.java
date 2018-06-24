@@ -3,11 +3,17 @@ package org.jaun.clubmanager.member.infra.projection;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventType;
+import org.jaun.clubmanager.eventstore.StoredEventData;
+import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamNotFoundException;
+import org.jaun.clubmanager.eventstore.StreamRevision;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
@@ -112,7 +118,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
         periodDTO.setId(subscriptionPeriodCreatedEvent.getSubscriptionPeriodId().getValue());
         periodDTO.setStartDate(subscriptionPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
-        periodDTO.setEndDate(subscriptionPeriodCreatedEvent.getStart().format(DateTimeFormatter.ISO_DATE));
+        periodDTO.setEndDate(subscriptionPeriodCreatedEvent.getEnd().format(DateTimeFormatter.ISO_DATE));
         subscriptionPeriodMap.put(subscriptionPeriodCreatedEvent.getSubscriptionPeriodId(), periodDTO);
     }
 
@@ -154,32 +160,28 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
         stopSubscription("$ce-contact");
 
-        // TODO: activate again
-//        try {
-//            StreamEventsSlice streamEventsSlice =
-//                    eventStore.readStreamEventsBackward("contact-" + memberCreatedEvent.getMemberId().getValue(),
-//                            StreamPosition.END, 4096, false).get();
-//
-//            Optional<ResolvedEvent> nameChangedResolvedEvent = streamEventsSlice.events.stream()
-//                    .filter(resolvedEvent -> resolvedEvent.event.eventType.equals("NameChanged"))
-//                    .findFirst();
-//
-//            if (nameChangedResolvedEvent.isPresent()) {
-//                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
-//                update(nameChangedResolvedEvent.get().event.eventNumber, nameChangedEvent);
-//            }
-//
-//            startSubscription("$ce-contact", version);
-//
-//        } catch (InterruptedException | ExecutionException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+
+            Stream<StoredEventData> reverseEventStream =
+                    eventStoreClient.read(StreamId.parse("contact-" + memberCreatedEvent.getMemberId().getValue()),
+                            StreamRevision.INITIAL, StreamRevision.MAXIMUM).reverseStream();
+
+            Optional<StoredEventData> nameChangedResolvedEvent = reverseEventStream.filter(
+                    storedEventData -> storedEventData.getEventType().equals(new EventType("NameChanged"))).findFirst();
+
+            if (nameChangedResolvedEvent.isPresent()) {
+                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
+                update(nameChangedResolvedEvent.get().getStreamRevision().getValue(), nameChangedEvent);
+            }
+
+            startSubscription("$ce-contact", StreamRevision.from(version));
+
+        } catch (StreamNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected synchronized void update(Long version, NameChangedEvent nameChangedEvent) {
-        String lockString = "members";
-        //try {
-        //lockMap.lock(lockString);
 
         MemberDTO memberDTO = memberMap.get(new MemberId(nameChangedEvent.getContactId().getValue()));
 
@@ -193,9 +195,6 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         // important: convert contact id to member id, because we convert contacts into members and won't find them in the map otherwise
         memberMap.put(new MemberId(nameChangedEvent.getContactId().getValue()), memberDTO);
 
-//        } finally {
-//            lockMap.unlock(lockString);
-//        }
     }
 
     public Collection<SubscriptionViewDTO> find(String firstName, String lastName, SubscriptionPeriodId subscriptionPeriodId,

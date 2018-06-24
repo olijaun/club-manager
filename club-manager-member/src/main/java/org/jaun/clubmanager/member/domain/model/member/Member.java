@@ -19,19 +19,23 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
         replayEvents(eventStream);
     }
 
-    public SubscriptionId subscribe(SubscriptionRequest subscriptionRequest) {
+    public void subscribe(SubscriptionRequest subscriptionRequest) {
 
-        SubscriptionId subscriptionId = SubscriptionId.random(SubscriptionId::new);
+        if (subscriptions.contains(
+                new Subscription(subscriptionRequest.getSubscriptionId(), subscriptionRequest.getSubscriptionPeriodId(),
+                        subscriptionRequest.getSubscriptionTypeId(), id, subscriptionRequest.getAdditionalSubscriberIds()))) {
+            return;
+        }
 
         if (subscriptions.containsMembershipWith(subscriptionRequest.getSubscriptionPeriodId(),
                 subscriptionRequest.getSubscriptionTypeId())) {
             throw new IllegalStateException("Cannot create a subscription for the same period and option twice.");
         }
 
-        apply(new SubscriptionCreatedEvent(subscriptionId, id, subscriptionRequest.getSubscriptionPeriodId(),
-                subscriptionRequest.getSubscriptionTypeId(), subscriptionRequest.getAdditionalSubscriberIds()));
+        apply(new SubscriptionCreatedEvent(subscriptionRequest.getSubscriptionId(), id,
+                subscriptionRequest.getSubscriptionPeriodId(), subscriptionRequest.getSubscriptionTypeId(),
+                subscriptionRequest.getAdditionalSubscriberIds()));
 
-        return subscriptionId;
     }
 
     protected void mutate(MemberCreatedEvent event) {
