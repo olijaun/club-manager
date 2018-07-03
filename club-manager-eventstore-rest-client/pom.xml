@@ -48,10 +48,10 @@
             <artifactId>javax.json</artifactId>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>com.github.msemys</groupId>
             <artifactId>esjc</artifactId>
-        </dependency>
+        </dependency-->
 
         <!-- testing stuff -->
         <dependency>
