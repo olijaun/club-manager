@@ -17,8 +17,8 @@
     <dependencies>
 
         <!--<dependency>-->
-            <!--<groupId>org.jaun.club-manager</groupId>-->
-            <!--<artifactId>club-manager-identity</artifactId>-->
+        <!--<groupId>org.jaun.club-manager</groupId>-->
+        <!--<artifactId>club-manager-identity</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
@@ -60,8 +60,8 @@
             <artifactId>libphonenumber</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.github.msemys</groupId>-->
-            <!--<artifactId>esjc</artifactId>-->
+        <!--<groupId>com.github.msemys</groupId>-->
+        <!--<artifactId>esjc</artifactId>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -75,6 +75,30 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-client</artifactId>
         </dependency>
+
+
+        <!-- dependencies for java 9 and greater -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
