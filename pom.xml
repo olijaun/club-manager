@@ -269,6 +269,7 @@
         <module>club-manager-contact</module>
         <module>club-manager-member</module>
         <module>club-manager-springboot-app</module>
+        <module>club-manager-test-app</module>
     </modules>
 
 </project>

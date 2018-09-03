@@ -1,5 +1,9 @@
 package org.jaun.clubmanager;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -15,6 +19,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -23,10 +29,19 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
+@RestController
 public class MemberApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(MemberApplication.class, args);
+    }
+
+    @RequestMapping("/resource")
+    public Map<String,Object> home() {
+        Map<String,Object> model = new HashMap<String,Object>();
+        model.put("id", UUID.randomUUID().toString());
+        model.put("content", "Hello World");
+        return model;
     }
 
     @Bean

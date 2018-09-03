@@ -1,0 +1,6 @@
+spring:
+  security:
+    basic:
+      enabled: true
+    user:
+      password: password
