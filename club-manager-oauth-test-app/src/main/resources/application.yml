@@ -24,7 +24,7 @@ security:
       clientId: 491896501327-ju1tptdg1s6d54ve6uk2530iak44amep.apps.googleusercontent.com
       clientSecret: gc-P5u5yV3HZtgd0kPLMXBqG
       userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
-      accessTokenUri: https://www.googleapis.com/oauth2/v4/token
+#      accessTokenUri: https://www.googleapis.com/oauth2/v4/token
       useCurrentUri: false
       preEstablishedRedirectUri: http://localhost:8080/login
       scope: openid profile email
@@ -32,7 +32,6 @@ security:
     resource:
       tokenInfoUri: https://www.googleapis.com/oauth2/v3/tokeninfo
       userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
-      param: access_token
 
 
 

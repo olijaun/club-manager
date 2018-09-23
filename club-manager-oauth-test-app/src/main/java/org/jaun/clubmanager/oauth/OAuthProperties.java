@@ -12,8 +12,6 @@ public class OAuthProperties {
     private String checkTokenUrl;
     @Value("${security.oauth2.resource.userInfoUri}")
     private String userInfoUrl;
-    @Value("${security.oauth2.resource.param:token}")
-    private String param;
 
     public String getClientId() {
         return clientId;
@@ -29,9 +27,5 @@ public class OAuthProperties {
 
     public String getUserInfoUrl() {
         return userInfoUrl;
-    }
-
-    public String getParam() {
-        return param;
     }
 }
