@@ -1,37 +1,35 @@
 package org.jaun.clubmanager.oauth;
 
-import java.math.BigInteger;
-
 public class GooglePrincipal {
-    private final BigInteger id;
+    private final String email;
 
-    public GooglePrincipal(BigInteger id) {
-        this.id = id;
+    public GooglePrincipal(String email) {
+        this.email = email;
     }
 
-    public BigInteger getId() {
-        return id;
+    public String getId() {
+        return email;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         GooglePrincipal that = (GooglePrincipal) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        return email != null ? email.equals(that.email) : that.email == null;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return email != null ? email.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        return "GooglePrincipal{" +
-               "id=" + id +
-               '}';
+        return "GooglePrincipal{" + "id=" + email + '}';
     }
 }

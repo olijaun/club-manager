@@ -1,5 +1,10 @@
 package org.jaun.clubmanager.oauth;
 
+import static java.util.Collections.singleton;
+
+import java.util.Collection;
+import java.util.Map;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,17 +25,16 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigInteger;
-import java.util.Map;
-
-import static java.util.Collections.singleton;
+import com.google.common.collect.ImmutableList;
 
 public class GoogleTokenServices implements ResourceServerTokenServices, InitializingBean {
-    private String userInfoUrl;
 
+    private String userInfoUrl;
     private RestTemplate restTemplate = new RestTemplate();
     private AccessTokenConverter tokenConverter = new DefaultAccessTokenConverter();
     private AccessTokenValidator tokenValidator;
+
+    private Collection<String> allowedEmails = ImmutableList.of("oliver.jaun@gmail.com");
 
     public GoogleTokenServices(AccessTokenValidator tokenValidator) {
         this.tokenValidator = tokenValidator;
@@ -60,11 +64,18 @@ public class GoogleTokenServices implements ResourceServerTokenServices, Initial
 
     private Authentication getAuthenticationToken(String accessToken) {
         Map<String, ?> userInfo = getUserInfo(accessToken);
-        String idStr = (String) userInfo.get("sub");
-        if (idStr == null) {
-            throw new InternalAuthenticationServiceException("Cannot get id from user info");
+        String email = (String) userInfo.get("email");
+
+        if (email == null) {
+            throw new InternalAuthenticationServiceException("Cannot get email from user info");
         }
-        return new UsernamePasswordAuthenticationToken(new GooglePrincipal(new BigInteger(idStr)), null, singleton(new SimpleGrantedAuthority("ROLE_USER")));
+
+        if (!allowedEmails.contains(email)) {
+            throw new InternalAuthenticationServiceException("Unknown user: " + email);
+        }
+
+        return new UsernamePasswordAuthenticationToken(new GooglePrincipal(email), null,
+                singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     private Map<String, ?> getUserInfo(String accessToken) {
