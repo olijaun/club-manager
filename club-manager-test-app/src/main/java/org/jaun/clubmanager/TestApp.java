@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jaun.clubmanager.oauth.OauthTestApp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,6 @@ public class TestApp {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(TestApp.class, args);
+        SpringApplication.run(OauthTestApp.class, args);
     }
 }
