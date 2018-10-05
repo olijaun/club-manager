@@ -1,13 +1,9 @@
 package org.jaun.clubmanager;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 // https://octoperf.com/blog/2018/03/08/securing-rest-api-spring-security/
 
@@ -18,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 // https://medium.com/@ivarprudnikov/spring-boot-security-expressions-for-auth0-jwt-30ac616a09f0
 @SpringBootApplication
-public class TestApp {
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class OauthApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(TestApp.class, args);
+        SpringApplication.run(OauthApp.class, args);
     }
 }

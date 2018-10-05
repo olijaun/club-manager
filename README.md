@@ -12,3 +12,7 @@ docker run --name eventstore-node -it -p 2113:2113 -p 1113:1113 eventstore/event
 ```
 
 After that you have to run the $by_category projection. This can be done using the EventStore UI. Go to http://localhost:2113, login ('admin' / 'changeit' with the default config) and go to 'Projections'.
+
+
+extract public key from certificate pem:
+openssl x509 -pubkey -noout -in cert.pem  > pubkey.pem

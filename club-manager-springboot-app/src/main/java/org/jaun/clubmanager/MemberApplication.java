@@ -14,6 +14,7 @@ import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.jaun.clubmanager.oauth.OAuthProperties;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,29 +30,20 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
-@RestController
 public class MemberApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(MemberApplication.class, args);
     }
 
-    @RequestMapping("/resource")
-    public Map<String,Object> home() {
-        Map<String,Object> model = new HashMap<String,Object>();
-        model.put("id", UUID.randomUUID().toString());
-        model.put("content", "Hello World");
-        return model;
-    }
-
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
         HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.startSubscriptions();
+        //membershipProjection.startSubscriptions();
 
         HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-        contactProjection.startSubscriptions();
+        //contactProjection.startSubscriptions();
 
         RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
@@ -89,7 +81,7 @@ public class MemberApplication {
 
     @Bean
     public EventStoreClient myEventStoreClient() {
-        return new JaxRsRestClient("http://localhost:9001/api");
+        return new JaxRsRestClient("http://localhost:8080");
     }
 
     @Bean
@@ -104,6 +96,11 @@ public class MemberApplication {
 
     @Bean
     public WebTarget clubManagerContactServiceTarget() {
-        return jaxRsClient().target("http://localhost:9001/api/contacts");
+        return jaxRsClient().target("http://localhost:8080/contacts");
+    }
+
+    @Bean
+    public OAuthProperties props() {
+        return new OAuthProperties();
     }
 }

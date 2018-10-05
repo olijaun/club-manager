@@ -87,6 +87,13 @@
 
             <!-- 3rd party -->
             <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>RELEASE</version>
+            </dependency>
+
+
+            <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>javax.mail-api</artifactId>
                 <version>1.5.5</version>
@@ -271,6 +278,7 @@
         <module>club-manager-springboot-app</module>
         <module>club-manager-oauth-test-app</module>
         <module>club-manager-test-app</module>
+        <module>club-manager-test-app2</module>
     </modules>
 
 </project>

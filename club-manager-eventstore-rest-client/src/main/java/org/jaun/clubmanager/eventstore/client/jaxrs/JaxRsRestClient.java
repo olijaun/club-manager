@@ -217,11 +217,11 @@ public class JaxRsRestClient implements EventStoreClient {
 
     public static void main(String[] args) throws Exception {
 
-        StreamId jaxRsStream = StreamId.parse("jax-4");
+        StreamId jaxRsStream = StreamId.parse("jax-5");
         EventData eventData1 = new EventData(EventId.generate(), new EventType("abc1"), "{ \"jax\": \"rs1\" }", null);
         EventData eventData2 = new EventData(EventId.generate(), new EventType("abc2"), "{ \"jax\": \"rs2\" }", null);
 
-        JaxRsRestClient client = new JaxRsRestClient("http://localhost:9001/api");
+        JaxRsRestClient client = new JaxRsRestClient("http://localhost:8080");
         client.append(jaxRsStream, Arrays.asList(eventData1, eventData2), StreamRevision.UNSPECIFIED);
 
         PollingCatchUpSubscription subscription =

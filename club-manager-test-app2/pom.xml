@@ -9,47 +9,23 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>club-manager-springboot-app</artifactId>
-    <name>club-manager-springboot-app</name>
+    <artifactId>club-manager-test-app2</artifactId>
+    <name>club-manager-test-app2</name>
 
     <packaging>jar</packaging>
 
     <dependencies>
 
-        <!--<dependency>-->
-        <!--<groupId>org.jaun.club-manager</groupId>-->
-        <!--<artifactId>club-manager-identity</artifactId>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-contact</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-member</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-eventstore</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-eventstore-rest-client</artifactId>
-        </dependency>
-
         <!-- 3rd party -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jersey</artifactId>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-web</artifactId>-->
+            <!--<artifactId>spring-boot-starter-jersey</artifactId>-->
         <!--</dependency>-->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -57,36 +33,30 @@
         <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+            <version>RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.googlecode.libphonenumber</groupId>
-            <artifactId>libphonenumber</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.github.msemys</groupId>-->
-        <!--<artifactId>esjc</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
-        </dependency>
+
 
 
         <!-- dependencies for java 9 and greater -->
@@ -113,11 +83,34 @@
 
     </dependencies>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
     <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>*.jks</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <addResources>true</addResources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
