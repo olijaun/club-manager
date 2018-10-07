@@ -1,7 +1,6 @@
 package org.jaun.clubmanager;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -28,28 +25,10 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
     @Autowired
     private CustomAccessTokenConverter customAccessTokenConverter;
 
-//    @Override
-//    public void configure(HttpSecurity http) throws Exception {
-////        http.sessionManagement()
-////                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-////                .and()
-////                .authorizeRequests()
-////                .anyRequest()
-////                .permitAll();
-//
-//        http
-//                .requestMatchers().antMatchers("/**")
-//                .and()
-//                .authorizeRequests().anyRequest().permitAll();
-//
-//        // https://stackoverflow.com/questions/28703847/how-do-you-set-a-resource-id-for-a-token
-//    }
-
-
     @Override
     public void configure(ResourceServerSecurityConfigurer config) {
         config.tokenServices(tokenServices());
-        config.resourceId("https://contact-manager.jaun.org"); // must match url in jwt "aud" field
+        config.resourceId("https://member-manager.jaun.org"); // must match url in jwt "aud" field
     }
 
     @Bean
@@ -73,14 +52,12 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
 
         //converter.setJwtClaimsSetVerifier(jwtClaimsSetVerifier());
 
-
 //        JwtAccessTokenConverter jwt = new JwtAccessTokenConverter();
 //        DefaultUserAuthenticationConverter duac = new DefaultUserAuthenticationConverter();
 //        duac.setUserDetailsService(myUserDetailsService);
 //        DefaultAccessTokenConverter datc = new DefaultAccessTokenConverter();
 //        datc.setUserTokenConverter(duac);
 //        jwt.setAccessTokenConverter(datc);
-
 
         return converter;
     }
@@ -91,11 +68,5 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
         DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
         defaultTokenServices.setTokenStore(tokenStore());
         return defaultTokenServices;
-    }
-
-    public Map<String, Object> getExtraInfo(Authentication auth) {
-
-        OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
-        return (Map<String, Object>) oauthDetails.getDecodedDetails();
     }
 }

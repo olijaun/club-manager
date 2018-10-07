@@ -6,12 +6,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 // https://octoperf.com/blog/2018/03/08/securing-rest-api-spring-security/
-
 // https://www.baeldung.com/spring-security-oauth-jwt
-
 // https://auth0.com/blog/implementing-jwt-authentication-on-spring-boot/
-
-
 // https://medium.com/@ivarprudnikov/spring-boot-security-expressions-for-auth0-jwt-30ac616a09f0
 @SpringBootApplication
 @EnableWebSecurity
