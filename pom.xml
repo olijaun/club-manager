@@ -41,17 +41,17 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
+                <artifactId>club-manager-commons-ddd-es</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-eventstore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-eventstore-rest-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-commons-ddd-es</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -90,13 +90,6 @@
                 <groupId>org.springframework.security.oauth</groupId>
                 <artifactId>spring-security-oauth2</artifactId>
                 <version>RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -144,6 +137,12 @@
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-client</artifactId>
                 <version>3.9.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.6</version>
             </dependency>
 
             <dependency>
@@ -274,16 +273,17 @@
     <modules>
         <module>club-manager-commons-ddd</module>
         <module>club-manager-eventstore-iface</module>
+        <module>club-manager-commons-ddd-es</module>
+
         <module>club-manager-eventstore</module>
         <module>club-manager-eventstore-rest-client</module>
         <module>club-manager-commons-projection</module>
-        <module>club-manager-commons-ddd-es</module>
         <module>club-manager-identity</module>
         <module>club-manager-contact</module>
         <module>club-manager-member</module>
         <module>club-manager-springboot-app</module>
-        <module>club-manager-oauth-test-app</module>
-        <module>club-manager-test-app</module>
+        <!--<module>club-manager-oauth-test-app</module>-->
+        <!--<module>club-manager-test-app</module>-->
         <module>club-manager-test-app2</module>
     </modules>
 

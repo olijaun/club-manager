@@ -17,12 +17,11 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-eventstore-iface</artifactId>
+            <artifactId>club-manager-commons-ddd</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-eventstore-rest-client</artifactId>
+            <artifactId>club-manager-eventstore-iface</artifactId>
         </dependency>
 
         <!-- 3rd party -->
@@ -40,11 +39,6 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>com.github.msemys</groupId>-->
-            <!--<artifactId>esjc</artifactId>-->
-        <!--</dependency>-->
 
     </dependencies>
 </project>

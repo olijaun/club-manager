@@ -20,7 +20,10 @@
             <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-commons-ddd</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
         <!-- 3rd party -->
 
 

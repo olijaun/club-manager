@@ -1,9 +1,5 @@
 package org.jaun.clubmanager;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -14,14 +10,15 @@ import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.jaun.clubmanager.oauth.OAuthProperties;
+import org.jaun.clubmanager.oauth.AccessTokenManager;
+import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -30,6 +27,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MemberApplication {
 
     public static void main(String[] args) {
@@ -40,10 +39,10 @@ public class MemberApplication {
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
         HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        //membershipProjection.startSubscriptions();
+        membershipProjection.startSubscriptions();
 
         HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-        //contactProjection.startSubscriptions();
+        contactProjection.startSubscriptions();
 
         RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
@@ -80,8 +79,9 @@ public class MemberApplication {
 //    }
 
     @Bean
-    public EventStoreClient myEventStoreClient() {
-        return new JaxRsRestClient("http://localhost:8080");
+    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
+        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
+        return new JaxRsRestClient(client, "http://localhost:8080");
     }
 
     @Bean
@@ -97,10 +97,5 @@ public class MemberApplication {
     @Bean
     public WebTarget clubManagerContactServiceTarget() {
         return jaxRsClient().target("http://localhost:8080/contacts");
-    }
-
-    @Bean
-    public OAuthProperties props() {
-        return new OAuthProperties();
     }
 }

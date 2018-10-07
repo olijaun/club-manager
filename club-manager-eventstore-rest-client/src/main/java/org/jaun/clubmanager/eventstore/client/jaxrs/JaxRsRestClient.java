@@ -43,6 +43,10 @@ public class JaxRsRestClient implements EventStoreClient {
     private final URI target;
     private static final String EVENTSTORE_JSON_TYPE = "application/vnd.eventstore.events+json";
 
+    public JaxRsRestClient(Client client, String targetUri) {
+        this(client, JaxRsRestClient.toURI(targetUri));
+    }
+
     public JaxRsRestClient(String targetUri) {
         this(ClientBuilder.newClient(), JaxRsRestClient.toURI(targetUri));
     }
