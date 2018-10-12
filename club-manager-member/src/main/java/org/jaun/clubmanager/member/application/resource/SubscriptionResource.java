@@ -16,9 +16,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.contact.Contact;
-import org.jaun.clubmanager.member.domain.model.contact.ContactId;
-import org.jaun.clubmanager.member.domain.model.contact.ContactService;
+import org.jaun.clubmanager.member.domain.model.person.Person;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
+import org.jaun.clubmanager.member.domain.model.person.PersonService;
 import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
@@ -50,7 +50,7 @@ public class SubscriptionResource {
     private HazelcastMemberProjection projection;
 
     @Autowired
-    private ContactService contactService;
+    private PersonService personService;
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
@@ -84,11 +84,11 @@ public class SubscriptionResource {
 
         Member member = memberRepository.get(memberId);
         if (member == null) {
-            ContactId contactId = new ContactId(memberId.getValue());
-            Contact contact = contactService.getContact(contactId);
+            PersonId personId = new PersonId(memberId.getValue());
+            Person person = personService.getPerson(personId);
 
-            if (contact == null) {
-                throw new BadRequestException("contact does not exist: " + contactId);
+            if (person == null) {
+                throw new BadRequestException("person does not exist: " + personId);
             }
 
             member = new Member(memberId);

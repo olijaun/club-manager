@@ -202,8 +202,8 @@ public class CsvSubscriptionImporter {
         Map<String, SubscriptionDTO> set =
                 subscriptions.stream().collect(Collectors.toMap(SubscriptionDTO::getId, Function.identity()));
 
-        for (SubscriptionDTO contactDTO : subscriptions) {
-            save(contactDTO);
+        for (SubscriptionDTO subscriptionDTO : subscriptions) {
+            save(subscriptionDTO);
         }
     }
 

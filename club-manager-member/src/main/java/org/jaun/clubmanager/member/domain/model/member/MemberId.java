@@ -1,14 +1,13 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
-import org.jaun.clubmanager.domain.model.commons.Id;
-import org.jaun.clubmanager.member.domain.model.contact.ContactId;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
 
-public class MemberId extends ContactId {
+public class MemberId extends PersonId {
     public MemberId(String value) {
         super(value);
     }
 
-    public static MemberId from(ContactId contactId) {
-        return new MemberId(contactId.getValue());
+    public static MemberId from(PersonId personId) {
+        return new MemberId(personId.getValue());
     }
 }

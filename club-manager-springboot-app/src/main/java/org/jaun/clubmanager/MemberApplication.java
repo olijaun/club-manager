@@ -4,12 +4,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.contact.infra.projection.HazelcastPersonProjection;
+import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.springframework.boot.CommandLineRunner;

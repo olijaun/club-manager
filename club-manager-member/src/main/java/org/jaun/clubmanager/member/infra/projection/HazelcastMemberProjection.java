@@ -31,7 +31,7 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionT
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionTypeAddedEvent;
-import org.jaun.clubmanager.member.infra.projection.event.contact.NameChangedEvent;
+import org.jaun.clubmanager.member.infra.projection.event.person.BasicDataChangedEvent;
 import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
@@ -53,7 +53,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
     private final IMap<MemberId, MemberDTO> memberMap;
 
     public HazelcastMemberProjection(@Autowired EventStoreClient eventStore, @Autowired HazelcastInstance hazelcastInstance) {
-        super(eventStore, "$ce-contact", "$ce-subscriptionperiod", "$ce-member", "$ce-membershiptype");
+        super(eventStore, "$ce-person", "$ce-subscriptionperiod", "$ce-member", "$ce-membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
@@ -72,7 +72,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_METADATA_CHANGED,
                 (v, r) -> update(v, toObject(r, MembershipTypeMetadataChangedEvent.class)));
 
-        registerMapping(new EventType("NameChanged"), (v, r) -> update(v, toObject(r, NameChangedEvent.class)));
+        registerMapping(new EventType("BasicDataChanged"), (v, r) -> update(v, toObject(r, BasicDataChangedEvent.class)));
 
         subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
@@ -158,42 +158,42 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
         memberMap.put(memberCreatedEvent.getMemberId(), memberDTO);
 
-        stopSubscription("$ce-contact");
+        stopSubscription("$ce-person");
 
         try {
 
             Stream<StoredEventData> reverseEventStream =
-                    eventStoreClient.read(StreamId.parse("contact-" + memberCreatedEvent.getMemberId().getValue()),
+                    eventStoreClient.read(StreamId.parse("person-" + memberCreatedEvent.getMemberId().getValue()),
                             StreamRevision.INITIAL, StreamRevision.MAXIMUM).reverseStream();
 
             Optional<StoredEventData> nameChangedResolvedEvent = reverseEventStream.filter(
-                    storedEventData -> storedEventData.getEventType().equals(new EventType("NameChanged"))).findFirst();
+                    storedEventData -> storedEventData.getEventType().equals(new EventType("BasicDataChanged"))).findFirst();
 
             if (nameChangedResolvedEvent.isPresent()) {
-                NameChangedEvent nameChangedEvent = toObject(nameChangedResolvedEvent.get(), NameChangedEvent.class);
-                update(nameChangedResolvedEvent.get().getStreamRevision().getValue(), nameChangedEvent);
+                BasicDataChangedEvent basicDataChangedEvent = toObject(nameChangedResolvedEvent.get(), BasicDataChangedEvent.class);
+                update(nameChangedResolvedEvent.get().getStreamRevision().getValue(), basicDataChangedEvent);
             }
 
-            startSubscription("$ce-contact", StreamRevision.from(version));
+            startSubscription("$ce-person", StreamRevision.from(version));
 
         } catch (StreamNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected synchronized void update(Long version, NameChangedEvent nameChangedEvent) {
+    protected synchronized void update(Long version, BasicDataChangedEvent basicDataChangedEvent) {
 
-        MemberDTO memberDTO = memberMap.get(new MemberId(nameChangedEvent.getContactId().getValue()));
+        MemberDTO memberDTO = memberMap.get(new MemberId(basicDataChangedEvent.getPersonId().getValue()));
 
         if (memberDTO == null) {
             return;
         }
 
-        memberDTO.setFirstName(nameChangedEvent.getName().getFirstName().orElse(null));
-        memberDTO.setLastNameOrCompanyName(nameChangedEvent.getName().getLastNameOrCompanyName());
+        memberDTO.setFirstName(basicDataChangedEvent.getName().getFirstName().orElse(null));
+        memberDTO.setLastNameOrCompanyName(basicDataChangedEvent.getName().getLastNameOrCompanyName());
 
         // important: convert contact id to member id, because we convert contacts into members and won't find them in the map otherwise
-        memberMap.put(new MemberId(nameChangedEvent.getContactId().getValue()), memberDTO);
+        memberMap.put(new MemberId(basicDataChangedEvent.getPersonId().getValue()), memberDTO);
 
     }
 
