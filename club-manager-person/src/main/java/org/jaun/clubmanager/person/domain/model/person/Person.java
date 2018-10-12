@@ -6,13 +6,13 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
+import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.person.domain.model.person.event.BasicDataChangedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.ContactDataChangedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonCreatedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.StreetAddressChangedEvent;
-import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.eventstore.EventStream;
 
 public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
 
@@ -85,7 +85,8 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
             throw new IllegalStateException("birth date can only be defined for a person");
         }
 
-        if (Objects.equals(sex, this.sex) && Objects.equals(birthDate, this.birthDate) && Objects.equals(sex, this.sex)) {
+        if (Objects.equals(newName, this.name) && Objects.equals(sex, this.sex) && Objects.equals(birthDate, this.birthDate)
+            && Objects.equals(sex, this.sex)) {
             return;
         }
 
