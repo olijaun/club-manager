@@ -61,7 +61,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-contact</artifactId>
+                <artifactId>club-manager-person</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -275,11 +275,11 @@
         <module>club-manager-eventstore-iface</module>
         <module>club-manager-commons-ddd-es</module>
 
-        <module>club-manager-eventstore</module>
+        <module>club-manager-eventstore-service</module>
         <module>club-manager-eventstore-rest-client</module>
         <module>club-manager-commons-projection</module>
         <module>club-manager-identity</module>
-        <module>club-manager-contact</module>
+        <module>club-manager-person</module>
         <module>club-manager-member</module>
         <module>club-manager-springboot-app</module>
         <!--<module>club-manager-oauth-test-app</module>-->

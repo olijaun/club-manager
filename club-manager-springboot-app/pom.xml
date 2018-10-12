@@ -16,14 +16,9 @@
 
     <dependencies>
 
-        <!--<dependency>-->
-        <!--<groupId>org.jaun.club-manager</groupId>-->
-        <!--<artifactId>club-manager-identity</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
-            <artifactId>club-manager-contact</artifactId>
+            <artifactId>club-manager-person</artifactId>
         </dependency>
 
         <dependency>

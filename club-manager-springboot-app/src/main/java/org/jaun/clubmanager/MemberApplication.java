@@ -4,7 +4,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.contact.infra.projection.HazelcastContactProjection;
+import org.jaun.clubmanager.contact.infra.projection.HazelcastPersonProjection;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
@@ -38,11 +38,11 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.startSubscriptions();
+//        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+//        membershipProjection.startSubscriptions();
 
-        HazelcastContactProjection contactProjection = ctx.getBean(HazelcastContactProjection.class);
-        contactProjection.startSubscriptions();
+        HazelcastPersonProjection personProjection = ctx.getBean(HazelcastPersonProjection.class);
+        personProjection.startSubscriptions();
 
         RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
@@ -95,7 +95,7 @@ public class MemberApplication {
     }
 
     @Bean
-    public WebTarget clubManagerContactServiceTarget() {
-        return jaxRsClient().target("http://localhost:8080/contacts");
+    public WebTarget clubManagerPersonServiceTarget() {
+        return jaxRsClient().target("http://localhost:8080/persons");
     }
 }

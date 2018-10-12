@@ -22,8 +22,8 @@ public class ClubManagerContactService implements ContactService {
     @Override
     public Contact getContact(ContactId contactId) {
         try {
-            ContactDTO contactDTO = target.path(contactId.getValue()).request(MediaType.APPLICATION_JSON).get(ContactDTO.class);
-            return new Contact(new ContactId(contactDTO.getContactId()));
+            PersonDTO personDTO = target.path(contactId.getValue()).request(MediaType.APPLICATION_JSON).get(PersonDTO.class);
+            return new Contact(new ContactId(personDTO.getId()));
 
         } catch (NotFoundException e) {
             return null;
