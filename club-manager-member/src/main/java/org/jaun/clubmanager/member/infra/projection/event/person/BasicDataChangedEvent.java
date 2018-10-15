@@ -2,6 +2,8 @@ package org.jaun.clubmanager.member.infra.projection.event.person;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.LocalDate;
+
 import org.jaun.clubmanager.member.domain.model.person.PersonId;
 
 public class BasicDataChangedEvent {

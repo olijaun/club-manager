@@ -4,6 +4,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
@@ -37,8 +38,8 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-//        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-//        membershipProjection.startSubscriptions();
+        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+        membershipProjection.startSubscriptions();
 
         HazelcastPersonProjection personProjection = ctx.getBean(HazelcastPersonProjection.class);
         personProjection.startSubscriptions();
