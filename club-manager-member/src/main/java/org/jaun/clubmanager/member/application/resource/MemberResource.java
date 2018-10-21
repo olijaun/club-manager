@@ -1,6 +1,5 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import javax.ws.rs.BadRequestException;
@@ -16,14 +15,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.person.Person;
-import org.jaun.clubmanager.member.domain.model.person.PersonId;
-import org.jaun.clubmanager.member.domain.model.person.PersonService;
 import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.person.Person;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
+import org.jaun.clubmanager.member.domain.model.person.PersonService;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
@@ -34,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Path("/subscriptions")
-public class SubscriptionResource {
+@Path("/members")
+public class MemberResource {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -52,13 +51,36 @@ public class SubscriptionResource {
     @Autowired
     private PersonService personService;
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/")
+    public Response getMembers(@QueryParam("searchString") String searchString) {
+
+        if (searchString == null) {
+            return Response.ok(projection.getMembers()).build();
+        }
+
+        return Response.ok(projection.searchMembers(searchString)).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{member-id}")
+    public Response getMember(@PathParam("member-id") String memberIdAsString) {
+
+        MemberId memberId = new MemberId(memberIdAsString);
+
+        return Response.ok(projection.getMember(memberId)).build();
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{id}")
-    public Response addSubscription(@PathParam("id") String subscriptionIdAsString, CreateSubscriptionDTO createSubscriptionDTO) {
+    @Path("/{member-id}/subscriptions/{subscription-id}")
+    public Response addSubscription(@PathParam("member-id") String memberIdAsString,
+            @PathParam("subscription-id") String subscriptionIdAsString, CreateSubscriptionDTO createSubscriptionDTO) {
 
-        MemberId memberId = new MemberId(createSubscriptionDTO.getSubscriberId());
+        MemberId memberId = new MemberId(memberIdAsString);
         SubscriptionId subscriptionId = new SubscriptionId(subscriptionIdAsString);
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(createSubscriptionDTO.getSubscriptionTypeId());
         SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(createSubscriptionDTO.getSubscriptionPeriodId());
@@ -104,29 +126,5 @@ public class SubscriptionResource {
             throw new NotFoundException("could not find membership period " + subscriptionPeriodId.getValue());
         }
         return period;
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/")
-    public Response getSubscriptions(@QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName,
-            @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString) {
-
-        SubscriptionPeriodId subscriptionPeriodId =
-                subscriptionPeriodIdAsString == null ? null : new SubscriptionPeriodId(subscriptionPeriodIdAsString);
-
-        Collection<SubscriptionViewDTO> view = projection.find(firstName, lastName, subscriptionPeriodId, null);
-
-        return Response.ok(view).build();
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("{id}")
-    public Response getSubscriptions(@PathParam("id") String subscriptionId) {
-
-        SubscriptionViewDTO view = projection.getById(new SubscriptionId(subscriptionId));
-
-        return Response.ok(view).build();
     }
 }

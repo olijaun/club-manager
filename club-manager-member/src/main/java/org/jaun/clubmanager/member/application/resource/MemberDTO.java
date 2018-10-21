@@ -1,19 +1,22 @@
 package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class MemberDTO implements Serializable {
 
-    private String memberId;
+    private String id;
     private String firstName;
     private String lastNameOrCompanyName;
+    private Collection<SubscriptionDTO> subscriptions = new ArrayList<>();
 
-    public String getMemberId() {
-        return memberId;
+    public String getId() {
+        return id;
     }
 
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -30,5 +33,16 @@ public class MemberDTO implements Serializable {
 
     public void setLastNameOrCompanyName(String lastNameOrCompanyName) {
         this.lastNameOrCompanyName = lastNameOrCompanyName;
+    }
+
+    public Collection<SubscriptionDTO> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(Collection<SubscriptionDTO> subscriptions) {
+        if(subscriptions == null) {
+            return;
+        }
+        this.subscriptions = subscriptions;
     }
 }

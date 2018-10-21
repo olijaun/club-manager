@@ -141,7 +141,7 @@ public class CsvSubscriptionImporter {
         for (CSVRecord record : records) {
 
             SubscriptionDTO subscription1 = new SubscriptionDTO();
-            subscription1.setSubscriberId(record.get("ID"));
+            subscription1.setMemberId(record.get("ID"));
             subscription1.setSubscriptionPeriodId("2018");
 
             String[] ausweisNumbers = record.get("ausweisnr").split(" ");
@@ -166,7 +166,7 @@ public class CsvSubscriptionImporter {
             if (StringUtils.isNotEmpty(record.get("name2")) || StringUtils.isNotEmpty(record.get("vorname2"))) {
 
                 subscription2 = new SubscriptionDTO();
-                subscription2.setSubscriberId(record.get("ID") + "2");
+                subscription2.setMemberId(record.get("ID") + "2");
                 subscription2.setSubscriptionPeriodId(subscription1.getSubscriptionPeriodId());
                 subscription2.setSubscriptionTypeId(subscription1.getSubscriptionTypeId());
 

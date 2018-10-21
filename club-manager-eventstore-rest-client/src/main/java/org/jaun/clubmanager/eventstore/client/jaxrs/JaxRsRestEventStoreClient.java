@@ -37,25 +37,25 @@ import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamNotFoundException;
 import org.jaun.clubmanager.eventstore.StreamRevision;
 
-public class JaxRsRestClient implements EventStoreClient {
+public class JaxRsRestEventStoreClient implements EventStoreClient {
 
     private final Client client;
     private final URI target;
     private static final String EVENTSTORE_JSON_TYPE = "application/vnd.eventstore.events+json";
 
-    public JaxRsRestClient(Client client, String targetUri) {
-        this(client, JaxRsRestClient.toURI(targetUri));
+    public JaxRsRestEventStoreClient(Client client, String targetUri) {
+        this(client, JaxRsRestEventStoreClient.toURI(targetUri));
     }
 
-    public JaxRsRestClient(String targetUri) {
-        this(ClientBuilder.newClient(), JaxRsRestClient.toURI(targetUri));
+    public JaxRsRestEventStoreClient(String targetUri) {
+        this(ClientBuilder.newClient(), JaxRsRestEventStoreClient.toURI(targetUri));
     }
 
-    public JaxRsRestClient(URI target) {
+    public JaxRsRestEventStoreClient(URI target) {
         this(ClientBuilder.newClient(), target);
     }
 
-    public JaxRsRestClient(Client client, URI target) {
+    public JaxRsRestEventStoreClient(Client client, URI target) {
         this.client = requireNonNull(client);
         this.target = requireNonNull(target);
     }
@@ -225,7 +225,7 @@ public class JaxRsRestClient implements EventStoreClient {
         EventData eventData1 = new EventData(EventId.generate(), new EventType("abc1"), "{ \"jax\": \"rs1\" }", null);
         EventData eventData2 = new EventData(EventId.generate(), new EventType("abc2"), "{ \"jax\": \"rs2\" }", null);
 
-        JaxRsRestClient client = new JaxRsRestClient("http://localhost:8080");
+        JaxRsRestEventStoreClient client = new JaxRsRestEventStoreClient("http://localhost:8080");
         client.append(jaxRsStream, Arrays.asList(eventData1, eventData2), StreamRevision.UNSPECIFIED);
 
         PollingCatchUpSubscription subscription =

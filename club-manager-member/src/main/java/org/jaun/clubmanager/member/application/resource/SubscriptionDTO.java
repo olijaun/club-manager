@@ -1,10 +1,9 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import java.io.Serializable;
-
 public class SubscriptionDTO extends CreateSubscriptionDTO {
 
     private String id;
+    private String memberId;
 
     public String getId() {
         return id;
@@ -12,5 +11,13 @@ public class SubscriptionDTO extends CreateSubscriptionDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
     }
 }

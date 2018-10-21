@@ -14,7 +14,7 @@ import org.jaun.clubmanager.eventstore.EventType;
 
 public enum PersonEventMapping implements EventMapping {
     PERSON_CREATED("PersonCreated", PersonCreatedEvent.class), //
-    BASIC_DATA_CHANGED("NameChanged", BasicDataChangedEvent.class), //
+    BASIC_DATA_CHANGED("BasicDataChanged", BasicDataChangedEvent.class), //
     CONTACT_DATA_CHANGED("ContactDataChanged", ContactDataChangedEvent.class), //
     STREE_ADDRESS_CHANGED("StreetAddressChanged", StreetAddressChangedEvent.class);
 
