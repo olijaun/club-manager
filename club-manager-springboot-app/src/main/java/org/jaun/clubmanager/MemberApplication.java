@@ -4,14 +4,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestClient;
 import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
+import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -95,7 +95,8 @@ public class MemberApplication {
     }
 
     @Bean
-    public WebTarget clubManagerPersonServiceTarget() {
-        return jaxRsClient().target("http://localhost:8080/persons");
+    public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
+        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
+        return client.target("http://localhost:8080/persons");
     }
 }
