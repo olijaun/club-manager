@@ -146,15 +146,15 @@ public class SubscriptionPeriodResource {
     public Response getMembershipOption(@PathParam("period-id") String subscriptionPeriodIdString,
             @PathParam("id") String subscriptionTypeIdAsString) {
 
-        SubscriptionTypeDTO subscriptionTypeDTO = projection.get(new SubscriptionPeriodId(subscriptionPeriodIdString),
+        Collection<SubscriptionTypeDTO> subscriptionTypeDTOS = projection.get(new SubscriptionPeriodId(subscriptionPeriodIdString),
                 new SubscriptionTypeId(subscriptionTypeIdAsString));
 
-        if (subscriptionTypeDTO == null) {
+        if (subscriptionTypeDTOS.isEmpty()) {
             throw new NotFoundException(
                     "could not find subscription for period " + subscriptionPeriodIdString + " and subscriptionType "
                     + subscriptionTypeIdAsString);
         }
 
-        return Response.ok(subscriptionTypeDTO).build();
+        return Response.ok(subscriptionTypeDTOS.iterator().next()).build();
     }
 }

@@ -1,6 +1,10 @@
 package org.jaun.clubmanager.member.application.resource;
 
 import java.io.Serializable;
+import java.util.List;
+
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionType;
 
 public class CreateSubscriptionPeriodDTO implements Serializable {
 
@@ -44,4 +48,6 @@ public class CreateSubscriptionPeriodDTO implements Serializable {
         this.description = description;
         return this;
     }
+
+
 }

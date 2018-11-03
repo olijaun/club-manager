@@ -240,7 +240,10 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     public Collection<SubscriptionPeriodDTO> getAllSubscriptionPeriods() {
 
-        return subscriptionPeriodMap.values();
+        return subscriptionPeriodMap.values()
+                .stream()
+                .peek(p -> p.setSubscriptionTypes(getAllSubscriptionPeriodTypes(new SubscriptionPeriodId(p.getId()))))
+                .collect(Collectors.toList());
     }
 
     public Collection<SubscriptionTypeDTO> getAllSubscriptionPeriodTypes(SubscriptionPeriodId subscriptionPeriodId) {
@@ -255,13 +258,15 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     }
 
-    public SubscriptionTypeDTO get(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
+    public Collection<SubscriptionTypeDTO> get(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
 
         ArrayList<Predicate> andPredicates = new ArrayList<>();
 
         andPredicates.add(Predicates.equal("subscriptionPeriodId", subscriptionPeriodId.getValue()));
 
-        andPredicates.add(Predicates.equal("id", subscriptionTypeId.getValue()));
+        if (subscriptionTypeId != null) {
+            andPredicates.add(Predicates.equal("id", subscriptionTypeId.getValue()));
+        }
 
         Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
 
@@ -269,7 +274,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
             return null;
         }
 
-        return subscriptionTypeMap.values(criteriaQuery).iterator().next();
+        return subscriptionTypeMap.values(criteriaQuery);
 
     }
 
@@ -281,7 +286,13 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
     }
 
     public SubscriptionPeriodDTO getById(SubscriptionPeriodId subscriptionPeriodId) {
-        return subscriptionPeriodMap.get(subscriptionPeriodId);
+
+        Collection<SubscriptionTypeDTO> subscriptionTypeDTOS = getAllSubscriptionPeriodTypes(subscriptionPeriodId);
+
+        SubscriptionPeriodDTO subscriptionPeriodDTO = subscriptionPeriodMap.get(subscriptionPeriodId);
+        subscriptionPeriodDTO.setSubscriptionTypes(subscriptionTypeDTOS);
+
+        return subscriptionPeriodDTO;
     }
 
     public Collection<MembershipTypeDTO> getAllMembershipTypes() {
