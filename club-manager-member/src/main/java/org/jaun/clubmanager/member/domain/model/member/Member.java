@@ -21,9 +21,7 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     public void subscribe(SubscriptionRequest subscriptionRequest) {
 
-        if (subscriptions.contains(
-                new Subscription(subscriptionRequest.getSubscriptionId(), subscriptionRequest.getSubscriptionPeriodId(),
-                        subscriptionRequest.getSubscriptionTypeId(), id, subscriptionRequest.getAdditionalSubscriberIds()))) {
+        if (subscriptions.containsId(subscriptionRequest.getSubscriptionId())) {
             return;
         }
 

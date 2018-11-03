@@ -1,6 +1,9 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -18,6 +21,7 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
+import org.jaun.clubmanager.member.domain.model.member.Subscription;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.person.Person;
@@ -76,22 +80,37 @@ public class MemberResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("/{member-id}/subscriptions/{subscription-id}")
-    public Response addSubscription(@PathParam("member-id") String memberIdAsString,
-            @PathParam("subscription-id") String subscriptionIdAsString, CreateSubscriptionDTO createSubscriptionDTO) {
+    @Path("/{member-id}")
+    public Response createOrUpdateMember(@PathParam("member-id") String memberIdAsString, CreateMemberDTO createMemberDTO) {
 
         MemberId memberId = new MemberId(memberIdAsString);
-        SubscriptionId subscriptionId = new SubscriptionId(subscriptionIdAsString);
-        SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(createSubscriptionDTO.getSubscriptionTypeId());
-        SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(createSubscriptionDTO.getSubscriptionPeriodId());
 
         Member member = getOrCreateMember(memberId);
 
-        SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
-        SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
-                Collections.emptyList());// TODO: support additional subscribers
+        List<SubscriptionRequest> subscriptionRequests = createMemberDTO.getSubscriptions().stream().map(subscriptionDTO -> {
 
-        member.subscribe(subscriptionRequest);
+            SubscriptionId subscriptionId = new SubscriptionId(subscriptionDTO.getId());
+            SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId());
+            SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId());
+
+            SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
+            SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
+                    Collections.emptyList());// TODO: support additional subscribers
+
+            return subscriptionRequest;
+        }).collect(Collectors.toList());
+
+        Collection<Subscription> removals = member.getSubscriptions().getRemovals(subscriptionRequests);
+
+        // TODO: improve handling when subscription are modified etc.
+        if (!removals.isEmpty()) {
+            throw new BadRequestException("you must not remove existing subscriptions: " + removals.stream()
+                    .map(Subscription::getId)
+                    .map(SubscriptionId::getValue)
+                    .collect(Collectors.toList()));
+        }
+
+        subscriptionRequests.stream().forEach(r -> member.subscribe(r));
 
         try {
             memberRepository.save(member);
@@ -99,7 +118,7 @@ public class MemberResource {
             throw new IllegalStateException(e);
         }
 
-        return Response.ok(subscriptionId.getValue()).build();
+        return Response.ok().build();
     }
 
     private Member getOrCreateMember(MemberId memberId) {

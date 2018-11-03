@@ -3,8 +3,11 @@ package org.jaun.clubmanager.member.domain.model.member;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 
 
@@ -23,7 +26,11 @@ public class Subscriptions implements Iterable {
     }
 
     public boolean contains(Subscription subscription) {
-        return subscriptions.stream().filter(s -> subscription.getId().equals(subscription.getId())).findFirst().isPresent();
+        return subscriptions.stream().filter(s -> s.getId().equals(subscription.getId())).findFirst().isPresent();
+    }
+
+    public boolean containsId(SubscriptionId subscriptionId) {
+        return subscriptions.stream().map(Subscription::getId).filter(id -> subscriptionId.equals(id)).findFirst().isPresent();
     }
 
     public boolean containsMembershipWith(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
@@ -40,5 +47,15 @@ public class Subscriptions implements Iterable {
 
     public Collection<Subscription> getSubscriptions() {
         return subscriptions;
+    }
+
+    public Collection<Subscription> getRemovals(List<SubscriptionRequest> subscriptionRequests) {
+
+        List<SubscriptionId> requestIds =
+                subscriptionRequests.stream().map(r -> r.getSubscriptionId()).collect(Collectors.toList());
+
+        return subscriptions.stream()
+                .filter(s -> !requestIds.contains(s.getId()))
+                .collect(Collectors.toList());
     }
 }
