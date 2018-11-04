@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.member.Member;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
@@ -58,13 +59,19 @@ public class MemberResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/")
-    public Response getMembers(@QueryParam("searchString") String searchString) {
+    public Response getMembers(@QueryParam("searchString") String searchString,
+            @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString) {
 
-        if (searchString == null) {
-            return Response.ok(projection.getMembers()).build();
+        if(StringUtils.isBlank(searchString)) {
+            searchString = null;
         }
 
-        return Response.ok(projection.searchMembers(searchString)).build();
+        if(StringUtils.isBlank(subscriptionPeriodIdAsString)) {
+            subscriptionPeriodIdAsString = null;
+        }
+
+
+        return Response.ok(projection.searchMembers(searchString, subscriptionPeriodIdAsString)).build();
     }
 
     @GET

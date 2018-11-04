@@ -15,7 +15,6 @@ import org.jaun.clubmanager.member.application.resource.SubscriptionDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionTypeDTO;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
-import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
@@ -47,7 +46,6 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
-    private final IMap<SubscriptionId, SubscriptionDTO> subscriptionMap;
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
@@ -77,7 +75,6 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
         subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
-        subscriptionMap = hazelcastInstance.getMap("subscriptions");
         membershipTypeMap = hazelcastInstance.getMap("membership-type-map");
         memberMap = hazelcastInstance.getMap("members");
     }
@@ -133,21 +130,17 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         subscriptionPeriodMap.put(metadataChangedEvent.getSubscriptionPeriodId(), periodDTO);
     }
 
-    protected void update(Long version, SubscriptionCreatedEvent subscriptionCreatedEvent) {
-
-//        SubscriptionViewDTO view = new SubscriptionViewDTO();
-//        view.setSubscriptionId(subscriptionCreatedEvent.getSubscriptionId().getValue());
-//        view.setSubscriptionPeriodId(subscriptionCreatedEvent.getSubscriptionPeriodId().getValue());
-//        view.setId(subscriptionCreatedEvent.getId().getValue());
-//        view.setSubscriptionTypeId(subscriptionCreatedEvent.getSubscriptionTypeId().getValue());
-//        subscriptionMap.put(subscriptionCreatedEvent.getSubscriptionId(), view);
+    protected synchronized void update(Long version, SubscriptionCreatedEvent subscriptionCreatedEvent) {
+        MemberDTO memberDTO = memberMap.get(subscriptionCreatedEvent.getMemberId());
 
         SubscriptionDTO subscriptionDTO = new SubscriptionDTO();
         subscriptionDTO.setId(subscriptionCreatedEvent.getSubscriptionId().getValue());
         subscriptionDTO.setMemberId(subscriptionCreatedEvent.getMemberId().getValue());
         subscriptionDTO.setSubscriptionPeriodId(subscriptionCreatedEvent.getSubscriptionPeriodId().getValue());
         subscriptionDTO.setSubscriptionTypeId(subscriptionCreatedEvent.getSubscriptionTypeId().getValue());
-        subscriptionMap.put(subscriptionCreatedEvent.getSubscriptionId(), subscriptionDTO);
+        memberDTO.getSubscriptions().add(subscriptionDTO);
+
+        memberMap.put(subscriptionCreatedEvent.getMemberId(), memberDTO);
     }
 
 //    public SubscriptionViewDTO getById(SubscriptionId id) {
@@ -159,25 +152,37 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
     }
 
     protected synchronized void update(Long version, MemberCreatedEvent memberCreatedEvent) {
-        // do nothing because we already mirror all persons as members
+
+        MemberDTO memberDTO = memberMap.get(memberCreatedEvent.getMemberId());
+
+        if (memberDTO != null) {
+            return;
+        }
+        memberDTO = new MemberDTO();
+        memberDTO.setId(memberCreatedEvent.getMemberId().getValue());
+
+        memberMap.put(memberCreatedEvent.getMemberId(), memberDTO);
+
     }
 
     protected synchronized void update(Long version, PersonCreatedEvent personCreatedEvent) {
 
-        MemberDTO memberDTO = new MemberDTO();
+        MemberId memberId = new MemberId(personCreatedEvent.getPersonId().getValue());
+        MemberDTO memberDTO = memberMap.get(memberId);
+
+        if (memberDTO != null) {
+            return;
+        }
+        memberDTO = new MemberDTO();
         memberDTO.setId(personCreatedEvent.getPersonId().getValue());
 
-        memberMap.put(new MemberId(memberDTO.getId()), memberDTO);
+        memberMap.put(memberId, memberDTO);
 
     }
 
     protected synchronized void update(Long version, BasicDataChangedEvent basicDataChangedEvent) {
 
         MemberDTO memberDTO = memberMap.get(new MemberId(basicDataChangedEvent.getPersonId().getValue()));
-
-        if (memberDTO == null) {
-            return;
-        }
 
         memberDTO.setFirstName(basicDataChangedEvent.getName().getFirstName().orElse(null));
         memberDTO.setLastNameOrCompanyName(basicDataChangedEvent.getName().getLastNameOrCompanyName());
@@ -255,10 +260,9 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
     }
 
     public Collection<SubscriptionDTO> getSubscriptions(MemberId memberId) {
-        ArrayList<Predicate> andPredicates = new ArrayList<>();
-        andPredicates.add(Predicates.equal("memberId", memberId.getValue()));
-        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
-        return subscriptionMap.values(criteriaQuery);
+
+        MemberDTO memberDTO = memberMap.get(memberId);
+        return memberDTO.getSubscriptions();
     }
 
     public SubscriptionPeriodDTO getById(SubscriptionPeriodId subscriptionPeriodId) {
@@ -276,17 +280,32 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
     }
 
     public Collection<MemberDTO> getMembers() {
-        return searchMembers("");
+        return searchMembers("", null);
     }
 
-    public Collection<MemberDTO> searchMembers(String searchString) {
+    public Collection<MemberDTO> searchMembers(String searchString, String subscriptionPeriodId) {
 
-        ArrayList<Predicate> orPredicates = new ArrayList<>();
+        if(searchString == null) {
+            searchString = "";
+        }
 
-        orPredicates.add(Predicates.ilike("id", "%" + searchString + "%"));
-        orPredicates.add(Predicates.ilike("firstName", "%" + searchString + "%"));
-        orPredicates.add(Predicates.ilike("lastNameOrCompanyName", "%" + searchString + "%"));
-        Predicate criteriaQuery = Predicates.or(orPredicates.toArray(new Predicate[orPredicates.size()]));
+        Predicate idPredicate = Predicates.ilike("id", "%" + searchString + "%");
+        Predicate firstNamePredicate = Predicates.ilike("firstName", "%" + searchString + "%");
+        Predicate lastNamePredicate = Predicates.ilike("lastNameOrCompanyName", "%" + searchString + "%");
+
+        Predicate searchStringPredicate = Predicates.or(idPredicate, firstNamePredicate, lastNamePredicate);
+
+        Predicate criteriaQuery;
+        if (subscriptionPeriodId == null) {
+            criteriaQuery = searchStringPredicate;
+        } else {
+            Predicate subscriptionPeriodIdPredicate =
+                    Predicates.equal("subscriptions[any].subscriptionPeriodId", subscriptionPeriodId);
+
+            System.out.println("search by period = " + subscriptionPeriodId);
+
+            criteriaQuery = Predicates.and(searchStringPredicate, subscriptionPeriodIdPredicate);
+        }
 
         return memberMap.values(criteriaQuery).stream().map(memberDTO -> {
             Collection<SubscriptionDTO> subscriptions = getSubscriptions(new MemberId(memberDTO.getId()));
