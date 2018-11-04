@@ -83,9 +83,9 @@ public class PersonConverter {
         streetAddressDTO.setCity(streetAddress.getCity());
         streetAddressDTO.setIsoCountryCode(streetAddress.getCountry().getIsoCountryCode());
         streetAddressDTO.setStreet(streetAddress.getStreet());
-        streetAddressDTO.setStreetNumber(streetAddress.getStreetNumber());
+        streetAddressDTO.setStreetNumber(streetAddress.getHouseNumber().orElse(null));
         streetAddressDTO.setZip(streetAddress.getZip());
-        streetAddressDTO.setState(streetAddress.getState());
+        streetAddressDTO.setState(streetAddress.getState().orElse(null));
         return streetAddressDTO;
     }
 
@@ -112,10 +112,11 @@ public class PersonConverter {
         BasicDataDTO basicDataDTO = in.getBasicData();
         Name name = toName(basicDataDTO.getName());
         Sex sex = basicDataDTO.getSex() == null ? null : Sex.valueOf(basicDataDTO.getSex());
-
+        LocalDate birthDate = basicDataDTO.getBirthDate();
         Person person = new Person(contractId, personType, name, basicDataDTO.getBirthDate(), sex);
 
         person.changeStreetAddress(toStreetAddress(in.getStreetAddress()));
+        person.changeBasicData(name, birthDate, sex);
 
         if (in.getContactData() != null) {
             ContactDataDTO contactDataDTO = in.getContactData();

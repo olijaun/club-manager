@@ -28,12 +28,15 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.Subscri
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionTypeAddedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.person.BasicDataChangedEvent;
 import org.jaun.clubmanager.member.infra.projection.event.person.PersonCreatedEvent;
+import org.jaun.clubmanager.member.infra.projection.event.person.StreetAddress;
+import org.jaun.clubmanager.member.infra.projection.event.person.StreetAddressChangedEvent;
 import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Joiner;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
@@ -70,6 +73,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
         registerMapping(new EventType("PersonCreated"), (v, r) -> update(v, toObject(r, PersonCreatedEvent.class)));
         registerMapping(new EventType("BasicDataChanged"), (v, r) -> update(v, toObject(r, BasicDataChangedEvent.class)));
+        registerMapping(new EventType("StreetAddressChanged"), (v, r) -> update(v, toObject(r, StreetAddressChangedEvent.class)));
 
         subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
@@ -181,6 +185,24 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         // important: convert person id to member id, because we convert contacts into members and won't find them in the map otherwise
         memberMap.put(new MemberId(basicDataChangedEvent.getPersonId().getValue()), memberDTO);
 
+    }
+
+    protected synchronized void update(Long version, StreetAddressChangedEvent streetAddressChangedEvent) {
+        MemberId memberId = new MemberId(streetAddressChangedEvent.getPersonId().getValue());
+        MemberDTO memberDTO = memberMap.get(memberId);
+
+        if (memberDTO == null) {
+            return;
+        }
+
+        StreetAddress address = streetAddressChangedEvent.getStreetAddress();
+
+        String streetAndHouseNumber = Joiner.on(" ").skipNulls().join(address.getStreet(), address.getHouseNumber().orElse(null));
+        String zipAndCity = Joiner.on(" ").skipNulls().join(address.getZip(), address.getCity());
+        String streetAddressLine = Joiner.on(", ").skipNulls().join(streetAndHouseNumber, zipAndCity);
+        memberDTO.setAddress(streetAddressLine);
+
+        memberMap.put(memberId, memberDTO);
     }
 
     public Optional<MemberDTO> getMember(MemberId memberId) {

@@ -5,6 +5,7 @@ public class MemberDTO extends CreateMemberDTO {
     private String id;
     private String firstName;
     private String lastNameOrCompanyName;
+    private String address;
 
     public String getId() {
         return id;
@@ -28,5 +29,13 @@ public class MemberDTO extends CreateMemberDTO {
 
     public void setLastNameOrCompanyName(String lastNameOrCompanyName) {
         this.lastNameOrCompanyName = lastNameOrCompanyName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

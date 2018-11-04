@@ -1,14 +1,10 @@
-package org.jaun.clubmanager.person.domain.model.person.event;
+package org.jaun.clubmanager.member.infra.projection.event.person;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Objects;
-import java.util.Optional;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
 
-import org.jaun.clubmanager.person.domain.model.person.StreetAddress;
-import org.jaun.clubmanager.person.domain.model.person.PersonId;
-
-public class StreetAddressChangedEvent extends PersonEvent {
+public class StreetAddressChangedEvent {
 
     private final PersonId personId;
     private final StreetAddress streetAddress;

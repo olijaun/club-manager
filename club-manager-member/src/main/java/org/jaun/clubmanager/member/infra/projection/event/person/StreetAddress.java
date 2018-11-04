@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.person.domain.model.person;
+package org.jaun.clubmanager.member.infra.projection.event.person;
 
 import static java.util.Objects.requireNonNull;
 

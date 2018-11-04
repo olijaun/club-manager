@@ -73,7 +73,7 @@ public class HazelcastPersonProjection extends AbstractPollingProjection {
     protected void update(StreetAddressChangedEvent streetAddressChangedEvent) {
 
         PersonDTO personDTO = personMap.get(streetAddressChangedEvent.getPersonId().getValue());
-        personDTO.setStreetAddress(streetAddressChangedEvent.getStreetAddress().map(PersonConverter::toAddressDTO).orElse(null));
+        personDTO.setStreetAddress(PersonConverter.toAddressDTO(streetAddressChangedEvent.getStreetAddress()));
 
         personMap.put(streetAddressChangedEvent.getPersonId().getValue(), personDTO);
     }

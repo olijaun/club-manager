@@ -51,7 +51,7 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
     }
 
     protected void mutate(StreetAddressChangedEvent event) {
-        this.streetAddress = event.getStreetAddress().orElse(null);
+        this.streetAddress = event.getStreetAddress();
     }
 
     @Override
@@ -72,10 +72,6 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
     public void changeBasicData(Name newName, LocalDate birthDate, Sex sex) {
 
         requireNonNull(newName);
-
-        if (this.name.equals(newName)) {
-            return;
-        }
 
         if (!personType.equals(PersonType.NATURAL) && sex != null) {
             throw new IllegalStateException("sex can only be defined for a person");
