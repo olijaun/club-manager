@@ -213,52 +213,6 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         });
     }
 
-    public Collection<MemberDTO> getMembers() {
-        return memberMap.values();
-    }
-
-//    public Collection<SubscriptionViewDTO> find(String firstName, String lastName, SubscriptionPeriodId subscriptionPeriodId,
-//            MemberId memberId) {
-//
-//        ArrayList<Predicate> andPredicates = new ArrayList<>();
-//
-//        if (firstName != null) {
-//            andPredicates.add(Predicates.ilike("memberFirstName", "%" + firstName + "%"));
-//        }
-//        if (lastName != null) {
-//            andPredicates.add(Predicates.ilike("memberLastName", "%" + lastName + "%"));
-//        }
-//        if (subscriptionPeriodId != null) {
-//            andPredicates.add(Predicates.equal("subscriptionPeriodId", subscriptionPeriodId.getValue()));
-//        }
-//        if (memberId != null) {
-//            andPredicates.add(Predicates.equal("memberId", memberId.getValue()));
-//        }
-//
-//        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
-//
-//        return subscriptionMap.values(criteriaQuery).stream().map(this::enrich).collect(Collectors.toList());
-//    }
-
-//    private SubscriptionViewDTO enrich(SubscriptionViewDTO view) {
-//
-//        MemberDTO memberDTO = memberMap.get(new MemberId(view.getId()));
-//        SubscriptionPeriodDTO periodDTO = subscriptionPeriodMap.get(new SubscriptionPeriodId(view.getSubscriptionPeriodId()));
-//        SubscriptionTypeDTO subscriptionTypeDTO = subscriptionTypeMap.get(new SubscriptionTypeId(view.getSubscriptionTypeId()));
-//
-//        view.setMemberLastName(memberDTO.getLastNameOrCompanyName());
-//        view.setMemberFirstName(memberDTO.getFirstName());
-//        view.setSubscriptionPeriodName(periodDTO.getName());
-//        view.setSubscriptionTypeName(subscriptionTypeDTO.getName());
-//
-//        MembershipTypeDTO membershipTypeDTO =
-//                membershipTypeMap.get(new MembershipTypeId(subscriptionTypeDTO.getMembershipTypeId()));
-//
-//        view.setMembershipTypeId(subscriptionTypeDTO.getMembershipTypeId());
-//        view.setMembershipTypeName(membershipTypeDTO.getName());
-//
-//        return view;
-//    }
 
     public Collection<SubscriptionPeriodDTO> getAllSubscriptionPeriods() {
 
@@ -321,13 +275,17 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
         return membershipTypeMap.values();
     }
 
+    public Collection<MemberDTO> getMembers() {
+        return searchMembers("");
+    }
+
     public Collection<MemberDTO> searchMembers(String searchString) {
+
         ArrayList<Predicate> orPredicates = new ArrayList<>();
 
         orPredicates.add(Predicates.ilike("id", "%" + searchString + "%"));
         orPredicates.add(Predicates.ilike("firstName", "%" + searchString + "%"));
         orPredicates.add(Predicates.ilike("lastNameOrCompanyName", "%" + searchString + "%"));
-
         Predicate criteriaQuery = Predicates.or(orPredicates.toArray(new Predicate[orPredicates.size()]));
 
         return memberMap.values(criteriaQuery).stream().map(memberDTO -> {
