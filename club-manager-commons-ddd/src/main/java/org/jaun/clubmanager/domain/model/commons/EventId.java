@@ -1,8 +1,9 @@
 package org.jaun.clubmanager.domain.model.commons;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class EventId {
+public class EventId implements Serializable {
     private final UUID uuid;
 
     public EventId(UUID uuid) {

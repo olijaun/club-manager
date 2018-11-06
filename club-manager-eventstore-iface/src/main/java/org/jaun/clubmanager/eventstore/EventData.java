@@ -2,6 +2,7 @@ package org.jaun.clubmanager.eventstore;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ import com.google.common.base.MoreObjects;
 /**
  * Event data. Containing the deserialized event.
  */
-public class EventData {
+public class EventData implements Serializable {
 
     private final EventId eventId;
     private final EventType eventType;

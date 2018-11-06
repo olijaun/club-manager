@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.eventstore.akka;
+package org.jaun.clubmanager.eventstore.redis;
 
 import java.io.Serializable;
 

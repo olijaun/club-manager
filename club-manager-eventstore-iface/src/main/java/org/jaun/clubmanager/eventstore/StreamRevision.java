@@ -1,6 +1,8 @@
 package org.jaun.clubmanager.eventstore;
 
-public class StreamRevision implements Comparable<StreamRevision> {
+import java.io.Serializable;
+
+public class StreamRevision implements Comparable<StreamRevision>, Serializable {
 
     /** states that this write should never conflict and should always succeed */
     public static final StreamRevision UNSPECIFIED = new StreamRevision(-2);

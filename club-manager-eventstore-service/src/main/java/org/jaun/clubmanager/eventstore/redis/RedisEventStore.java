@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.eventstore.akka;
+package org.jaun.clubmanager.eventstore.redis;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;

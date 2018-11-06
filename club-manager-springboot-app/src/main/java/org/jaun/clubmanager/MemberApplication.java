@@ -7,7 +7,7 @@ import javax.ws.rs.client.WebTarget;
 import org.jaun.clubmanager.eventstore.EventStore;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestEventStoreClient;
-import org.jaun.clubmanager.eventstore.akka.RedisEventStore;
+import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
