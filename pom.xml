@@ -276,6 +276,7 @@
         <module>club-manager-commons-ddd-es</module>
 
         <module>club-manager-eventstore-service</module>
+        <module>club-manager-eventstore-akka</module>
         <module>club-manager-eventstore-rest-client</module>
         <module>club-manager-commons-projection</module>
         <module>club-manager-identity</module>
