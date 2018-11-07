@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.eventstore.redis;
+package org.jaun.clubmanager.eventstore.akka;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +7,14 @@ import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.eventstore.EventData;
 import org.jaun.clubmanager.eventstore.StreamId;
+import org.jaun.clubmanager.eventstore.StreamRevision;
 
 import akka.persistence.AbstractPersistentActor;
 
 public class EventStream extends AbstractPersistentActor {
 
     private List<EventData> events = new ArrayList<>();
-    private StreamId streamId;
+    private final StreamId streamId;
 
     public EventStream(StreamId streamId) {
         this.streamId = streamId;
@@ -31,17 +32,20 @@ public class EventStream extends AbstractPersistentActor {
     public Receive createReceive() {
         return receiveBuilder().match(Append.class, append -> {
 
-            if (append.getExpectedVersion().getValue() != events.size()) {
+            if (!append.getExpectedVersion().equals(StreamRevision.UNSPECIFIED) //
+                && append.getExpectedVersion().getValue() != (events.size() - 1)) {
+
                 getSender().tell(new RuntimeException(
-                        "expected version " + append.getExpectedVersion() + " does not match current stream version "
-                        + events.size()), getSelf());
+                        "expected version " + append.getExpectedVersion().getValue() + " does not match current stream version " + (
+                                events.size() - 1)), getSelf());
                 return;
             }
 
-            List<EventData> unpersistedEvents = append.getEvents()
+            List<EventDataWithStreamId> unpersistedEvents = append.getEvents()
                     .stream()
                     .filter(newEvent -> !events.stream()
                             .anyMatch(storedEventData -> storedEventData.getEventId().equals(newEvent.getEventId())))
+                    .map(e -> new EventDataWithStreamId(streamId, e))
                     .collect(Collectors.toList());
 
             if (unpersistedEvents.isEmpty()) {
@@ -62,7 +66,7 @@ public class EventStream extends AbstractPersistentActor {
         }).match(Read.class, read -> {
 
             // sublist to is exclusive
-            int toIndex = (Integer.MAX_VALUE == read.getToVersion().getValue().intValue()) ? //
+            int toIndex = (Long.valueOf(Integer.MAX_VALUE) <= read.getToVersion().getValue().longValue()) ? //
                     Math.min(events.size(), Integer.MAX_VALUE) //
                     : Math.min(events.size(), read.getToVersion().getValue().intValue() + 1);
 

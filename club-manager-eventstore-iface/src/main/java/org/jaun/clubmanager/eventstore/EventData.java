@@ -33,6 +33,10 @@ public class EventData implements Serializable {
         this.metadata = metadata;
     }
 
+    public EventData(EventData eventData) {
+        this(eventData.getEventId(), eventData.getEventType(), eventData.getPayload(), eventData.getMetadata().orElse(null));
+    }
+
     public EventId getEventId() {
         return eventId;
     }

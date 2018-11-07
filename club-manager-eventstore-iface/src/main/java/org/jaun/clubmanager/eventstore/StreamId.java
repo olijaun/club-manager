@@ -2,6 +2,7 @@ package org.jaun.clubmanager.eventstore;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import org.jaun.clubmanager.domain.model.commons.ValueObject;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
-public class StreamId extends ValueObject {
+public class StreamId extends ValueObject implements Serializable {
     private final String id;
     private final Category category;
 

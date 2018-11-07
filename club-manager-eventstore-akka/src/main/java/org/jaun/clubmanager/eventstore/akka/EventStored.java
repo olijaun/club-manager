@@ -1,4 +1,4 @@
-package org.jaun.clubmanager.eventstore.redis;
+package org.jaun.clubmanager.eventstore.akka;
 
 public class EventStored {
     private final String eventId;
