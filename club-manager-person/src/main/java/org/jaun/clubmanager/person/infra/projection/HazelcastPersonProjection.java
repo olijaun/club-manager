@@ -3,6 +3,8 @@ package org.jaun.clubmanager.person.infra.projection;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.jaun.clubmanager.eventstore.EventStoreClient;
+import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
 import org.jaun.clubmanager.person.application.resource.BasicDataDTO;
 import org.jaun.clubmanager.person.application.resource.ContactDataDTO;
 import org.jaun.clubmanager.person.application.resource.NameDTO;
@@ -17,8 +19,6 @@ import org.jaun.clubmanager.person.domain.model.person.event.ContactDataChangedE
 import org.jaun.clubmanager.person.domain.model.person.event.PersonCreatedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.StreetAddressChangedEvent;
 import org.jaun.clubmanager.person.infra.repository.PersonEventMapping;
-import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
-import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +27,17 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
+import akka.actor.ActorSystem;
+
 @Service
-public class HazelcastPersonProjection extends AbstractPollingProjection {
+public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
 
     private IMap<String, PersonDTO> personMap;
 
-    public HazelcastPersonProjection(@Autowired EventStoreClient eventStore, @Autowired HazelcastInstance hazelcastInstance) {
-        super(eventStore, "$ce-person");
+    public HazelcastPersonProjection(@Autowired ActorSystem actorSystem, @Autowired EventStoreClient eventStore,
+            @Autowired HazelcastInstance hazelcastInstance) {
+
+        super(actorSystem, "person");
 
         registerMapping(PersonEventMapping.PERSON_CREATED, (v, r) -> update(toObject(r, PersonCreatedEvent.class)));
         registerMapping(PersonEventMapping.BASIC_DATA_CHANGED, (v, r) -> update(toObject(r, BasicDataChangedEvent.class)));

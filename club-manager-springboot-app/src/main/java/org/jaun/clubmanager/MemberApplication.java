@@ -4,10 +4,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.eventstore.EventStore;
+import org.jaun.clubmanager.eventstore.CatchUpSubscription;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
-import org.jaun.clubmanager.eventstore.client.jaxrs.JaxRsRestEventStoreClient;
-import org.jaun.clubmanager.eventstore.redis.RedisEventStore;
+import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
@@ -26,6 +25,8 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
+import akka.actor.ActorSystem;
+
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -35,16 +36,18 @@ public class MemberApplication {
         SpringApplication.run(MemberApplication.class, args);
     }
 
+    private final ActorSystem actorSystem = ActorSystem.create("eventStore");
+
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        HazelcastMemberProjection membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.startSubscriptions();
+        CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+        membershipProjection.start();
 
-        HazelcastPersonProjection personProjection = ctx.getBean(HazelcastPersonProjection.class);
-        personProjection.startSubscriptions();
+        CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
+        personProjection.start();
 
-        RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
+        //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
         return args -> {
 
@@ -78,16 +81,26 @@ public class MemberApplication {
 //        return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
 //    }
 
+//    @Bean
+//    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
+//        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
+//        return new JaxRsRestEventStoreClient(client, "http://localhost:8080");
+//    }
+
     @Bean
-    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
-        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-        return new JaxRsRestEventStoreClient(client, "http://localhost:8080");
+    public EventStoreClient myEventStoreClient() {
+        return new AkkaEventStore(actorSystem);
     }
 
     @Bean
-    public EventStore myEventStore() {
-        return new RedisEventStore("club-manager-event-store");
+    public ActorSystem actorSystem() {
+        return actorSystem;
     }
+
+//    @Bean
+//    public EventStore myEventStore() {
+//        return new RedisEventStore("club-manager-event-store");
+//    }
 
     @Bean
     public Client jaxRsClient() {

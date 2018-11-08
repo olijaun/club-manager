@@ -6,9 +6,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.jaun.clubmanager.domain.model.commons.AbstractPollingProjection;
-import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventType;
+import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
 import org.jaun.clubmanager.member.application.resource.SubscriptionDTO;
@@ -41,16 +40,19 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
+import akka.actor.ActorSystem;
+
 @Service
-public class HazelcastMemberProjection extends AbstractPollingProjection {
+public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
 
     private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(@Autowired EventStoreClient eventStore, @Autowired HazelcastInstance hazelcastInstance) {
-        super(eventStore, "$ce-person", "$ce-subscriptionperiod", "$ce-member", "$ce-membershiptype");
+    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired HazelcastInstance hazelcastInstance) {
+
+        super(actorSystem, "subscriptionperiod", "member", "membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
@@ -285,7 +287,7 @@ public class HazelcastMemberProjection extends AbstractPollingProjection {
 
     public Collection<MemberDTO> searchMembers(String searchString, String subscriptionPeriodId) {
 
-        if(searchString == null) {
+        if (searchString == null) {
             searchString = "";
         }
 

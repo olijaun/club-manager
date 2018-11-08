@@ -26,6 +26,11 @@
             <artifactId>club-manager-commons-projection</artifactId>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-eventstore-akka</artifactId>
+            <type>jar</type>
+        </dependency>
 
         <!-- 3rd party -->
         <dependency>
