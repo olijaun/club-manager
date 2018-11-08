@@ -62,6 +62,7 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
             System.out.println("eventByTag by category: " + category);
             Source<EventEnvelope, NotUsed> source = readJournal.eventsByTag("category." + category, Offset.noOffset());
 
+            // TODO: https://doc.akka.io/docs/akka/2.5.5/java/stream/stream-error.html
             CompletionStage<Done> stage = source.runForeach(envelope -> {
 
                 EventData eventData = (EventData) envelope.event();
