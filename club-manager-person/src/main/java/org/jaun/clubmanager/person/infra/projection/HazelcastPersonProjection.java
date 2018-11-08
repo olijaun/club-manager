@@ -28,16 +28,17 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
 
 @Service
 public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
 
     private IMap<String, PersonDTO> personMap;
 
-    public HazelcastPersonProjection(@Autowired ActorSystem actorSystem, @Autowired EventStoreClient eventStore,
+    public HazelcastPersonProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer, @Autowired EventStoreClient eventStore,
             @Autowired HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, "person");
+        super(actorSystem, actorMaterializer, "person");
 
         registerMapping(PersonEventMapping.PERSON_CREATED, (v, r) -> update(toObject(r, PersonCreatedEvent.class)));
         registerMapping(PersonEventMapping.BASIC_DATA_CHANGED, (v, r) -> update(toObject(r, BasicDataChangedEvent.class)));

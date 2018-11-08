@@ -1,7 +1,6 @@
 package org.jaun.clubmanager.member.infra.projection;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,18 +40,19 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
 import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
 
 @Service
 public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
 
-    private final IMap<SubscriptionTypeId, SubscriptionTypeDTO> subscriptionTypeMap;
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired HazelcastInstance hazelcastInstance) {
+    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer,
+            @Autowired HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, "subscriptionperiod", "member", "membershiptype");
+        super(actorSystem, actorMaterializer, "subscriptionperiod", "member", "membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
@@ -75,7 +75,6 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
         registerMapping(new EventType("BasicDataChanged"), (v, r) -> update(v, toObject(r, BasicDataChangedEvent.class)));
         registerMapping(new EventType("StreetAddressChanged"), (v, r) -> update(v, toObject(r, StreetAddressChangedEvent.class)));
 
-        subscriptionTypeMap = hazelcastInstance.getMap("subscription-types");
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
         membershipTypeMap = hazelcastInstance.getMap("membership-type-map");
         memberMap = hazelcastInstance.getMap("members");
@@ -109,7 +108,11 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
         optionDTO.setName(optionAddedEvent.getName());
         optionDTO.setMembershipTypeId(optionAddedEvent.getMembershipTypeId().getValue());
 
-        subscriptionTypeMap.put(optionAddedEvent.getSubscriptionTypeId(), optionDTO);
+        SubscriptionPeriodDTO periodDTO = subscriptionPeriodMap.get(optionAddedEvent.getSubscriptionPeriodId());
+
+        periodDTO.getSubscriptionTypes().add(optionDTO);
+
+        subscriptionPeriodMap.put(optionAddedEvent.getSubscriptionPeriodId(), periodDTO);
     }
 
     protected void update(Long version, SubscriptionPeriodCreatedEvent subscriptionPeriodCreatedEvent) {
@@ -231,33 +234,17 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
 
     public Collection<SubscriptionTypeDTO> getAllSubscriptionPeriodTypes(SubscriptionPeriodId subscriptionPeriodId) {
 
-        ArrayList<Predicate> andPredicates = new ArrayList<>();
+        SubscriptionPeriodDTO periodDTO = subscriptionPeriodMap.get(subscriptionPeriodId);
 
-        andPredicates.add(Predicates.equal("subscriptionPeriodId", subscriptionPeriodId.getValue()));
-
-        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
-
-        return subscriptionTypeMap.values(criteriaQuery);
-
+        return periodDTO.getSubscriptionTypes();
     }
 
-    public Collection<SubscriptionTypeDTO> get(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
+    public Optional<SubscriptionTypeDTO> getSubscriptionType(SubscriptionPeriodId subscriptionPeriodId,
+            SubscriptionTypeId subscriptionTypeId) {
 
-        ArrayList<Predicate> andPredicates = new ArrayList<>();
-
-        andPredicates.add(Predicates.equal("subscriptionPeriodId", subscriptionPeriodId.getValue()));
-
-        if (subscriptionTypeId != null) {
-            andPredicates.add(Predicates.equal("id", subscriptionTypeId.getValue()));
-        }
-
-        Predicate criteriaQuery = Predicates.and(andPredicates.toArray(new Predicate[andPredicates.size()]));
-
-        if (subscriptionTypeMap.values(criteriaQuery).isEmpty()) {
-            return null;
-        }
-
-        return subscriptionTypeMap.values(criteriaQuery);
+        return getAllSubscriptionPeriodTypes(subscriptionPeriodId).stream()
+                .filter(t -> t.getId().equals(subscriptionTypeId.getValue()))
+                .findFirst();
 
     }
 

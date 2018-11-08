@@ -39,10 +39,10 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
 
     private final ActorMaterializer actorMaterializer;
 
-    public AbstractAkkaCatchUpSubscription(ActorSystem actorSystem, String... categories) {
+    public AbstractAkkaCatchUpSubscription(ActorSystem actorSystem, ActorMaterializer actorMaterializer, String... categories) {
         this.categories = Arrays.asList(categories);
         this.actorSystem = actorSystem;
-        this.actorMaterializer = ActorMaterializer.create(actorSystem);
+        this.actorMaterializer = actorMaterializer;
     }
 
     protected void registerMapping(EventMapping eventMapping, BiConsumer<Long, StoredEventData> event) {
@@ -59,7 +59,7 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
                 PersistenceQuery.get(actorSystem).getReadJournalFor(JdbcReadJournal.class, JdbcReadJournal.Identifier());
 
         for (String category : categories) {
-
+            System.out.println("eventByTag by category: " + category);
             Source<EventEnvelope, NotUsed> source = readJournal.eventsByTag("category." + category, Offset.noOffset());
 
             CompletionStage<Done> stage = source.runForeach(envelope -> {
@@ -76,6 +76,7 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
             }, actorMaterializer);
 
             stage.exceptionally(e -> {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             });
         }
@@ -96,6 +97,7 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
     }
 
     public void onEvent(CatchUpSubscription subscription, StoredEventData event) {
+        System.out.println("event: " + event);
         try {
             if (map.containsKey(event.getEventType())) {
                 map.get(event.getEventType()).accept(event.getStreamRevision().getValue(), event);

@@ -143,18 +143,16 @@ public class SubscriptionPeriodResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{period-id}/types/{id}")
-    public Response getMembershipOption(@PathParam("period-id") String subscriptionPeriodIdString,
+    public Response getSubscriptionType(@PathParam("period-id") String subscriptionPeriodIdString,
             @PathParam("id") String subscriptionTypeIdAsString) {
 
-        Collection<SubscriptionTypeDTO> subscriptionTypeDTOS = projection.get(new SubscriptionPeriodId(subscriptionPeriodIdString),
-                new SubscriptionTypeId(subscriptionTypeIdAsString));
+        SubscriptionTypeDTO subscriptionTypeDTO =
+                projection.getSubscriptionType(new SubscriptionPeriodId(subscriptionPeriodIdString),
+                        new SubscriptionTypeId(subscriptionTypeIdAsString))
+                        .orElseThrow(() -> new NotFoundException(
+                                "could not find subscription for period " + subscriptionPeriodIdString + " and subscriptionType "
+                                + subscriptionTypeIdAsString));
 
-        if (subscriptionTypeDTOS.isEmpty()) {
-            throw new NotFoundException(
-                    "could not find subscription for period " + subscriptionPeriodIdString + " and subscriptionType "
-                    + subscriptionTypeIdAsString);
-        }
-
-        return Response.ok(subscriptionTypeDTOS.iterator().next()).build();
+        return Response.ok(subscriptionTypeDTO).build();
     }
 }

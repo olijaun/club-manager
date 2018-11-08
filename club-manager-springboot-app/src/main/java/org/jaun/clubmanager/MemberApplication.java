@@ -26,6 +26,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
@@ -36,13 +37,17 @@ public class MemberApplication {
         SpringApplication.run(MemberApplication.class, args);
     }
 
-    private final ActorSystem actorSystem = ActorSystem.create("eventStore");
-
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
         CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
         membershipProjection.start();
+
+        try {
+            Thread.sleep(10000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
         personProjection.start();
@@ -88,13 +93,18 @@ public class MemberApplication {
 //    }
 
     @Bean
-    public EventStoreClient myEventStoreClient() {
+    public EventStoreClient myEventStoreClient(ActorSystem actorSystem) {
         return new AkkaEventStore(actorSystem);
     }
 
     @Bean
     public ActorSystem actorSystem() {
-        return actorSystem;
+        return ActorSystem.create("eventStore");
+    }
+
+    @Bean
+    public ActorMaterializer actorMaterializer(ActorSystem actorSystem) {
+        return ActorMaterializer.create(actorSystem);
     }
 
 //    @Bean
