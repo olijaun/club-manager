@@ -4,20 +4,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.jaun.clubmanager.eventstore.CatchUpSubscription;
-import org.jaun.clubmanager.eventstore.EventStoreClient;
-import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.jaun.clubmanager.oauth.AccessTokenManager;
-import org.jaun.clubmanager.oauth.BearerTokenFilter;
-import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -25,12 +16,8 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MemberApplication {
 
     public static void main(String[] args) {
@@ -40,14 +27,14 @@ public class MemberApplication {
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.start();
-
-        String database_url = System.getenv("DATABASE_URL");
-        System.out.println("------------------------------------" + database_url);
-
-        CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
-        personProjection.start();
+//        CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
+//        membershipProjection.start();
+//
+//        String database_url = System.getenv("DATABASE_URL");
+//        System.out.println("------------------------------------" + database_url);
+//
+//        CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
+//        personProjection.start();
 
         //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
@@ -89,20 +76,20 @@ public class MemberApplication {
 //        return new JaxRsRestEventStoreClient(client, "http://localhost:8080");
 //    }
 
-    @Bean
-    public EventStoreClient myEventStoreClient(ActorSystem actorSystem) {
-        return new AkkaEventStore(actorSystem);
-    }
-
-    @Bean
-    public ActorSystem actorSystem() {
-        return ActorSystem.create("eventStore");
-    }
-
-    @Bean
-    public ActorMaterializer actorMaterializer(ActorSystem actorSystem) {
-        return ActorMaterializer.create(actorSystem);
-    }
+//    @Bean
+//    public EventStoreClient myEventStoreClient(ActorSystem actorSystem) {
+//        return new AkkaEventStore(actorSystem);
+//    }
+//
+//    @Bean
+//    public ActorSystem actorSystem() {
+//        return ActorSystem.create("eventStore");
+//    }
+//
+//    @Bean
+//    public ActorMaterializer actorMaterializer(ActorSystem actorSystem) {
+//        return ActorMaterializer.create(actorSystem);
+//    }
 
 //    @Bean
 //    public EventStore myEventStore() {
@@ -114,9 +101,9 @@ public class MemberApplication {
         return ClientBuilder.newClient();
     }
 
-    @Bean
-    public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
-        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-        return client.target("http://localhost:8080/persons");
-    }
+//    @Bean
+//    public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
+//        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
+//        return client.target("http://localhost:8080/persons");
+//    }
 }
