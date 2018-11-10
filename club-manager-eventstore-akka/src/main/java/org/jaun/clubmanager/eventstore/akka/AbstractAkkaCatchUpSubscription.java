@@ -1,6 +1,8 @@
 package org.jaun.clubmanager.eventstore.akka;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +30,7 @@ import akka.persistence.query.EventEnvelope;
 import akka.persistence.query.Offset;
 import akka.persistence.query.PersistenceQuery;
 import akka.stream.ActorMaterializer;
+import akka.stream.javadsl.RestartSource;
 import akka.stream.javadsl.Source;
 
 public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscription, CatchUpSubscriptionListener {
@@ -60,10 +63,19 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
 
         for (String category : categories) {
             System.out.println("eventByTag by category: " + category);
-            Source<EventEnvelope, NotUsed> source = readJournal.eventsByTag("category." + category, Offset.noOffset());
+            //Source<EventEnvelope, NotUsed> source = readJournal.eventsByTag("category." + category, Offset.noOffset());
+
+            Source<EventEnvelope, NotUsed> sourceWithBackoff =
+                    RestartSource.withBackoff(Duration.of(3, ChronoUnit.SECONDS), // min backoff
+                            Duration.of(30, ChronoUnit.SECONDS), // max backoff
+                            0.2, // adds 20% "noise" to vary the intervals slightly
+                            () -> {
+                                System.out.println("restart.......................");
+                                return readJournal.eventsByTag("category." + category, Offset.noOffset());
+                            });
 
             // TODO: https://doc.akka.io/docs/akka/2.5.5/java/stream/stream-error.html
-            CompletionStage<Done> stage = source.runForeach(envelope -> {
+            CompletionStage<Done> stage = sourceWithBackoff.runForeach(envelope -> {
 
                 EventData eventData = (EventData) envelope.event();
 

@@ -43,12 +43,6 @@ public class MemberApplication {
         CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
         membershipProjection.start();
 
-        try {
-            Thread.sleep(10000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
         personProjection.start();
 
