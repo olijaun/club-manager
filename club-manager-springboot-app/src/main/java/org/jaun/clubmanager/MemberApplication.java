@@ -43,6 +43,9 @@ public class MemberApplication {
         CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
         membershipProjection.start();
 
+        String database_url = System.getenv("DATABASE_URL");
+        System.out.println("------------------------------------" + database_url);
+
         CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
         personProjection.start();
 
