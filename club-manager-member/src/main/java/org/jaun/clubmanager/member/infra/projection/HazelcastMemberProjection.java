@@ -52,7 +52,7 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
     public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer,
             @Autowired HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, actorMaterializer, "subscriptionperiod", "member", "membershiptype");
+        super(actorSystem, actorMaterializer, "person", "subscriptionperiod", "member", "membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));

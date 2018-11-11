@@ -16,6 +16,7 @@ public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
 //        register(EventStoreResource.class);
+//        register(StaticResources.class);
         register(PersonResource.class);
         register(MembershipTypeResource.class);
         register(SubscriptionPeriodResource.class);

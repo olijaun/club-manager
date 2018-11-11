@@ -65,11 +65,11 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
-                .antMatchers("/index.html").permitAll()
-                .antMatchers("/api/**").authenticated()
-        ;
+        http.authorizeRequests() //.antMatchers("/*/**").permitAll();
+                .antMatchers("/*")
+                .permitAll()
+                .antMatchers("/api/**")
+                .authenticated();
     }
 
     @Bean

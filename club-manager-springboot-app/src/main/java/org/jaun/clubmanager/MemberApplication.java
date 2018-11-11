@@ -11,13 +11,22 @@ import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -36,6 +45,32 @@ public class MemberApplication {
     public static void main(String[] args) {
         SpringApplication.run(MemberApplication.class, args);
     }
+
+    // https://www.leveluplunch.com/java/tutorials/011-add-servlet-mapping-to-dispatcherservlet-spring-boot/
+//    @Bean
+//    public DispatcherServlet dispatcherServlet() {
+//        return new DispatcherServlet();
+//    }
+//
+//    @Bean
+//    public DispatcherServletPath dispatcherServletPath() {
+//        return new DispatcherServletPath() {
+//            @Override
+//            public String getPath() {
+//                return "/bla";
+//            }
+//        };
+//    }
+//
+//    @Bean
+//    public ServletRegistrationBean dispatcherServlet(@Autowired WebApplicationContext context) {
+//
+//        ServletRegistrationBean registration = new ServletRegistrationBean(new DispatcherServlet(context), "/bla/*");
+//        registration.setLoadOnStartup(0);
+//        registration.setName(
+//                DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME);
+//        return registration;
+//    }
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
