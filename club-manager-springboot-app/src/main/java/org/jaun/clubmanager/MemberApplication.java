@@ -152,7 +152,12 @@ public class MemberApplication {
 
     @Bean
     public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
+
+        String url = System.getenv("PERSONS_URL");
+
+        url = url == null ? "http://localhost:8080/api/persons": url;
+
         Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-        return client.target("http://localhost:8080/persons");
+        return client.target(url);
     }
 }
