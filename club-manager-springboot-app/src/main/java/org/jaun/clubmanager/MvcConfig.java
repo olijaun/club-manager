@@ -1,9 +1,6 @@
 package org.jaun.clubmanager;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -17,7 +14,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/*.js", "/*.css", "/*.txt", "/*.ico").addResourceLocations("classpath:static/");
+        registry.addResourceHandler("/*.js", "/*.css", "/*.txt", "/*.ico", "/*.html").addResourceLocations("classpath:static/");
     }
 
 }
