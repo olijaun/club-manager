@@ -3,6 +3,7 @@ package org.jaun.clubmanager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,9 @@ public class NotFoundHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<String> renderDefaultPage() {
         try {
-            File indexFile = ResourceUtils.getFile("classpath:/static/index.html");
-            FileInputStream inputStream = new FileInputStream(indexFile);
+            //File indexFile = ResourceUtils.getFile("classpath:static/index.html");
+            InputStream inputStream = ResourceUtils.getURL("classpath:static/index.html").openStream();
+            //FileInputStream inputStream = new FileInputStream(indexFile);
             String body = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
             return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(body);
         } catch (IOException e) {
