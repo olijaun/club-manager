@@ -16,10 +16,8 @@ security:
       tokenInfoUri: https://www.googleapis.com/oauth2/v3/tokeninfo
       userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
 
-
 spring:
   mvc:
     throw-exception-if-no-handler-found: true
-    exclude-mapping: /api/**
   resources:
     add-mappings: false

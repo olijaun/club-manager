@@ -14,8 +14,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-@ControllerAdvice()
+@ControllerAdvice
 public class NotFoundHandler {
+
+    public NotFoundHandler() {
+        System.out.println("Not found hnalder");
+    }
+
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<String> renderDefaultPage() {
         try {
