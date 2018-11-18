@@ -1,10 +1,17 @@
 package org.jaun.clubmanager.person.application.resource;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 public class CreatePersonDTO extends DTO {
 
     private String type;
+    @Valid
+    @NotNull
     private BasicDataDTO basicData;
+    @Valid
     private StreetAddressDTO streetAddress;
+    @Valid
     private ContactDataDTO contactData;
 
     public String getType() {

@@ -2,6 +2,7 @@ package org.jaun.clubmanager.person.application.resource;
 
 import java.util.Collection;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -59,7 +60,7 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("persons/{id}")
-    public Response createContact(@PathParam("id") String contactIdAsString, CreatePersonDTO contactDTO) {
+    public Response createContact(@PathParam("id") String contactIdAsString, @Valid CreatePersonDTO contactDTO) {
 
         PersonId personId = new PersonId(contactIdAsString);
         Person person = personRepository.get(personId);

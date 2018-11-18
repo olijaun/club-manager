@@ -1,6 +1,9 @@
 package org.jaun.clubmanager.person.application.resource;
 
+import javax.validation.constraints.NotNull;
+
 public class NameDTO extends DTO {
+    @NotNull
     private String lastNameOrCompanyName;
     private String firstName;
 

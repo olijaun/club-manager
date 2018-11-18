@@ -2,7 +2,12 @@ package org.jaun.clubmanager.person.application.resource;
 
 import java.time.LocalDate;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 public class BasicDataDTO extends DTO {
+    @NotNull
+    @Valid
     private NameDTO name;
     private LocalDate birthDate;
     private String sex;
