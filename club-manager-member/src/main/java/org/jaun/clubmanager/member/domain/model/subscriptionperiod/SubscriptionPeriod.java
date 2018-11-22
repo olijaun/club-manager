@@ -104,8 +104,15 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
         return description;
     }
 
-    public void addMembershipOption(SubscriptionTypeId subscriptionTypeId, MembershipTypeId membershipTypeId, String name,
+    public void addSubscriptionType(SubscriptionTypeId subscriptionTypeId, MembershipTypeId membershipTypeId, String name,
             double amount, Currency currency, int maxSubscribers) {
+
+        if (subscriptionTypes.stream()
+                .filter(subscriptionType -> subscriptionType.getId().equals(subscriptionTypeId))
+                .findAny()
+                .isPresent()) {
+            return;
+        }
 
         apply(new SubscriptionTypeAddedEvent(id, subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers));
 

@@ -96,7 +96,7 @@ public class SubscriptionPeriodResource {
 
         SubscriptionPeriod period = getForUpdate(new SubscriptionPeriodId(subscriptionPeriodIdString));
 
-        period.addMembershipOption(new SubscriptionTypeId(membershipOptionIdAsString), membershipType.getId(),
+        period.addSubscriptionType(new SubscriptionTypeId(membershipOptionIdAsString), membershipType.getId(),
                 subscriptionTypeDTO.getName(), subscriptionTypeDTO.getAmount(), currency, subscriptionTypeDTO.getMaxSubscribers());
 
         try {
