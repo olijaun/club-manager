@@ -2,6 +2,8 @@ package org.jaun.clubmanager.member.infra.projection;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Joiner;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 
@@ -268,11 +271,11 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
         return membershipTypeMap.values();
     }
 
-    public Collection<MemberDTO> getMembers() {
-        return searchMembers("", null);
+    public Collection<MemberDTO> getMembers(String sortBy, boolean ascending) {
+        return searchMembers("", null, sortBy, ascending);
     }
 
-    public Collection<MemberDTO> searchMembers(String searchString, String subscriptionPeriodId) {
+    public Collection<MemberDTO> searchMembers(String searchString, String subscriptionPeriodId, String sortBy, boolean ascending) {
 
         if (searchString == null) {
             searchString = "";
@@ -296,7 +299,26 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
             criteriaQuery = Predicates.and(searchStringPredicate, subscriptionPeriodIdPredicate);
         }
 
-        return memberMap.values(criteriaQuery).stream().map(memberDTO -> {
+        Comparator<Map.Entry> descendingComparator = (e1, e2) -> {
+            MemberDTO s1 = (MemberDTO) e1.getValue();
+            MemberDTO s2 = (MemberDTO) e2.getValue();
+
+            int factor = ascending ? 1 : -1;
+
+            if (sortBy == null || sortBy.equals("lastNameOrCompanyName")) {
+                return factor * s1.getLastNameOrCompanyName().compareTo(s2.getLastNameOrCompanyName());
+            } else if (sortBy.equals("firstName")) {
+                return factor * s1.getFirstName().compareTo(s2.getFirstName());
+            } else if (sortBy.equals("id")) {
+                return factor * s1.getId().compareTo(s2.getId());
+            } else {
+                return 0;
+            }
+        };
+
+        PagingPredicate pagingPredicate = new PagingPredicate(criteriaQuery, descendingComparator, 1000);
+
+        return memberMap.values(pagingPredicate).stream().map(memberDTO -> {
             Collection<SubscriptionDTO> subscriptions = getSubscriptions(new MemberId(memberDTO.getId()));
             memberDTO.setSubscriptions(subscriptions);
             return memberDTO;

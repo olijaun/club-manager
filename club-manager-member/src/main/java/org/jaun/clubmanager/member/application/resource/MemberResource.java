@@ -60,18 +60,20 @@ public class MemberResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/")
     public Response getMembers(@QueryParam("searchString") String searchString,
-            @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString) {
+            @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
+            @QueryParam("sortOrder") String sortOrder) {
 
-        if(StringUtils.isBlank(searchString)) {
+        if (StringUtils.isBlank(searchString)) {
             searchString = null;
         }
 
-        if(StringUtils.isBlank(subscriptionPeriodIdAsString)) {
+        if (StringUtils.isBlank(subscriptionPeriodIdAsString)) {
             subscriptionPeriodIdAsString = null;
         }
 
+        boolean ascending = sortOrder == null || "asc".equals(sortOrder);
 
-        return Response.ok(projection.searchMembers(searchString, subscriptionPeriodIdAsString)).build();
+        return Response.ok(projection.searchMembers(searchString, subscriptionPeriodIdAsString, sortyBy, ascending)).build();
     }
 
     @GET
