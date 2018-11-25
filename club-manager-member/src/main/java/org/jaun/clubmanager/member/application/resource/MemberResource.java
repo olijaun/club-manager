@@ -61,7 +61,7 @@ public class MemberResource {
     @Path("/")
     public Response getMembers(@QueryParam("searchString") String searchString,
             @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
-            @QueryParam("sortOrder") String sortOrder) {
+            @QueryParam("sortAscending") String sortAscending) {
 
         if (StringUtils.isBlank(searchString)) {
             searchString = null;
@@ -71,7 +71,7 @@ public class MemberResource {
             subscriptionPeriodIdAsString = null;
         }
 
-        boolean ascending = sortOrder == null || "asc".equals(sortOrder);
+        boolean ascending = sortAscending == null || "true".equals(sortAscending);
 
         return Response.ok(projection.searchMembers(searchString, subscriptionPeriodIdAsString, sortyBy, ascending)).build();
     }
