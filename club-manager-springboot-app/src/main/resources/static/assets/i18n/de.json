@@ -1,0 +1,51 @@
+{
+  "technical-error": "Ein technischer Fehler ist aufgetreten. Versuchen sie es später erneut",
+  "validation-error": "Ein Eingabe ist ungültig",
+
+  "subscription-period": "Periode",
+  "firstName": "Vorname",
+  "lastNameOrCompanyName": "Nachname",
+  "birthDate": "Geburtsdatum",
+  "gender": "Geschlecht",
+  "address": "Adresse",
+  "street": "Strasse",
+  "houseNumber": "Hausnummer",
+  "city": "Ort",
+  "zip": "Postleitzahl",
+  "country": "Land",
+  "email-address": "E-Mail",
+  "phone-number": "Telefon",
+  "subscription-type": "Mitgliedschaftsart",
+  "member-id": "Mitglied-Nr.",
+  "person-type": "Personenart",
+  "natural-person": "Natürliche Person",
+  "juristic-person": "Juristische Person",
+  "male": "männlich",
+  "female": "weiblich",
+
+  "menu": "Menu",
+
+  "member-search": {
+    "title": "Mitgliedersuche",
+    "search-term": "Suchbegriff",
+    "search-term-placeholder": "Vorname, Nachname oder Mitgliedernummer"
+  },
+
+  "member-detail": {
+    "title": "Mitgliedschaften",
+    "edit-person": "Person editieren...",
+    "add-subscription": "Mitgliedschaft hinzufügen",
+    "save": "Speichern"
+  },
+
+  "person-detail": {
+    "title-new": "Neue Person",
+    "save": "Speichern"
+  },
+
+  "login": {
+    "title": "Anmeldung",
+    "welcome": "Willkommen beim Club Manager",
+    "logged-in-as": "Sie sind angemeldet als {{value}}"
+  }
+}
