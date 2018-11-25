@@ -13,7 +13,7 @@ import org.jaun.clubmanager.person.application.resource.PersonDTO;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
 import org.jaun.clubmanager.person.domain.model.person.PhoneNumber;
-import org.jaun.clubmanager.person.domain.model.person.Sex;
+import org.jaun.clubmanager.person.domain.model.person.Gender;
 import org.jaun.clubmanager.person.domain.model.person.event.BasicDataChangedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.ContactDataChangedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonCreatedEvent;
@@ -68,7 +68,7 @@ public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
 
         basicDataDTO.setName(nameDTO);
         basicDataDTO.setBirthDate(basicDataChangedEvent.getBirthDate().orElse(null));
-        basicDataDTO.setSex(basicDataChangedEvent.getSex().map(Sex::name).orElse(null));
+        basicDataDTO.setGender(basicDataChangedEvent.getGender().map(Gender::name).orElse(null));
 
         personDTO.setBasicData(basicDataDTO);
 

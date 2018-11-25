@@ -18,4 +18,8 @@ public class PersonId extends Id {
     public static boolean isValid(String value) {
         return PATTERN.matcher(value).matches();
     }
+
+    public int asInt() {
+        return Integer.valueOf(getValue().substring(1, getValue().length()));
+    }
 }

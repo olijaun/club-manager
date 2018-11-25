@@ -54,14 +54,14 @@ public class StreetAddress extends ValueObject {
 
     public static class Builder {
         private String street;
-        private String streetNumber;
+        private String houseNumber;
         private String zip;
         private String city;
         private String state;
         private Country country;
 
         public StreetAddress build() {
-            return new StreetAddress(street, streetNumber, zip, city, state, country);
+            return new StreetAddress(street, houseNumber, zip, city, state, country);
         }
 
         public Builder street(String street) {
@@ -79,8 +79,8 @@ public class StreetAddress extends ValueObject {
             return this;
         }
 
-        public Builder streetNumber(String streetNumber) {
-            this.streetNumber = streetNumber;
+        public Builder houseNumber(String houseNumber) {
+            this.houseNumber = houseNumber;
             return this;
         }
 

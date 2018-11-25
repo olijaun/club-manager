@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 @Path("/person-id-requests")
 public class PersonIdRequestResource {
 
-    private static final PersonIdRegistryId PERSON_ID_REGISTRY_ID = new PersonIdRegistryId("default");
-    private static final int START_ID_FROM = 1000;
+    public static final PersonIdRegistryId PERSON_ID_REGISTRY_ID = new PersonIdRegistryId("default");
+    public static final int START_ID_FROM = 1000;
 
     @Autowired
     private PersonIdRegistryRepository personIdRegistryRepository;

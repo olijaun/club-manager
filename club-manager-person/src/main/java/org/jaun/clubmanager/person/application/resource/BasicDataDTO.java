@@ -10,7 +10,7 @@ public class BasicDataDTO extends DTO {
     @Valid
     private NameDTO name;
     private LocalDate birthDate;
-    private String sex;
+    private String gender;
 
     public NameDTO getName() {
         return name;
@@ -30,12 +30,12 @@ public class BasicDataDTO extends DTO {
         return this;
     }
 
-    public String getSex() {
-        return sex;
+    public String getGender() {
+        return gender;
     }
 
-    public BasicDataDTO setSex(String sex) {
-        this.sex = sex;
+    public BasicDataDTO setGender(String gender) {
+        this.gender = gender;
         return this;
     }
 }

@@ -12,7 +12,7 @@ import org.jaun.clubmanager.person.domain.model.person.Person;
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
 import org.jaun.clubmanager.person.domain.model.person.PersonType;
 import org.jaun.clubmanager.person.domain.model.person.PhoneNumber;
-import org.jaun.clubmanager.person.domain.model.person.Sex;
+import org.jaun.clubmanager.person.domain.model.person.Gender;
 import org.jaun.clubmanager.person.domain.model.person.StreetAddress;
 
 public class PersonConverter {
@@ -34,7 +34,7 @@ public class PersonConverter {
         BasicDataDTO basicDataDTO = new BasicDataDTO();
         basicDataDTO.setName(toNameDTO(in.getName()));
         basicDataDTO.setBirthDate(in.getBirthDate().orElse(null));
-        basicDataDTO.setSex(in.getSex().map(PersonConverter::toSexAsString).orElse(null));
+        basicDataDTO.setGender(in.getGender().map(PersonConverter::toGenderAsString).orElse(null));
 
         return basicDataDTO;
     }
@@ -53,25 +53,25 @@ public class PersonConverter {
         return nameDTO;
     }
 
-    public static String toSexAsString(Sex sex) {
-        switch (sex) {
+    public static String toGenderAsString(Gender gender) {
+        switch (gender) {
             case MALE:
                 return "MALE";
             case FEMALE:
                 return "FEMALE";
             default:
-                throw new IllegalArgumentException("unknown sex: " + sex);
+                throw new IllegalArgumentException("unknown gender: " + gender);
         }
     }
 
-    public static Sex toSex(String sex) {
-        switch (sex) {
+    public static Gender toGender(String gender) {
+        switch (gender) {
             case "MALE":
-                return Sex.MALE;
+                return Gender.MALE;
             case "FEMALE":
-                return Sex.FEMALE;
+                return Gender.FEMALE;
             default:
-                throw new IllegalArgumentException("invalid sex: " + sex);
+                throw new IllegalArgumentException("invalid gender: " + gender);
         }
     }
 
@@ -83,7 +83,7 @@ public class PersonConverter {
         streetAddressDTO.setCity(streetAddress.getCity());
         streetAddressDTO.setIsoCountryCode(streetAddress.getCountry().getIsoCountryCode());
         streetAddressDTO.setStreet(streetAddress.getStreet());
-        streetAddressDTO.setStreetNumber(streetAddress.getHouseNumber().orElse(null));
+        streetAddressDTO.setHouseNumber(streetAddress.getHouseNumber().orElse(null));
         streetAddressDTO.setZip(streetAddress.getZip());
         streetAddressDTO.setState(streetAddress.getState().orElse(null));
         return streetAddressDTO;
@@ -97,7 +97,7 @@ public class PersonConverter {
                 .city(in.getCity())
                 .country(new Country(in.getIsoCountryCode()))
                 .street(in.getStreet())
-                .streetNumber(in.getStreetNumber())
+                .houseNumber(in.getHouseNumber())
                 .zip(in.getZip())
                 .state(in.getState())
                 .build();
@@ -111,12 +111,12 @@ public class PersonConverter {
 
         BasicDataDTO basicDataDTO = in.getBasicData();
         Name name = toName(basicDataDTO.getName());
-        Sex sex = basicDataDTO.getSex() == null ? null : Sex.valueOf(basicDataDTO.getSex());
+        Gender gender = basicDataDTO.getGender() == null ? null : Gender.valueOf(basicDataDTO.getGender());
         LocalDate birthDate = basicDataDTO.getBirthDate();
-        Person person = new Person(contractId, personType, name, basicDataDTO.getBirthDate(), sex);
+        Person person = new Person(contractId, personType, name, basicDataDTO.getBirthDate(), gender);
 
         person.changeStreetAddress(toStreetAddress(in.getStreetAddress()));
-        person.changeBasicData(name, birthDate, sex);
+        person.changeBasicData(name, birthDate, gender);
 
         if (in.getContactData() != null) {
             ContactDataDTO contactDataDTO = in.getContactData();

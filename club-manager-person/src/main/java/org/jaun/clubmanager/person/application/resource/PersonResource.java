@@ -1,10 +1,13 @@
 package org.jaun.clubmanager.person.application.resource;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -14,22 +17,28 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
+import org.jaun.clubmanager.person.domain.model.person.Gender;
 import org.jaun.clubmanager.person.domain.model.person.Name;
 import org.jaun.clubmanager.person.domain.model.person.Person;
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
+import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistry;
+import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistryRepository;
+import org.jaun.clubmanager.person.domain.model.person.PersonIdRequestId;
 import org.jaun.clubmanager.person.domain.model.person.PersonRepository;
 import org.jaun.clubmanager.person.domain.model.person.PhoneNumber;
-import org.jaun.clubmanager.person.domain.model.person.Sex;
 import org.jaun.clubmanager.person.domain.model.person.StreetAddress;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
-import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Path("/")
 public class PersonResource {
+
+    @Autowired
+    private PersonIdRegistryRepository personIdRegistryRepository;
 
     @Autowired
     private PersonRepository personRepository;
@@ -60,13 +69,49 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("persons/{id}")
-    public Response createContact(@PathParam("id") String contactIdAsString, @Valid CreatePersonDTO contactDTO) {
+    public Response createContact(@HeaderParam("person-id-request-id") String personIdRequestIdAsString,
+            @PathParam("id") String personIdAsString, @Valid CreatePersonDTO contactDTO) {
 
-        PersonId personId = new PersonId(contactIdAsString);
+        PersonId personId = new PersonId(personIdAsString);
         Person person = personRepository.get(personId);
         Person personNew = PersonConverter.toPerson(personId, contactDTO);
 
         if (person == null) {
+
+            if (personId.asInt() >= PersonIdRequestResource.START_ID_FROM) {
+                // verify the person id was properly registered
+
+                PersonIdRequestId personIdRequestId;
+                try {
+                    personIdRequestId = new PersonIdRequestId(UUID.fromString(personIdRequestIdAsString));
+                } catch (NullPointerException | IllegalArgumentException e) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("person id is not valid: " + personIdRequestIdAsString)
+                            .build();
+                }
+                PersonIdRegistry registry = personIdRegistryRepository.get(PersonIdRequestResource.PERSON_ID_REGISTRY_ID);
+
+                if(registry == null) {
+                    // if there is no registry yet then there is no registered person id of course
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("person id " + personIdAsString + " is not registered: " + personIdRequestIdAsString)
+                            .build();
+                }
+
+                Optional<PersonId> registeredPersonId = registry.getPersonIdByRequestId(personIdRequestId);
+                if (!registeredPersonId.isPresent()) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("person id " + personIdAsString + " is not registered: " + personIdRequestIdAsString)
+                            .build();
+                }
+                if (!personId.equals(registeredPersonId.get())) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity("person id " + personIdAsString + " was not registered with request: "
+                                    + personIdRequestIdAsString)
+                            .build();
+                }
+            }
+
             try {
                 personRepository.save(personNew);
             } catch (ConcurrencyException e) {
@@ -76,7 +121,7 @@ public class PersonResource {
             person = personNew;
         } else {
 
-            person.changeBasicData(personNew.getName(), personNew.getBirthDate().orElse(null), personNew.getSex().orElse(null));
+            person.changeBasicData(personNew.getName(), personNew.getBirthDate().orElse(null), personNew.getGender().orElse(null));
             person.changeStreetAddress(personNew.getStreetAddress());
             person.changeContactData(personNew.getEmailAddress().orElse(null), personNew.getPhoneNumber().orElse(null));
 
@@ -110,9 +155,9 @@ public class PersonResource {
     public Response changeName(@PathParam("id") String contactId, BasicDataDTO basicDataDTO) {
 
         Name name = PersonConverter.toName(basicDataDTO.getName());
-        Sex sex = PersonConverter.toSex(basicDataDTO.getSex());
+        Gender gender = PersonConverter.toGender(basicDataDTO.getGender());
         Person person = getForUpdate(new PersonId(contactId));
-        person.changeBasicData(name, basicDataDTO.getBirthDate(), sex);
+        person.changeBasicData(name, basicDataDTO.getBirthDate(), gender);
         save(person);
         return Response.ok().build();
     }

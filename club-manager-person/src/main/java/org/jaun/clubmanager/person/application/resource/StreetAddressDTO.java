@@ -3,7 +3,7 @@ package org.jaun.clubmanager.person.application.resource;
 public class StreetAddressDTO extends DTO {
 
     private String street;
-    private String streetNumber;
+    private String houseNumber;
     private String zip;
     private String city;
     private String isoCountryCode;
@@ -18,12 +18,12 @@ public class StreetAddressDTO extends DTO {
         return this;
     }
 
-    public String getStreetNumber() {
-        return streetNumber;
+    public String getHouseNumber() {
+        return houseNumber;
     }
 
-    public StreetAddressDTO setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
+    public StreetAddressDTO setHouseNumber(String houseNumber) {
+        this.houseNumber = houseNumber;
         return this;
     }
 

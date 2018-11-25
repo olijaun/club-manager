@@ -7,20 +7,20 @@ import java.util.Optional;
 
 import org.jaun.clubmanager.person.domain.model.person.Name;
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
-import org.jaun.clubmanager.person.domain.model.person.Sex;
+import org.jaun.clubmanager.person.domain.model.person.Gender;
 
 public class BasicDataChangedEvent extends PersonEvent {
 
     private final PersonId personId;
     private final Name name;
     private final LocalDate birthDate;
-    private final Sex sex;
+    private final Gender gender;
 
-    public BasicDataChangedEvent(PersonId personId, Name name, LocalDate birthDate, Sex sex) {
+    public BasicDataChangedEvent(PersonId personId, Name name, LocalDate birthDate, Gender gender) {
         this.personId = requireNonNull(personId);
         this.name = requireNonNull(name);
         this.birthDate = birthDate;
-        this.sex = sex;
+        this.gender = gender;
     }
 
     public PersonId getPersonId() {
@@ -35,7 +35,7 @@ public class BasicDataChangedEvent extends PersonEvent {
         return Optional.ofNullable(birthDate);
     }
 
-    public Optional<Sex> getSex() {
-        return Optional.ofNullable(sex);
+    public Optional<Gender> getGender() {
+        return Optional.ofNullable(gender);
     }
 }

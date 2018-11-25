@@ -67,7 +67,7 @@ public class CsvImporter {
                 streetAddressDTO.setStreet(split[0]);
             } else if (split.length > 1) {
                 streetAddressDTO.setStreet(split[0]);
-                streetAddressDTO.setStreetNumber(Stream.of(split).skip(1).collect(Collectors.joining(" ")));
+                streetAddressDTO.setHouseNumber(Stream.of(split).skip(1).collect(Collectors.joining(" ")));
             }
             streetAddressDTO.setZip(record.get("plz"));
             streetAddressDTO.setCity(record.get("ort"));

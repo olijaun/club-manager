@@ -1,6 +1,6 @@
 package org.jaun.clubmanager.person.domain.model.person;
 
-public enum Sex {
+public enum Gender {
     MALE,
     FEMALE
 }

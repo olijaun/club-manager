@@ -22,12 +22,12 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
     private StreetAddress streetAddress;
     private PhoneNumber phoneNumber;
     private EmailAddress emailAddress;
-    private Sex sex;
+    private Gender gender;
     private LocalDate birthDate;
 
-    public Person(PersonId id, PersonType personType, Name name, LocalDate birthDate, Sex sex) {
+    public Person(PersonId id, PersonType personType, Name name, LocalDate birthDate, Gender gender) {
         apply(new PersonCreatedEvent(id, personType));
-        apply(new BasicDataChangedEvent(id, name, birthDate, sex));
+        apply(new BasicDataChangedEvent(id, name, birthDate, gender));
     }
 
     public Person(EventStream<PersonEvent> eventStream) {
@@ -41,7 +41,7 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
 
     protected void mutate(BasicDataChangedEvent event) {
         this.name = event.getName();
-        this.sex = event.getSex().orElse(null);
+        this.gender = event.getGender().orElse(null);
         this.birthDate = event.getBirthDate().orElse(null);
     }
 
@@ -69,24 +69,24 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
         }
     }
 
-    public void changeBasicData(Name newName, LocalDate birthDate, Sex sex) {
+    public void changeBasicData(Name newName, LocalDate birthDate, Gender gender) {
 
         requireNonNull(newName);
 
-        if (!personType.equals(PersonType.NATURAL) && sex != null) {
-            throw new IllegalStateException("sex can only be defined for a person");
+        if (!personType.equals(PersonType.NATURAL) && gender != null) {
+            throw new IllegalStateException("gender can only be defined for a person");
         }
 
         if (!personType.equals(PersonType.NATURAL) && birthDate != null) {
             throw new IllegalStateException("birth date can only be defined for a person");
         }
 
-        if (Objects.equals(newName, this.name) && Objects.equals(sex, this.sex) && Objects.equals(birthDate, this.birthDate)
-            && Objects.equals(sex, this.sex)) {
+        if (Objects.equals(newName, this.name) && Objects.equals(gender, this.gender) && Objects.equals(birthDate, this.birthDate)
+            && Objects.equals(gender, this.gender)) {
             return;
         }
 
-        apply(new BasicDataChangedEvent(id, newName, birthDate, sex));
+        apply(new BasicDataChangedEvent(id, newName, birthDate, gender));
     }
 
     public void changeContactData(EmailAddress emailAddress, PhoneNumber phoneNumber) {
@@ -131,8 +131,8 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
         return personType;
     }
 
-    public Optional<Sex> getSex() {
-        return Optional.ofNullable(sex);
+    public Optional<Gender> getGender() {
+        return Optional.ofNullable(gender);
     }
 
     public Optional<LocalDate> getBirthDate() {
