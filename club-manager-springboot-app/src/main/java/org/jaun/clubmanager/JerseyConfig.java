@@ -8,6 +8,7 @@ import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodResource;
 import org.jaun.clubmanager.person.application.resource.PersonIdRequestResource;
 import org.jaun.clubmanager.person.application.resource.PersonResource;
+import org.jaun.clubmanager.person.application.resource.PersonsDTOCsvWriter;
 import org.springframework.stereotype.Component;
 
 // https://stackoverflow.com/questions/29658240/spring-boot-jersey-allow-jersey-to-serve-static-content
@@ -18,6 +19,11 @@ public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
 //        register(EventStoreResource.class);
 //        register(StaticResources.class);
+
+        // custom writer
+        register(PersonsDTOCsvWriter.class);
+
+        // resources
         register(PersonResource.class);
         register(PersonIdRequestResource.class);
         register(MembershipTypeResource.class);

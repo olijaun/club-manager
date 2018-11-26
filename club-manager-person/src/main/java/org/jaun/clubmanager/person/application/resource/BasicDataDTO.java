@@ -9,7 +9,7 @@ public class BasicDataDTO extends DTO {
     @NotNull
     @Valid
     private NameDTO name;
-    private LocalDate birthDate;
+    private String birthDate;
     private String gender;
 
     public NameDTO getName() {
@@ -21,11 +21,11 @@ public class BasicDataDTO extends DTO {
         return this;
     }
 
-    public LocalDate getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public BasicDataDTO setBirthDate(LocalDate birthDate) {
+    public BasicDataDTO setBirthDate(String birthDate) {
         this.birthDate = birthDate;
         return this;
     }

@@ -67,7 +67,7 @@ public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
         nameDTO.setFirstName(basicDataChangedEvent.getName().getFirstName().orElse(null));
 
         basicDataDTO.setName(nameDTO);
-        basicDataDTO.setBirthDate(basicDataChangedEvent.getBirthDate().orElse(null));
+        basicDataDTO.setBirthDate(basicDataChangedEvent.getBirthDate().map(PersonConverter::toDateString).orElse(null));
         basicDataDTO.setGender(basicDataChangedEvent.getGender().map(Gender::name).orElse(null));
 
         personDTO.setBasicData(basicDataDTO);

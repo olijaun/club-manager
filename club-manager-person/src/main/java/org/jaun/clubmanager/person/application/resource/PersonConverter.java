@@ -1,6 +1,7 @@
 package org.jaun.clubmanager.person.application.resource;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class PersonConverter {
     private static BasicDataDTO toBasicDataDTO(Person in) {
         BasicDataDTO basicDataDTO = new BasicDataDTO();
         basicDataDTO.setName(toNameDTO(in.getName()));
-        basicDataDTO.setBirthDate(in.getBirthDate().orElse(null));
+        basicDataDTO.setBirthDate(in.getBirthDate().map(PersonConverter::toDateString).orElse(null));
         basicDataDTO.setGender(in.getGender().map(PersonConverter::toGenderAsString).orElse(null));
 
         return basicDataDTO;
@@ -112,11 +113,10 @@ public class PersonConverter {
         BasicDataDTO basicDataDTO = in.getBasicData();
         Name name = toName(basicDataDTO.getName());
         Gender gender = basicDataDTO.getGender() == null ? null : Gender.valueOf(basicDataDTO.getGender());
-        LocalDate birthDate = basicDataDTO.getBirthDate();
-        Person person = new Person(contractId, personType, name, basicDataDTO.getBirthDate(), gender);
+        Person person = new Person(contractId, personType, name, toLocalDate(basicDataDTO.getBirthDate()), gender);
 
         person.changeStreetAddress(toStreetAddress(in.getStreetAddress()));
-        person.changeBasicData(name, birthDate, gender);
+        person.changeBasicData(name, toLocalDate(basicDataDTO.getBirthDate()), gender);
 
         if (in.getContactData() != null) {
             ContactDataDTO contactDataDTO = in.getContactData();
@@ -126,6 +126,13 @@ public class PersonConverter {
         }
 
         return person;
+    }
+
+    public static String toDateString(LocalDate localDate) {
+        if(localDate == null) {
+            return null;
+        }
+        return localDate.format(DateTimeFormatter.ISO_DATE);
     }
 
     public static Name toName(CreatePersonDTO in) {

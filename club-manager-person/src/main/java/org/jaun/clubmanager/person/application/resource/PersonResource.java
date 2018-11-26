@@ -47,7 +47,7 @@ public class PersonResource {
     private HazelcastPersonProjection projection;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("persons")
     public Response searchContacts(@QueryParam("firstName") String firstName,
             @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName, @QueryParam("nameLine") String nameLine) {
@@ -62,12 +62,12 @@ public class PersonResource {
         PersonsDTO personsDTO = new PersonsDTO();
         personsDTO.setPersons(personDTOS);
 
-        return Response.ok(personDTOS).build();
+        return Response.ok(personsDTO).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces({MediaType.TEXT_PLAIN})
     @Path("persons/{id}")
     public Response createContact(@HeaderParam("person-id-request-id") String personIdRequestIdAsString,
             @PathParam("id") String personIdAsString, @Valid CreatePersonDTO contactDTO) {
@@ -91,7 +91,7 @@ public class PersonResource {
                 }
                 PersonIdRegistry registry = personIdRegistryRepository.get(PersonIdRequestResource.PERSON_ID_REGISTRY_ID);
 
-                if(registry == null) {
+                if (registry == null) {
                     // if there is no registry yet then there is no registered person id of course
                     return Response.status(Response.Status.BAD_REQUEST)
                             .entity("person id " + personIdAsString + " is not registered: " + personIdRequestIdAsString)
@@ -157,7 +157,7 @@ public class PersonResource {
         Name name = PersonConverter.toName(basicDataDTO.getName());
         Gender gender = PersonConverter.toGender(basicDataDTO.getGender());
         Person person = getForUpdate(new PersonId(contactId));
-        person.changeBasicData(name, basicDataDTO.getBirthDate(), gender);
+        person.changeBasicData(name, PersonConverter.toLocalDate(basicDataDTO.getBirthDate()), gender);
         save(person);
         return Response.ok().build();
     }
