@@ -66,7 +66,7 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests() //.antMatchers("/*/**").permitAll();
-                .antMatchers("/*")
+                .antMatchers("/*", "/assets/i18n/*")
                 .permitAll()
                 .antMatchers("/api/**")
                 .authenticated();

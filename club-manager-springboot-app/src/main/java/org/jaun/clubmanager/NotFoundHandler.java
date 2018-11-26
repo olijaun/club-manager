@@ -19,12 +19,13 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class NotFoundHandler {
 
     public NotFoundHandler() {
-        System.out.println("Not found hnalder");
+        System.out.println("Not found handler");
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<String> renderDefaultPage() {
         try {
+            System.out.println("not found....");
             //File indexFile = ResourceUtils.getFile("classpath:static/index.html");
             InputStream inputStream = ResourceUtils.getURL("classpath:static/index.html").openStream();
             //FileInputStream inputStream = new FileInputStream(indexFile);
