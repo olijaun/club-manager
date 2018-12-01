@@ -62,7 +62,7 @@ public class PersonsDTOCsvWriter implements MessageBodyWriter<PersonsDTO> {
                 } else {
                     StreetAddressDTO streetAddress = p.getStreetAddress();
                     record.addAll(Arrays.asList(streetAddress.getStreet(), streetAddress.getHouseNumber(), streetAddress.getZip(),
-                            streetAddress.getCity(), streetAddress.getIsoCountryCode(), streetAddress.getState()));
+                            streetAddress.getCity(), streetAddress.getState(), streetAddress.getIsoCountryCode()));
                 }
                 csvPrinter.printRecord(record);
 

@@ -126,13 +126,6 @@ public class PersonResource {
 
                 } else {
 
-//                    if (personId.asInt() >= PersonIdRequestResource.START_ID_FROM) {
-//                        // verify the person id was properly registered
-//
-//                        throw new IllegalStateException(
-//                                "person with ids > " + PersonIdRequestResource.START_ID_FROM + " cannot be registered.");
-//                    }
-
                     NameDTO nameDTO = new NameDTO();
                     nameDTO.setFirstName(r.get(PersonCsvFormat.FIRST_NAME));
                     nameDTO.setLastNameOrCompanyName(r.get(PersonCsvFormat.LAST_NAME));
