@@ -29,20 +29,20 @@ public class PersonsDTOCsvWriter implements MessageBodyWriter<PersonsDTO> {
     }
 
     @Override
-    public long getSize(PersonsDTO user, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(PersonsDTO personsDTO, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         // deprecated by JAX-RS 2.0 and ignored by Jersey runtime
         return 0;
     }
 
     @Override
-    public void writeTo(PersonsDTO user, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+    public void writeTo(PersonsDTO personsDTO, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream out) throws IOException, WebApplicationException {
 
         Writer writer = new PrintWriter(out);
 
         CSVPrinter csvPrinter = new CSVPrinter(writer, PersonCsvFormat.FORMAT);
 
-        user.getPersons().forEach(p -> {
+        personsDTO.getPersons().forEach(p -> {
             try {
 
                 ArrayList<String> record = new ArrayList<>();

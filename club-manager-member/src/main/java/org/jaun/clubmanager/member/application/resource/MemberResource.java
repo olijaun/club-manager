@@ -57,7 +57,7 @@ public class MemberResource {
     private PersonService personService;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("/")
     public Response getMembers(@QueryParam("searchString") String searchString,
             @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
@@ -73,7 +73,13 @@ public class MemberResource {
 
         boolean ascending = sortAscending == null || "true".equals(sortAscending);
 
-        return Response.ok(projection.searchMembers(searchString, subscriptionPeriodIdAsString, sortyBy, ascending)).build();
+        Collection<MemberDTO> memberDTOS = projection.searchMembers(searchString, subscriptionPeriodIdAsString, sortyBy, ascending);
+
+        MembersDTO membersDTO = new MembersDTO();
+        membersDTO.setSubscriptionPeriodIdFilter(subscriptionPeriodIdAsString);
+        membersDTO.getMembers().addAll(memberDTOS);
+
+        return Response.ok(membersDTO).build();
     }
 
     @GET

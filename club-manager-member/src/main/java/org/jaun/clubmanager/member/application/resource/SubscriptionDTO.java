@@ -4,6 +4,7 @@ public class SubscriptionDTO extends CreateSubscriptionDTO {
 
     private String id;
     private String memberId;
+    private String subscriptionDisplayInfo;
 
     public String getId() {
         return id;
@@ -19,5 +20,13 @@ public class SubscriptionDTO extends CreateSubscriptionDTO {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
+    }
+
+    public void setSubscriptionDisplayInfo(String subscriptionDisplayInfo) {
+        this.subscriptionDisplayInfo = subscriptionDisplayInfo;
+    }
+
+    public String getSubscriptionDisplayInfo() {
+        return subscriptionDisplayInfo;
     }
 }

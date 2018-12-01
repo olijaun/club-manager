@@ -4,6 +4,7 @@ import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.jaun.clubmanager.member.application.resource.MemberResource;
+import org.jaun.clubmanager.member.application.resource.MembersDTOCsvWriter;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
 import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodResource;
 import org.jaun.clubmanager.person.application.resource.PersonIdRequestResource;
@@ -22,6 +23,7 @@ public class JerseyConfig extends ResourceConfig {
 
         // custom writer
         register(PersonsDTOCsvWriter.class);
+        register(MembersDTOCsvWriter.class);
 
         // resources
         register(PersonResource.class);

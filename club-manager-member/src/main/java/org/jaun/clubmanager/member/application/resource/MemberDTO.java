@@ -6,6 +6,7 @@ public class MemberDTO extends CreateMemberDTO {
     private String firstName;
     private String lastNameOrCompanyName;
     private String address;
+    private String subscriptionInfo;
 
     public String getId() {
         return id;
@@ -38,4 +39,6 @@ public class MemberDTO extends CreateMemberDTO {
     public void setAddress(String address) {
         this.address = address;
     }
+
+
 }

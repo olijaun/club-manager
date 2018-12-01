@@ -254,6 +254,21 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
     public Collection<SubscriptionDTO> getSubscriptions(MemberId memberId) {
 
         MemberDTO memberDTO = memberMap.get(memberId);
+
+        for (SubscriptionDTO subscriptionDTO : memberDTO.getSubscriptions()) {
+
+            Optional<SubscriptionTypeDTO> subscriptionType =
+                    getSubscriptionType(new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId()),
+                            new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId()));
+
+            SubscriptionPeriodDTO subscriptionPeriodDTO =
+                    subscriptionPeriodMap.get(new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId()));
+            if(subscriptionType.isPresent() && subscriptionPeriodDTO != null) {
+                String info = subscriptionPeriodDTO.getName() + " / " + subscriptionType.get().getName();
+                subscriptionDTO.setSubscriptionDisplayInfo(info);
+            }
+        }
+
         return memberDTO.getSubscriptions();
     }
 
