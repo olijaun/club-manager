@@ -21,3 +21,11 @@ spring:
     throw-exception-if-no-handler-found: true
   resources:
     add-mappings: false
+
+machine2machine:
+  url: ${M2M_CLIENT_ID:https://jaun.eu.auth0.com/oauth/token}
+  clientId: ${M2M_CLIENT_ID:2Ggwn7qS7QqLaeX6M4K91bKXntfwYxXk}
+  clientSecret: ${M2M_CLIENT_SECRET:yKTON-g1HxGIHvjymnONrwkoxWHZuLgE298kul6IH7dGnyly1ChLXyI0_0TxFTj_}
+  audience: ${M2M_AUDIENCE:https://member-manager.jaun.org}
+  grantType: ${M2M_GRANT_TYPE:client_credentials}
+  scope: ${M2M_SCOPE:m2m}

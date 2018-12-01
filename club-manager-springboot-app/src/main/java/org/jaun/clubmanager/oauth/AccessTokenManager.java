@@ -20,8 +20,8 @@ public class AccessTokenManager {
     private String accessToken;
     private long expiration = 0;
 
-    public AccessTokenManager(String clientId, String clientSecret, String audience, String grantType, String scope) {
-        target = ClientBuilder.newClient().target("https://jaun.eu.auth0.com/oauth/token");
+    public AccessTokenManager(String url, String clientId, String clientSecret, String audience, String grantType, String scope) {
+        target = ClientBuilder.newClient().target(url);
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;

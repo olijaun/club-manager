@@ -11,6 +11,7 @@ import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -35,6 +36,19 @@ import akka.stream.ActorMaterializer;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 //@EnableAutoConfiguration
 public class MemberApplication {
+
+    @Value("${machine2machine.url}")
+    private String url;
+    @Value("${machine2machine.clientId}")
+    private String clientId;
+    @Value("${machine2machine.clientSecret}")
+    private String clientSecret;
+    @Value("${machine2machine.audience}")
+    private String audience;
+    @Value("${machine2machine.grantType}")
+    private String grantType;
+    @Value("${machine2machine.scope}")
+    private String scope;
 
     public static void main(String[] args) {
         SpringApplication.run(MemberApplication.class, args);
@@ -115,7 +129,7 @@ public class MemberApplication {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public AccessTokenManager accessTokenManager() {
-        return new AccessTokenManager(clientId, clientSecret, audience, grantType, scope);
+        return new AccessTokenManager(url, clientId, clientSecret, audience, grantType, scope);
     }
 
 //    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
@@ -147,15 +161,6 @@ public class MemberApplication {
     public Client jaxRsClient() {
         return ClientBuilder.newClient();
     }
-
-    private static final String REQUEST =
-            "{\"client_id\":\"2Ggwn7qS7QqLaeX6M4K91bKXntfwYxXk\",\"client_secret\":\"yKTON-g1HxGIHvjymnONrwkoxWHZuLgE298kul6IH7dGnyly1ChLXyI0_0TxFTj_\",\"audience\":\"https://member-manager.jaun.org\",\"grant_type\":\"client_credentials\",\"scope\": \"m2m\"}";
-
-    String clientId = "2Ggwn7qS7QqLaeX6M4K91bKXntfwYxXk";
-    String clientSecret = "yKTON-g1HxGIHvjymnONrwkoxWHZuLgE298kul6IH7dGnyly1ChLXyI0_0TxFTj_";
-    String audience = "https://member-manager.jaun.org";
-    String grantType = "client_credentials";
-    String scope = "m2m";
 
     @Bean
     public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
