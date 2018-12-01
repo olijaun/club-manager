@@ -11,22 +11,15 @@ import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
@@ -119,7 +112,12 @@ public class MemberApplication {
 //        return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
 //    }
 
-//    @Bean
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public AccessTokenManager accessTokenManager() {
+        return new AccessTokenManager(clientId, clientSecret, audience, grantType, scope);
+    }
+
 //    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
 //        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
 //        return new JaxRsRestEventStoreClient(client, "http://localhost:8080");
@@ -150,12 +148,21 @@ public class MemberApplication {
         return ClientBuilder.newClient();
     }
 
+    private static final String REQUEST =
+            "{\"client_id\":\"2Ggwn7qS7QqLaeX6M4K91bKXntfwYxXk\",\"client_secret\":\"yKTON-g1HxGIHvjymnONrwkoxWHZuLgE298kul6IH7dGnyly1ChLXyI0_0TxFTj_\",\"audience\":\"https://member-manager.jaun.org\",\"grant_type\":\"client_credentials\",\"scope\": \"m2m\"}";
+
+    String clientId = "2Ggwn7qS7QqLaeX6M4K91bKXntfwYxXk";
+    String clientSecret = "yKTON-g1HxGIHvjymnONrwkoxWHZuLgE298kul6IH7dGnyly1ChLXyI0_0TxFTj_";
+    String audience = "https://member-manager.jaun.org";
+    String grantType = "client_credentials";
+    String scope = "m2m";
+
     @Bean
     public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
 
         String url = System.getenv("PERSONS_URL");
 
-        url = url == null ? "http://localhost:8080/api/persons": url;
+        url = url == null ? "http://localhost:8080/api/persons" : url;
 
         Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
         return client.target(url);
