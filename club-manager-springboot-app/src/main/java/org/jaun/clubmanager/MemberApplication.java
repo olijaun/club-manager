@@ -17,8 +17,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -50,8 +53,23 @@ public class MemberApplication {
     @Value("${machine2machine.scope}")
     private String scope;
 
+    @Value("${webServices.personService.url}")
+    private String personServiceUrl;
+
+    @Value("${akkaEventStore.actorSystemName}")
+    private String actorSystemName;
+
+
     public static void main(String[] args) {
-        SpringApplication.run(MemberApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(MemberApplication.class, args);
+
+        context.getBean(HazelcastMemberProjection.class).start();
+        context.getBean(HazelcastPersonProjection.class).start();
+    }
+
+    @EventListener
+    public void handleContextRefreshEvent(ContextStartedEvent ctxStartEvt) {
+        System.out.println("Context Start Event received.");
     }
 
     // https://www.leveluplunch.com/java/tutorials/011-add-servlet-mapping-to-dispatcherservlet-spring-boot/
@@ -84,13 +102,11 @@ public class MemberApplication {
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
         CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-        membershipProjection.start();
 
         String database_url = System.getenv("DATABASE_URL");
         System.out.println("------------------------------------" + database_url);
 
         CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
-        personProjection.start();
 
         //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
 
@@ -144,7 +160,7 @@ public class MemberApplication {
 
     @Bean
     public ActorSystem actorSystem() {
-        return ActorSystem.create("eventStore");
+        return ActorSystem.create(actorSystemName);
     }
 
     @Bean
@@ -164,12 +180,7 @@ public class MemberApplication {
 
     @Bean
     public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
-
-        String url = System.getenv("PERSONS_URL");
-
-        url = url == null ? "http://localhost:8080/api/persons" : url;
-
         Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-        return client.target(url);
+        return client.target(personServiceUrl);
     }
 }

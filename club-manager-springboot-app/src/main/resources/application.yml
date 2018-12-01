@@ -29,3 +29,10 @@ machine2machine:
   audience: ${M2M_AUDIENCE:https://member-manager.jaun.org}
   grantType: ${M2M_GRANT_TYPE:client_credentials}
   scope: ${M2M_SCOPE:m2m}
+
+webServices:
+  personService:
+    url: ${WS_PERSON_SERVICE_URL:http://localhost:8080/api/persons}
+
+akkaEventStore:
+  actorSystemName: eventStore
