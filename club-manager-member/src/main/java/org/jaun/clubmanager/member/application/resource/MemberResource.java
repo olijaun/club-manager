@@ -1,6 +1,8 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +21,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.member.Member;
@@ -144,42 +148,51 @@ public class MemberResource {
     @Path("")
     public Response importMembers(InputStream inputStream) {
 
-        MemberId memberId = new MemberId(memberIdAsString);
-
-        Member member = getOrCreateMember(memberId);
-
-        List<SubscriptionRequest> subscriptionRequests = createMemberDTO.getSubscriptions().stream().map(subscriptionDTO -> {
-
-            SubscriptionId subscriptionId = new SubscriptionId(subscriptionDTO.getId());
-            SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId());
-            SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId());
-
-            SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
-            SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
-                    Collections.emptyList());// TODO: support additional subscribers
-
-            return subscriptionRequest;
-        }).collect(Collectors.toList());
-
-        Collection<Subscription> removals = member.getSubscriptions().getRemovals(subscriptionRequests);
-
-        // TODO: improve handling when subscription are modified etc.
-        if (!removals.isEmpty()) {
-            throw new BadRequestException("you must not remove existing subscriptions: " + removals.stream()
-                    .map(Subscription::getId)
-                    .map(SubscriptionId::getValue)
-                    .collect(Collectors.toList()));
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        CSVParser csvParser;
+        try {
+            csvParser = new CSVParser(reader, MemberCsvFormat.FORMAT.withNullString(""));
+        } catch (IOException e) {
+            return Response.serverError().build();
         }
 
-        subscriptionRequests.stream().forEach(r -> member.subscribe(r));
+        List<CSVRecord> records;
 
         try {
-            memberRepository.save(member);
-        } catch (ConcurrencyException e) {
-            throw new IllegalStateException(e);
+            records = csvParser.getRecords();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        return Response.ok().build();
+        MemberCsvImportResultDTO resultDTO = new MemberCsvImportResultDTO();
+
+        // skip header because CSVParser seams to return it although i specified "withHeader"
+        for (int i = 1; i < records.size(); i++) {
+            CSVRecord r = records.get(i);
+            try {
+                MemberId memberId = new MemberId(r.get(MemberCsvFormat.ID));
+                Member member = getOrCreateMember(memberId);
+
+                SubscriptionId subscriptionId = new SubscriptionId(r.get(MemberCsvFormat.SUBSCRIPTION_ID));
+                SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(r.get(MemberCsvFormat.SUBSCRIPTION_TYPE_ID));
+                SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(r.get(MemberCsvFormat.SUBSCRIPTION_PERIOD_ID));
+
+                SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
+
+                SubscriptionRequest subscriptionRequest =
+                        period.createSubscriptionRequest(subscriptionId, subscriptionTypeId, Collections.emptyList());
+
+                member.subscribe(subscriptionRequest);
+
+                memberRepository.save(member);
+                resultDTO.getImportedIds().add(subscriptionId.getValue());
+
+            } catch (Exception e) {
+                resultDTO.getFailed().add(new MemberCsvImportResultDTO.FailedImport(r.get(MemberCsvFormat.SUBSCRIPTION_ID), e.getMessage()));
+            }
+        }
+
+        return Response.ok(resultDTO).build();
     }
 
     private Member getOrCreateMember(MemberId memberId) {

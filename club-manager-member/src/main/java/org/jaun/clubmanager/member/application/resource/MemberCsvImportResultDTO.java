@@ -1,25 +1,25 @@
-package org.jaun.clubmanager.person.application.resource;
+package org.jaun.clubmanager.member.application.resource;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CsvPersonImportResult extends DTO {
+public class MemberCsvImportResultDTO extends DTO {
 
-    private List<String> importedIds = new ArrayList<>();
-    private List<String> ignoredIds = new ArrayList<>();
+    private List<String> imported = new ArrayList<>();
+    private List<String> ignored = new ArrayList<>();
     private List<FailedImport> failed = new ArrayList<>();
 
     public static class FailedImport extends DTO {
-        private final String id;
+        private final String subscriptionId;
         private final String error;
 
-        FailedImport(String id, String error) {
-            this.id = id;
+        FailedImport(String subscriptionId, String error) {
+            this.subscriptionId = subscriptionId;
             this.error = error;
         }
 
-        public String getId() {
-            return id;
+        public String getSubscriptionId() {
+            return subscriptionId;
         }
 
         public String getError() {
@@ -28,7 +28,7 @@ public class CsvPersonImportResult extends DTO {
     }
 
     public int getTotalImported() {
-        return importedIds.size();
+        return imported.size();
     }
 
     public int getTotalFailed() {
@@ -36,11 +36,11 @@ public class CsvPersonImportResult extends DTO {
     }
 
     public int getTotalIgnored() {
-        return ignoredIds.size();
+        return ignored.size();
     }
 
     public List<String> getImportedIds() {
-        return importedIds;
+        return imported;
     }
 
     public List<FailedImport> getFailed() {
@@ -48,6 +48,6 @@ public class CsvPersonImportResult extends DTO {
     }
 
     public List<String> getIgnoredIds() {
-        return ignoredIds;
+        return ignored;
     }
 }

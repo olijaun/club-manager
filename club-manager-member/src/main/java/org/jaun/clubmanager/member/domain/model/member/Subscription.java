@@ -15,12 +15,12 @@ public class Subscription extends Entity<SubscriptionId> {
 
     private final SubscriptionId id;
     private final SubscriptionTypeId subscriptionTypeId;
-    private final SubscriptionPeriodId subscriptionPeriodId; // TODO: unused?
+    private final SubscriptionPeriodId subscriptionPeriodId;
     private final MemberId memberId;
     private final Collection<MemberId> additionalMemberIds;
 
-    public Subscription(SubscriptionId id, SubscriptionPeriodId periodId, SubscriptionTypeId subscriptionTypeId,
-            MemberId memberId, Collection<MemberId> additionalMemberIds) {
+    public Subscription(SubscriptionId id, SubscriptionPeriodId periodId, SubscriptionTypeId subscriptionTypeId, MemberId memberId,
+            Collection<MemberId> additionalMemberIds) {
 
         this.id = requireNonNull(id);
         this.subscriptionPeriodId = requireNonNull(periodId);
@@ -52,5 +52,46 @@ public class Subscription extends Entity<SubscriptionId> {
     @Override
     public SubscriptionId getId() {
         return id;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private SubscriptionId id;
+        private SubscriptionTypeId subscriptionTypeId;
+        private SubscriptionPeriodId subscriptionPeriodId;
+        private MemberId memberId;
+        private Collection<MemberId> additionalMemberIds;
+
+        public Subscription build() {
+            return new Subscription(id, subscriptionPeriodId, subscriptionTypeId, memberId, additionalMemberIds);
+        }
+
+        public Builder id(SubscriptionId id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder subscriptionTypeId(SubscriptionTypeId subscriptionTypeId) {
+            this.subscriptionTypeId = subscriptionTypeId;
+            return this;
+        }
+
+        public Builder subscriptionPeriodId(SubscriptionPeriodId subscriptionPeriodId) {
+            this.subscriptionPeriodId = subscriptionPeriodId;
+            return this;
+        }
+
+        public Builder memberId(MemberId memberId) {
+            this.memberId = memberId;
+            return this;
+        }
+
+        public Builder additionalMemberIds(Collection<MemberId> additionalMemberIds) {
+            this.additionalMemberIds = additionalMemberIds;
+            return this;
+        }
     }
 }

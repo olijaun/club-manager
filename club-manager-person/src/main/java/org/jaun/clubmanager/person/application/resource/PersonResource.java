@@ -109,7 +109,7 @@ public class PersonResource {
 
         Optional<PersonId> highestPersonId = Optional.empty();
 
-        CsvPersonImportResult result = new CsvPersonImportResult();
+        PersonCsvImportResultDTO result = new PersonCsvImportResultDTO();
         try {
 
             // skip header because CSVParser seams to return it although i specified "withHeader"
@@ -170,7 +170,7 @@ public class PersonResource {
                             highestPersonId = Optional.of(personId);
                         }
                     } catch (Exception e) {
-                        result.getFailed().add(new CsvPersonImportResult.FailedImport(personId.getValue(), e.getMessage()));
+                        result.getFailed().add(new PersonCsvImportResultDTO.FailedImport(personId.getValue(), e.getMessage()));
                         return Response.serverError().entity(result).build();
                     }
                 }
