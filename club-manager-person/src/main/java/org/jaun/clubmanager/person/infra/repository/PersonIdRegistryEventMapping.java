@@ -13,11 +13,13 @@ import org.jaun.clubmanager.person.domain.model.person.event.PersonEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonIdRegistryCreatedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonIdRegistryEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.PersonIdRequestedEvent;
+import org.jaun.clubmanager.person.domain.model.person.event.StartFromResetEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.StreetAddressChangedEvent;
 
 public enum PersonIdRegistryEventMapping implements EventMapping {
     PERSON_ID_REGISTRY_CREATED("PersonIdRegistryCreated", PersonIdRegistryCreatedEvent.class), //
-    PERSON_ID_REQUESTED("PersonIdRequested", PersonIdRequestedEvent.class);
+    PERSON_ID_REQUESTED("PersonIdRequested", PersonIdRequestedEvent.class),
+    START_FROM_RESET("StartFromReset", StartFromResetEvent.class);
 
     private final EventType eventType;
     private final Class<? extends PersonIdRegistryEvent> eventClass;

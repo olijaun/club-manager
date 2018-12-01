@@ -3,6 +3,7 @@ package org.jaun.clubmanager.person.domain.model.person.event;
 import static java.util.Objects.requireNonNull;
 
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
+import org.jaun.clubmanager.person.domain.model.person.PersonIdRequestId;
 import org.jaun.clubmanager.person.domain.model.person.PersonType;
 
 public class PersonCreatedEvent extends PersonEvent {
@@ -22,4 +23,5 @@ public class PersonCreatedEvent extends PersonEvent {
     public PersonType getPersonType() {
         return personType;
     }
+
 }

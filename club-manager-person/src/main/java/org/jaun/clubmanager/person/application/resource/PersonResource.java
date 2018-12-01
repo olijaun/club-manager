@@ -1,6 +1,10 @@
 package org.jaun.clubmanager.person.application.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -17,6 +22,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
 import org.jaun.clubmanager.person.domain.model.person.Gender;
@@ -65,16 +72,139 @@ public class PersonResource {
         return Response.ok(personsDTO).build();
     }
 
+    @POST
+    @Consumes("text/csv")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("persons")
+    public Response importPersons(InputStream inputStream) {
+
+        // reset the person id registry to the highest person id imported
+        PersonIdRegistry registry = personIdRegistryRepository.get(PersonIdRequestResource.PERSON_ID_REGISTRY_ID);
+
+        if (registry == null) {
+            registry = new PersonIdRegistry(PersonIdRequestResource.PERSON_ID_REGISTRY_ID, PersonIdRequestResource.START_ID_FROM);
+
+            try {
+                personIdRegistryRepository.save(registry);
+            } catch (ConcurrencyException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        InputStreamReader reader = new InputStreamReader(inputStream);
+        CSVParser csvParser;
+        try {
+            csvParser = new CSVParser(reader, PersonCsvFormat.FORMAT.withNullString(""));
+        } catch (IOException e) {
+            return Response.serverError().build();
+        }
+
+        List<CSVRecord> records;
+
+        try {
+            records = csvParser.getRecords();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Optional<PersonId> highestPersonId = Optional.empty();
+
+        CsvPersonImportResult result = new CsvPersonImportResult();
+        try {
+
+            // skip header because CSVParser seams to return it although i specified "withHeader"
+            for (int i = 1; i < records.size(); i++) {
+
+                CSVRecord r = records.get(i);
+
+                PersonId personId = new PersonId(r.get(PersonCsvFormat.ID));
+                Person person = personRepository.get(personId);
+
+                if (person != null) {
+
+                    result.getIgnoredIds().add(personId.getValue());
+
+                } else {
+
+//                    if (personId.asInt() >= PersonIdRequestResource.START_ID_FROM) {
+//                        // verify the person id was properly registered
+//
+//                        throw new IllegalStateException(
+//                                "person with ids > " + PersonIdRequestResource.START_ID_FROM + " cannot be registered.");
+//                    }
+
+                    NameDTO nameDTO = new NameDTO();
+                    nameDTO.setFirstName(r.get(PersonCsvFormat.FIRST_NAME));
+                    nameDTO.setLastNameOrCompanyName(r.get(PersonCsvFormat.LAST_NAME));
+
+                    BasicDataDTO basicDataDTO = new BasicDataDTO();
+                    basicDataDTO.setBirthDate(r.get(PersonCsvFormat.BIRTH_DATE));
+                    basicDataDTO.setGender(r.get(PersonCsvFormat.GENDER));
+                    basicDataDTO.setName(nameDTO);
+
+                    StreetAddressDTO streetAddressDTO = new StreetAddressDTO();
+                    streetAddressDTO.setStreet(r.get(PersonCsvFormat.STREET));
+                    streetAddressDTO.setHouseNumber(r.get(PersonCsvFormat.HOUSE_NUMBER));
+                    streetAddressDTO.setZip(r.get(PersonCsvFormat.ZIP));
+                    streetAddressDTO.setCity(r.get(PersonCsvFormat.CITY));
+                    streetAddressDTO.setState(r.get(PersonCsvFormat.STATE));
+                    streetAddressDTO.setIsoCountryCode(r.get(PersonCsvFormat.ISO_COUNTRY_CODE));
+
+                    ContactDataDTO contactDataDTO = new ContactDataDTO();
+                    contactDataDTO.setEmailAddress(r.get(PersonCsvFormat.EMAIL_ADDRESS));
+                    contactDataDTO.setPhoneNumber(r.get(PersonCsvFormat.PHONE_NUMBER));
+
+                    CreatePersonDTO createPersonDTO = new CreatePersonDTO();
+                    createPersonDTO.setType(r.get(PersonCsvFormat.TYPE));
+
+                    createPersonDTO.setBasicData(basicDataDTO);
+
+                    if (contactDataDTO.getEmailAddress() != null && contactDataDTO.getPhoneNumber() != null) {
+                        createPersonDTO.setContactData(contactDataDTO);
+                    }
+
+                    if (streetAddressDTO.getStreet() != null || streetAddressDTO.getHouseNumber() != null
+                        || streetAddressDTO.getZip() != null || streetAddressDTO.getCity() != null
+                        || streetAddressDTO.getState() != null) {
+
+                        createPersonDTO.setStreetAddress(streetAddressDTO);
+                    }
+                    try {
+                        personRepository.save(PersonConverter.toPerson(personId, createPersonDTO));
+                        result.getImportedIds().add(personId.getValue());
+
+                        if (!highestPersonId.isPresent() || personId.asInt() > highestPersonId.get().asInt()) {
+                            highestPersonId = Optional.of(personId);
+                        }
+                    } catch (Exception e) {
+                        result.getFailed().add(new CsvPersonImportResult.FailedImport(personId.getValue(), e.getMessage()));
+                        return Response.serverError().entity(result).build();
+                    }
+                }
+            }
+
+        } finally {
+            highestPersonId.ifPresent(registry::continueAfter);
+
+            try {
+                personIdRegistryRepository.save(registry);
+            } catch (ConcurrencyException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return Response.ok(result).build();
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.TEXT_PLAIN})
     @Path("persons/{id}")
     public Response createContact(@HeaderParam("person-id-request-id") String personIdRequestIdAsString,
-            @PathParam("id") String personIdAsString, @Valid CreatePersonDTO contactDTO) {
+            @PathParam("id") String personIdAsString, @Valid CreatePersonDTO personDTO) {
 
         PersonId personId = new PersonId(personIdAsString);
         Person person = personRepository.get(personId);
-        Person personNew = PersonConverter.toPerson(personId, contactDTO);
+        Person personNew = PersonConverter.toPerson(personId, personDTO);
 
         if (person == null) {
 

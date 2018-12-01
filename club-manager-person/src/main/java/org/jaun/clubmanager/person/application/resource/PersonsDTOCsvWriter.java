@@ -16,8 +16,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 
 
@@ -42,18 +40,16 @@ public class PersonsDTOCsvWriter implements MessageBodyWriter<PersonsDTO> {
 
         Writer writer = new PrintWriter(out);
 
-        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader( //
-                "id", "type", "lastName", "firstName", "birthDate", "gender", //
-                "emailAddress", "phoneNumber", //
-                "street", "houseNumber", "zip", "city", "isoCountryCode", "state"));
+        CSVPrinter csvPrinter = new CSVPrinter(writer, PersonCsvFormat.FORMAT);
 
         user.getPersons().forEach(p -> {
             try {
 
                 ArrayList<String> record = new ArrayList<>();
 
-                record.addAll(Arrays.asList(p.getId(), p.getType(), p.getBasicData().getName().getLastNameOrCompanyName(),
-                        p.getBasicData().getName().getFirstName(), p.getBasicData().getBirthDate(), p.getBasicData().getGender()));
+                record.addAll(Arrays.asList(p.getId(), p.getType(),
+                        p.getBasicData().getName().getLastNameOrCompanyName(), p.getBasicData().getName().getFirstName(),
+                        p.getBasicData().getBirthDate(), p.getBasicData().getGender()));
                 if (p.getContactData() == null) {
                     record.addAll(Arrays.asList(null, null));
                 } else {

@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.person.domain.model.person.Country;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
+import org.jaun.clubmanager.person.domain.model.person.Gender;
 import org.jaun.clubmanager.person.domain.model.person.Name;
 import org.jaun.clubmanager.person.domain.model.person.Person;
 import org.jaun.clubmanager.person.domain.model.person.PersonId;
 import org.jaun.clubmanager.person.domain.model.person.PersonType;
 import org.jaun.clubmanager.person.domain.model.person.PhoneNumber;
-import org.jaun.clubmanager.person.domain.model.person.Gender;
 import org.jaun.clubmanager.person.domain.model.person.StreetAddress;
 
 public class PersonConverter {
@@ -82,7 +82,9 @@ public class PersonConverter {
         }
         StreetAddressDTO streetAddressDTO = new StreetAddressDTO();
         streetAddressDTO.setCity(streetAddress.getCity());
-        streetAddressDTO.setIsoCountryCode(streetAddress.getCountry().getIsoCountryCode());
+        if (streetAddress.getCountry() != null) {
+            streetAddressDTO.setIsoCountryCode(streetAddress.getCountry().getIsoCountryCode());
+        }
         streetAddressDTO.setStreet(streetAddress.getStreet());
         streetAddressDTO.setHouseNumber(streetAddress.getHouseNumber().orElse(null));
         streetAddressDTO.setZip(streetAddress.getZip());
@@ -129,7 +131,7 @@ public class PersonConverter {
     }
 
     public static String toDateString(LocalDate localDate) {
-        if(localDate == null) {
+        if (localDate == null) {
             return null;
         }
         return localDate.format(DateTimeFormatter.ISO_DATE);
@@ -137,7 +139,7 @@ public class PersonConverter {
 
     public static Name toName(CreatePersonDTO in) {
 
-        if(in.getBasicData() == null) {
+        if (in.getBasicData() == null) {
             return null;
         }
         return toName(in.getBasicData().getName());
@@ -165,28 +167,28 @@ public class PersonConverter {
     }
 
     public static Currency toCurrency(String currencyCode) {
-        if(currencyCode == null) {
+        if (currencyCode == null) {
             return null;
         }
         return Currency.getInstance(currencyCode);
     }
 
     public static LocalDate toLocalDate(String birthDateAsString) {
-        if(birthDateAsString == null) {
+        if (birthDateAsString == null) {
             return null;
         }
         return LocalDate.parse(birthDateAsString);
     }
 
     public static PhoneNumber toPhoneNumber(String phoneNumberAsString) {
-        if(phoneNumberAsString == null) {
+        if (phoneNumberAsString == null) {
             return null;
         }
         return new PhoneNumber(phoneNumberAsString);
     }
 
     public static EmailAddress toEmailAddress(String emailAddressAsString) {
-        if(emailAddressAsString == null) {
+        if (emailAddressAsString == null) {
             return null;
         }
         return new EmailAddress(emailAddressAsString);
