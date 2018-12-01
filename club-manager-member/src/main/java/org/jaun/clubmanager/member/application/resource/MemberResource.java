@@ -1,5 +1,6 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -97,6 +99,50 @@ public class MemberResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{member-id}")
     public Response createOrUpdateMember(@PathParam("member-id") String memberIdAsString, CreateMemberDTO createMemberDTO) {
+
+        MemberId memberId = new MemberId(memberIdAsString);
+
+        Member member = getOrCreateMember(memberId);
+
+        List<SubscriptionRequest> subscriptionRequests = createMemberDTO.getSubscriptions().stream().map(subscriptionDTO -> {
+
+            SubscriptionId subscriptionId = new SubscriptionId(subscriptionDTO.getId());
+            SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId());
+            SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId());
+
+            SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
+            SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
+                    Collections.emptyList());// TODO: support additional subscribers
+
+            return subscriptionRequest;
+        }).collect(Collectors.toList());
+
+        Collection<Subscription> removals = member.getSubscriptions().getRemovals(subscriptionRequests);
+
+        // TODO: improve handling when subscription are modified etc.
+        if (!removals.isEmpty()) {
+            throw new BadRequestException("you must not remove existing subscriptions: " + removals.stream()
+                    .map(Subscription::getId)
+                    .map(SubscriptionId::getValue)
+                    .collect(Collectors.toList()));
+        }
+
+        subscriptionRequests.stream().forEach(r -> member.subscribe(r));
+
+        try {
+            memberRepository.save(member);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes("text/csv")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("")
+    public Response importMembers(InputStream inputStream) {
 
         MemberId memberId = new MemberId(memberIdAsString);
 

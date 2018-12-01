@@ -56,7 +56,7 @@ public class PersonResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("persons")
-    public Response searchContacts(@QueryParam("firstName") String firstName,
+    public Response searchPersons(@QueryParam("firstName") String firstName,
             @QueryParam("lastNameOrCompanyName") String lastNameOrCompanyName, @QueryParam("nameLine") String nameLine) {
 
         Collection<PersonDTO> personDTOS;
@@ -192,7 +192,7 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({MediaType.TEXT_PLAIN})
     @Path("persons/{id}")
-    public Response createContact(@HeaderParam("person-id-request-id") String personIdRequestIdAsString,
+    public Response createPerson(@HeaderParam("person-id-request-id") String personIdRequestIdAsString,
             @PathParam("id") String personIdAsString, @Valid CreatePersonDTO personDTO) {
 
         PersonId personId = new PersonId(personIdAsString);
@@ -262,10 +262,10 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("persons/{id}/street-address")
-    public Response changeStreetAddress(@PathParam("id") String contactId, StreetAddressDTO streetAddressDTO) {
+    public Response changeStreetAddress(@PathParam("id") String personId, StreetAddressDTO streetAddressDTO) {
 
         StreetAddress streetAddress = PersonConverter.toStreetAddress(streetAddressDTO);
-        Person person = getForUpdate(new PersonId(contactId));
+        Person person = getForUpdate(new PersonId(personId));
         person.changeStreetAddress(streetAddress);
         save(person);
         return Response.ok().build();
@@ -275,11 +275,11 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("persons/{id}/basic-data")
-    public Response changeName(@PathParam("id") String contactId, BasicDataDTO basicDataDTO) {
+    public Response changeName(@PathParam("id") String personId, BasicDataDTO basicDataDTO) {
 
         Name name = PersonConverter.toName(basicDataDTO.getName());
         Gender gender = PersonConverter.toGender(basicDataDTO.getGender());
-        Person person = getForUpdate(new PersonId(contactId));
+        Person person = getForUpdate(new PersonId(personId));
         person.changeBasicData(name, PersonConverter.toLocalDate(basicDataDTO.getBirthDate()), gender);
         save(person);
         return Response.ok().build();
@@ -289,12 +289,12 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("persons/{id}/contact-data")
-    public Response changePhoneNumber(@PathParam("id") String contactId, ContactDataDTO contactDataDTO) {
+    public Response changePhoneNumber(@PathParam("id") String personId, ContactDataDTO contactDataDTO) {
 
         PhoneNumber phoneNumber = PersonConverter.toPhoneNumber(contactDataDTO.getPhoneNumber());
         EmailAddress emailAddress = PersonConverter.toEmailAddress(contactDataDTO.getEmailAddress());
 
-        Person person = getForUpdate(new PersonId(contactId));
+        Person person = getForUpdate(new PersonId(personId));
         person.changeContactData(emailAddress, phoneNumber);
         save(person);
         return Response.ok().build();
@@ -321,9 +321,9 @@ public class PersonResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("persons/{id}")
-    public Response getContact(@PathParam("id") String contactId) {
+    public Response getPerson(@PathParam("id") String personId) {
 
-        PersonDTO personDTO = projection.get(new PersonId(contactId));
+        PersonDTO personDTO = projection.get(new PersonId(personId));
         if (personDTO == null) {
             throw new NotFoundException();
         }
