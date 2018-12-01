@@ -126,43 +126,44 @@ public class PersonResource {
 
                 } else {
 
-                    NameDTO nameDTO = new NameDTO();
-                    nameDTO.setFirstName(r.get(PersonCsvFormat.FIRST_NAME));
-                    nameDTO.setLastNameOrCompanyName(r.get(PersonCsvFormat.LAST_NAME));
-
-                    BasicDataDTO basicDataDTO = new BasicDataDTO();
-                    basicDataDTO.setBirthDate(r.get(PersonCsvFormat.BIRTH_DATE));
-                    basicDataDTO.setGender(r.get(PersonCsvFormat.GENDER));
-                    basicDataDTO.setName(nameDTO);
-
-                    StreetAddressDTO streetAddressDTO = new StreetAddressDTO();
-                    streetAddressDTO.setStreet(r.get(PersonCsvFormat.STREET));
-                    streetAddressDTO.setHouseNumber(r.get(PersonCsvFormat.HOUSE_NUMBER));
-                    streetAddressDTO.setZip(r.get(PersonCsvFormat.ZIP));
-                    streetAddressDTO.setCity(r.get(PersonCsvFormat.CITY));
-                    streetAddressDTO.setState(r.get(PersonCsvFormat.STATE));
-                    streetAddressDTO.setIsoCountryCode(r.get(PersonCsvFormat.ISO_COUNTRY_CODE));
-
-                    ContactDataDTO contactDataDTO = new ContactDataDTO();
-                    contactDataDTO.setEmailAddress(r.get(PersonCsvFormat.EMAIL_ADDRESS));
-                    contactDataDTO.setPhoneNumber(r.get(PersonCsvFormat.PHONE_NUMBER));
-
-                    CreatePersonDTO createPersonDTO = new CreatePersonDTO();
-                    createPersonDTO.setType(r.get(PersonCsvFormat.TYPE));
-
-                    createPersonDTO.setBasicData(basicDataDTO);
-
-                    if (contactDataDTO.getEmailAddress() != null && contactDataDTO.getPhoneNumber() != null) {
-                        createPersonDTO.setContactData(contactDataDTO);
-                    }
-
-                    if (streetAddressDTO.getStreet() != null || streetAddressDTO.getHouseNumber() != null
-                        || streetAddressDTO.getZip() != null || streetAddressDTO.getCity() != null
-                        || streetAddressDTO.getState() != null) {
-
-                        createPersonDTO.setStreetAddress(streetAddressDTO);
-                    }
                     try {
+                        NameDTO nameDTO = new NameDTO();
+                        nameDTO.setFirstName(r.get(PersonCsvFormat.FIRST_NAME));
+                        nameDTO.setLastNameOrCompanyName(r.get(PersonCsvFormat.LAST_NAME));
+
+                        BasicDataDTO basicDataDTO = new BasicDataDTO();
+                        basicDataDTO.setBirthDate(r.get(PersonCsvFormat.BIRTH_DATE));
+                        basicDataDTO.setGender(r.get(PersonCsvFormat.GENDER));
+                        basicDataDTO.setName(nameDTO);
+
+                        StreetAddressDTO streetAddressDTO = new StreetAddressDTO();
+                        streetAddressDTO.setStreet(r.get(PersonCsvFormat.STREET));
+                        streetAddressDTO.setHouseNumber(r.get(PersonCsvFormat.HOUSE_NUMBER));
+                        streetAddressDTO.setZip(r.get(PersonCsvFormat.ZIP));
+                        streetAddressDTO.setCity(r.get(PersonCsvFormat.CITY));
+                        streetAddressDTO.setState(r.get(PersonCsvFormat.STATE));
+                        streetAddressDTO.setIsoCountryCode(r.get(PersonCsvFormat.ISO_COUNTRY_CODE));
+
+                        ContactDataDTO contactDataDTO = new ContactDataDTO();
+                        contactDataDTO.setEmailAddress(r.get(PersonCsvFormat.EMAIL_ADDRESS));
+                        contactDataDTO.setPhoneNumber(r.get(PersonCsvFormat.PHONE_NUMBER));
+
+                        CreatePersonDTO createPersonDTO = new CreatePersonDTO();
+                        createPersonDTO.setType(r.get(PersonCsvFormat.TYPE));
+
+                        createPersonDTO.setBasicData(basicDataDTO);
+
+                        if (contactDataDTO.getEmailAddress() != null && contactDataDTO.getPhoneNumber() != null) {
+                            createPersonDTO.setContactData(contactDataDTO);
+                        }
+
+                        if (streetAddressDTO.getStreet() != null || streetAddressDTO.getHouseNumber() != null
+                            || streetAddressDTO.getZip() != null || streetAddressDTO.getCity() != null
+                            || streetAddressDTO.getState() != null) {
+
+                            createPersonDTO.setStreetAddress(streetAddressDTO);
+                        }
+
                         personRepository.save(PersonConverter.toPerson(personId, createPersonDTO));
                         result.getImportedIds().add(personId.getValue());
 
@@ -170,8 +171,9 @@ public class PersonResource {
                             highestPersonId = Optional.of(personId);
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                         result.getFailed().add(new PersonCsvImportResultDTO.FailedImport(personId.getValue(), e.getMessage()));
-                        return Response.serverError().entity(result).build();
+                        //return Response.serverError().entity(result).build();
                     }
                 }
             }

@@ -110,7 +110,6 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
     }
 
     public void onEvent(CatchUpSubscription subscription, StoredEventData event) {
-        System.out.println("event: " + event);
         try {
             if (map.containsKey(event.getEventType())) {
                 map.get(event.getEventType()).accept(event.getStreamRevision().getValue(), event);
