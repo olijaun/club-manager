@@ -1,9 +1,6 @@
 package org.jaun.clubmanager.eventstore.akka;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +10,7 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 
+import akka.serialization.SerializerWithStringManifest;
 import org.jaun.clubmanager.domain.model.commons.EventId;
 import org.jaun.clubmanager.domain.model.commons.Id;
 import org.jaun.clubmanager.eventstore.Category;
@@ -21,7 +19,7 @@ import org.jaun.clubmanager.eventstore.StreamId;
 
 import akka.serialization.JSerializer;
 
-public class JsonSerializer extends JSerializer {
+public class JsonSerializer extends SerializerWithStringManifest {
 
     // If you need logging here, introduce a constructor that takes an ExtendedActorSystem.
     // public MyOwnSerializer(ExtendedActorSystem actorSystem)
@@ -29,9 +27,17 @@ public class JsonSerializer extends JSerializer {
     // private final LoggingAdapter logger = Logging.getLogger(actorSystem, this);
 
     // This is whether "fromBinary" requires a "clazz" or not
-    @Override
-    public boolean includeManifest() {
-        return false;
+    //@Override
+    //public boolean includeManifest() {
+    //    return false;
+    //}
+
+    public String manifest(Object obj) {
+        if (!(obj instanceof EventDataWithStreamId)) {
+            throw new IllegalArgumentException("unsupported obj for serialization: " + obj);
+        }
+        EventDataWithStreamId ev = (EventDataWithStreamId) obj;
+        return ev.getEventType().getValue();
     }
 
     // Pick a unique identifier for your Serializer,
@@ -74,7 +80,8 @@ public class JsonSerializer extends JSerializer {
     // "fromBinary" deserializes the given array,
     // using the type hint (if any, see "includeManifest" above)
     @Override
-    public Object fromBinaryJava(byte[] bytes, Class<?> clazz) {
+    public Object fromBinary(byte[] bytes, String var2) throws NotSerializableException {
+    //public Object fromBinaryJava(byte[] bytes, String var2) {
         JsonReader jsonReader = Json.createReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
 
         JsonObject jsonObject = jsonReader.readObject();
@@ -89,7 +96,7 @@ public class JsonSerializer extends JSerializer {
                 data, metadataJson);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         Id id = new Id("abc") {
             @Override
@@ -108,7 +115,7 @@ public class JsonSerializer extends JSerializer {
 
         byte[] bytes = gsonSerializer.toBinary(e);
 
-        System.out.println("serialized event: " + new String(gsonSerializer.toBinary(gsonSerializer.fromBinaryJava(bytes, null)),
+        System.out.println("serialized event: " + new String(gsonSerializer.toBinary(gsonSerializer.fromBinary(bytes, "")),
                 StandardCharsets.UTF_8));
     }
 }
