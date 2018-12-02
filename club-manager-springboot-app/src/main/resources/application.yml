@@ -32,7 +32,7 @@ machine2machine:
 
 webServices:
   personService:
-    url: ${WS_PERSON_SERVICE_URL:http://localhost:8080/api/persons}
+    url: ${PERSONS_URL:http://localhost:8080/api/persons}
 
 akkaEventStore:
   actorSystemName: eventStore
