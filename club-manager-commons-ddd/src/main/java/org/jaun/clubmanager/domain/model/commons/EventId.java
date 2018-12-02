@@ -17,4 +17,8 @@ public class EventId implements Serializable {
     public static EventId generate() {
         return new EventId(UUID.randomUUID());
     }
+
+    public static final EventId parse(String uuidAsString) {
+        return new EventId(UUID.fromString(uuidAsString));
+    }
 }
