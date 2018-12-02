@@ -21,7 +21,10 @@ public class AccessTokenManager {
     private long expiration = 0;
 
     public AccessTokenManager(String url, String clientId, String clientSecret, String audience, String grantType, String scope) {
+
         target = ClientBuilder.newClient().target(url);
+
+        System.out.printf("myurl: " + url);
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -44,6 +47,7 @@ public class AccessTokenManager {
                 .add("scope", scope)
                 .build();
 
+        System.out.println();
         InputStream jsonString = target.request().post(Entity.json(requestObject.toString()), InputStream.class);
         System.out.println("request Object: " + requestObject.toString());
 
