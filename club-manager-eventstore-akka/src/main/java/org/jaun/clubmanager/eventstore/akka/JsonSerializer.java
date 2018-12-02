@@ -82,11 +82,11 @@ public class JsonSerializer extends JSerializer {
         String eventId = jsonObject.getString("eventId");
         String streamId = jsonObject.getString("streamId");
         String eventType = jsonObject.getString("eventType");
-        Optional<JsonObject> metadataJson = Optional.ofNullable(jsonObject.getJsonObject("metadata"));
-        JsonObject data = jsonObject.getJsonObject("data");
+        String metadataJson = Optional.ofNullable(jsonObject.getJsonObject("metadata")).map(JsonObject::toString).orElse(null);
+        String data = jsonObject.getJsonObject("data").toString();
 
         return new EventDataWithStreamId(StreamId.parse(streamId), EventId.parse(eventId), new EventType(eventType),
-                data.toString(), metadataJson.map(JsonObject::toString).orElseGet(null));
+                data, metadataJson);
     }
 
     public static void main(String[] args) {

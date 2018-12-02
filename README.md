@@ -16,3 +16,15 @@ After that you have to run the $by_category projection. This can be done using t
 
 extract public key from certificate pem:
 openssl x509 -pubkey -noout -in cert.pem  > pubkey.pem
+
+postgres:
+
+https://help.ubuntu.com/community/PostgreSQL
+
+sudo -u postgres psql postgres
+
+\password postgres
+<enter password>
+Ctrl-d
+
+sudo -u postgres createdb eventdb
