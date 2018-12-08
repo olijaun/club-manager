@@ -36,7 +36,7 @@ import akka.stream.ActorMaterializer;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 //@EnableAutoConfiguration
 public class MemberApplication {
 

@@ -69,7 +69,8 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
                 .antMatchers("/*", "/assets/i18n/*")
                 .permitAll()
                 .antMatchers("/api/**")
-                .authenticated();
+                .access("hasRole('USER')");
+                //.authenticated();
     }
 
     @Bean
