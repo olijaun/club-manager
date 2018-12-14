@@ -1,33 +1,27 @@
 package org.jaun.clubmanager.member.infra.importer;
 
-import java.io.File;
-import java.nio.charset.Charset;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
-import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionTypeDTO;
+import org.jaun.clubmanager.member.application.resource.MemberCsvFormat;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Csv2CsvConverter {
 
+    private static String formatId(String id) {
+        int asInt = Integer.parseInt(id);
+
+        return String.format("P%08d", asInt);
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -35,74 +29,103 @@ public class Csv2CsvConverter {
         CSVParser parser =
                 CSVParser.parse(file, Charset.forName("UTF-8"), CSVFormat.newFormat(',').withQuote('"').withFirstRecordAsHeader());
 
+        FileOutputStream fos = new FileOutputStream("/tmp/member.csv");
+        OutputStreamWriter writer = new OutputStreamWriter(fos);
+        CSVPrinter printer = new CSVPrinter(writer, MemberCsvFormat.FORMAT.withTrim(true));
+
         List<CSVRecord> inputRecords = parser.getRecords();
 
-        List<SubscriptionDTO> subscriptions = new ArrayList<>(inputRecords.size());
+        List<String> usedIds = new ArrayList<>();
 
-        for (CSVRecord record : inputRecords) {
+        for (CSVRecord inputRecord : inputRecords) {
 
-            SubscriptionDTO subscription1 = new SubscriptionDTO();
-            subscription1.setMemberId(record.get("ID"));
-            subscription1.setSubscriptionPeriodId("2018");
+            ArrayList member1Record = new ArrayList();
+            String person1Id = formatId(inputRecord.get("ID"));
 
-            String[] ausweisNumbers = record.get("ausweisnr").split(" ");
-            String ausweisNr1 = ausweisNumbers[0];
+            if (usedIds.contains(person1Id)) {
+                throw new IllegalStateException("id already used: " + person1Id);
+            }
+            usedIds.add(person1Id);
 
-            subscription1.setId(ausweisNr1);
+            String bezbisString = inputRecord.get("bezbis");
 
-            String ausweisNr2 = ausweisNumbers.length > 1 ? ausweisNumbers[1] : null;
+            int ausweisNr;
+            try {
+                ausweisNr = Integer.parseInt(inputRecord.get("ausweisnr").split(" ")[0]);
+            } catch (NumberFormatException e) {
+                System.out.printf("error: " + inputRecord.toMap() + "; "); // + e.getMessage());
+                continue;
+            }
 
-            if (ausweisNr1.length() < 3) {
-                // ehrenmitglied
-                subscription1.setSubscriptionTypeId("0");
-            } else if (ausweisNr1.startsWith("2")) {
-                // gönner
-                subscription1.setSubscriptionTypeId("2");
+            if (inputRecord.get("vorname").equals("Gunnar")) {
+                System.out.println("-----------------------> h");
+            }
+
+            if (StringUtils.isBlank(bezbisString)
+                    || (!bezbisString.equals("31.08.2018") && (ausweisNr < 9 || ausweisNr > 20))) {
+                continue;
+            }
+
+            member1Record.add(person1Id);
+
+            String lastName = inputRecord.get("name");
+            if (StringUtils.isBlank(lastName)) {
+                lastName = "?";
+            }
+
+            member1Record.add(lastName);
+            member1Record.add(inputRecord.get("vorname"));
+            member1Record.add(null); // address
+            member1Record.add(null); // subscriptionSummary
+
+            int memberType;
+            if (ausweisNr > 9 && ausweisNr < 100) {
+                memberType = 0; // ehren
+            } else if (ausweisNr > 199 && ausweisNr < 300) {
+                memberType = 2; // gönner
             } else {
-                // normal mitglied
-                subscription1.setSubscriptionTypeId("1");
+                memberType = 1; // normal
             }
+            // TODO: passiv?
 
-            SubscriptionDTO subscription2 = null;
-            if (StringUtils.isNotEmpty(record.get("name2")) || StringUtils.isNotEmpty(record.get("vorname2"))) {
+            member1Record.add(UUID.randomUUID()); // subscriptionId
+            member1Record.add("1"); // subscriptionPeriodId
+            member1Record.add(memberType); // subscription type
 
-                subscription2 = new SubscriptionDTO();
-                subscription2.setMemberId(record.get("ID") + "2");
-                subscription2.setSubscriptionPeriodId(subscription1.getSubscriptionPeriodId());
-                subscription2.setSubscriptionTypeId(subscription1.getSubscriptionTypeId());
+            printer.printRecord(member1Record);
 
-                if (StringUtils.isBlank(ausweisNr2)) {
-                    subscription2.setId(ausweisNr1 + ".2");
-                } else {
-                    subscription2.setId(ausweisNr1 + "." + ausweisNr2);
-                }
-            }
+            if (memberType != 2)
+                // do not add second person for goenner because goenner is a "double membership"
 
-            if (subscription1.getId().equals("10")) {
-                System.out.println("10 --> " + record.get("name"));
-            }
-            if (subscription2 != null && subscription2.getId().equals("10")) {
-                System.out.println("10 --> " + record.get("name2"));
-            }
+                if (StringUtils.isNotEmpty(inputRecord.get("name2")) || StringUtils.isNotEmpty(inputRecord.get("vorname2"))) {
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
-            String bezbisString = record.get("bezbis");
-            if (!StringUtils.isEmpty(bezbisString)) {
-                LocalDate bezbisDate = LocalDate.parse(bezbisString, formatter);
-                if (bezbisDate.getYear() >= 2018) {
-                    subscriptions.add(subscription1);
-                    if (subscription2 != null) {
-                        subscriptions.add(subscription2);
+                    ArrayList person2Record = new ArrayList();
+                    String person2Id = formatId("" + (Integer.parseInt(inputRecord.get("ID")) + 2000));
+                    if (usedIds.contains(person2Id)) {
+                        throw new IllegalStateException("id already exists: " + person2Id);
                     }
+
+                    usedIds.add(person2Id);
+                    person2Record.add(person2Id);
+                    String lastName2 = inputRecord.get("name2");
+                    if (StringUtils.isBlank(lastName2)) {
+                        lastName2 = "?";
+                    }
+                    person2Record.add(lastName2);
+                    person2Record.add(inputRecord.get("vorname2"));
+
+                    person2Record.add(null); // address
+                    person2Record.add(null); // subscriptionSummary
+
+                    person2Record.add(UUID.randomUUID()); // subscriptionId
+                    person2Record.add("1"); // subscriptionPeriodId
+                    person2Record.add(memberType); // subscription type
+
+                    printer.printRecord(person2Record);
                 }
-            }
         }
 
-        // make sure there are no duplicate ids
-        Map<String, SubscriptionDTO> set =
-                subscriptions.stream().collect(Collectors.toMap(SubscriptionDTO::getId, Function.identity()));
-
+        printer.flush();
+        printer.close();
     }
-
 }
