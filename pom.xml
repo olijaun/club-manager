@@ -58,11 +58,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-eventstore-rest-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-commons-projection</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -101,7 +96,7 @@
             <dependency>
                 <groupId>org.springframework.security.oauth</groupId>
                 <artifactId>spring-security-oauth2</artifactId>
-                <version>2.3.4</version>
+                <version>2.3.4.RELEASE</version>
             </dependency>
 
             <dependency>
@@ -126,12 +121,6 @@
                 <artifactId>libphonenumber</artifactId>
                 <version>8.8.5</version>
             </dependency>
-
-            <!--<dependency>-->
-            <!--<groupId>com.github.msemys</groupId>-->
-            <!--<artifactId>esjc</artifactId>-->
-            <!--<version>2.0.0</version>-->
-            <!--</dependency>-->
 
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -221,6 +210,12 @@
                 <version>5.1.0</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>2.1</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -292,18 +287,12 @@
         <module>club-manager-commons-ddd</module>
         <module>club-manager-eventstore-iface</module>
         <module>club-manager-commons-ddd-es</module>
-
-        <module>club-manager-eventstore-service</module>
         <module>club-manager-eventstore-akka</module>
-        <module>club-manager-eventstore-rest-client</module>
         <module>club-manager-commons-projection</module>
         <module>club-manager-identity</module>
         <module>club-manager-person</module>
         <module>club-manager-member</module>
         <module>club-manager-springboot-app</module>
-        <!--<module>club-manager-oauth-test-app</module>-->
-        <!--<module>club-manager-test-app</module>-->
-        <module>club-manager-test-app2</module>
     </modules>
 
 </project>

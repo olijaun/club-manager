@@ -15,7 +15,6 @@ import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StoredEventData;
 import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamRevision;
-import org.jaun.clubmanager.eventstore.client.jaxrs.PollingCatchUpSubscription;
 
 import com.google.gson.Gson;
 
@@ -75,25 +74,9 @@ public abstract class AbstractPollingProjection {
      * @param fromVersion
      *         NULL is from start... oh dear
      */
-    public void startSubscription(String streamName, StreamRevision fromVersion) {
+    public abstract void startSubscription(String streamName, StreamRevision fromVersion);
 
-        CatchUpSubscription catchupSubscription =
-                new PollingCatchUpSubscription(eventStoreClient, StreamId.parse(streamName), fromVersion, 2 * 2000,
-                        new MyCatchUpSubscriptionListener());
-        catchupSubscription.start();
-
-        subscriptionMap.put(streamName, catchupSubscription);
-    }
-
-    public void stopSubscription(String streamName) {
-
-        try {
-            subscriptionMap.get(streamName).stop();
-            subscriptionMap.remove(streamName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public abstract void stopSubscription(String streamName);
 
     public void stopSubscriptions() {
 

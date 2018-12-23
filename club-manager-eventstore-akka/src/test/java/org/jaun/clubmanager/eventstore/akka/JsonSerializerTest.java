@@ -1,14 +1,8 @@
 package org.jaun.clubmanager.eventstore.akka;
 
-import org.hamcrest.CoreMatchers;
 import org.jaun.clubmanager.domain.model.commons.EventId;
-import org.jaun.clubmanager.domain.model.commons.Id;
-import org.jaun.clubmanager.eventstore.Category;
 import org.jaun.clubmanager.eventstore.EventDataFixture;
-import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.StreamId;
-import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -18,7 +12,7 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JsonSerializerTest {
