@@ -15,17 +15,11 @@ public class TaggingEventAdapter implements WriteEventAdapter {
     @Override
     public Object toJournal(Object event) {
         if (event instanceof EventDataWithStreamId) {
-            System.out.println("tagging event: " + event);
             EventDataWithStreamId eventData = (EventDataWithStreamId) event;
-
             HashSet<String> tags = new HashSet<>();
-
             String eventType = "eventType." + eventData.getEventType().getValue();
-
             tags.add(eventType);
-
             eventData.getStreamId().getCategory().ifPresent(c -> tags.add("category." + c.getName()));
-
             return new Tagged(eventData, tags);
         }
         return event;

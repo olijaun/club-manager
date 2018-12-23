@@ -63,7 +63,6 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
 
         for (String category : categories) {
             System.out.println("eventByTag by category: " + category);
-            //Source<EventEnvelope, NotUsed> source = readJournal.eventsByTag("category." + category, Offset.noOffset());
 
             Source<EventEnvelope, NotUsed> sourceWithBackoff =
                     RestartSource.withBackoff(Duration.of(3, ChronoUnit.SECONDS), // min backoff
@@ -93,14 +92,6 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
                 throw new RuntimeException(e);
             });
         }
-
-//        try {
-//            // wait until all current events are loaded
-//            stage.toCompletableFuture().get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            throw new RuntimeException(e);
-//        }
-
     }
 
     @Override
@@ -135,5 +126,4 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
                     "could not deserialize event string to object: " + resolvedEvent.getEventType().getValue(), e);
         }
     }
-
 }
