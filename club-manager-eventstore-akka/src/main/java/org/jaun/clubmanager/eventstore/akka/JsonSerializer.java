@@ -21,17 +21,6 @@ import akka.serialization.JSerializer;
 
 public class JsonSerializer extends SerializerWithStringManifest {
 
-    // If you need logging here, introduce a constructor that takes an ExtendedActorSystem.
-    // public MyOwnSerializer(ExtendedActorSystem actorSystem)
-    // Get a logger using:
-    // private final LoggingAdapter logger = Logging.getLogger(actorSystem, this);
-
-    // This is whether "fromBinary" requires a "clazz" or not
-    //@Override
-    //public boolean includeManifest() {
-    //    return false;
-    //}
-
     public String manifest(Object obj) {
         if (!(obj instanceof EventDataWithStreamId)) {
             throw new IllegalArgumentException("unsupported obj for serialization: " + obj);
@@ -40,27 +29,19 @@ public class JsonSerializer extends SerializerWithStringManifest {
         return ev.getEventType().getValue();
     }
 
-    // Pick a unique identifier for your Serializer,
-    // you've got a couple of billions to choose from,
-    // 0 - 40 is reserved by Akka itself
     @Override
     public int identifier() {
         return 31415;
     }
 
-    // "toBinary" serializes the given object to an Array of Bytes
     @Override
     public byte[] toBinary(Object obj) {
-        // Put the code that serializes the object here
 
         if (!(obj instanceof EventDataWithStreamId)) {
             throw new IllegalArgumentException("unsupported obj for serialization: " + obj);
         }
 
         EventDataWithStreamId ev = (EventDataWithStreamId) obj;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        //try (JsonWriter jsonWriter = gson.newJsonWriter(new OutputStreamWriter(bos))) {
 
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         jsonObjectBuilder.add("eventId", ev.getEventId().getUuid().toString());
@@ -77,11 +58,9 @@ public class JsonSerializer extends SerializerWithStringManifest {
 
     }
 
-    // "fromBinary" deserializes the given array,
-    // using the type hint (if any, see "includeManifest" above)
     @Override
     public Object fromBinary(byte[] bytes, String var2) throws NotSerializableException {
-    //public Object fromBinaryJava(byte[] bytes, String var2) {
+
         JsonReader jsonReader = Json.createReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
 
         JsonObject jsonObject = jsonReader.readObject();
@@ -105,9 +84,6 @@ public class JsonSerializer extends SerializerWithStringManifest {
             }
         };
 
-//        EventDataWithStreamId e =
-//                new EventDataWithStreamId(new StreamId(id, new Category("streamA£")), new EventId(UUID.randomUUID()),
-//                        new EventType("type"), "{ \"hello\": \"wo£rld\" }", "{ \"meta\": \"data\" }");
         EventDataWithStreamId e =
                 new EventDataWithStreamId(new StreamId(id, new Category("streamA£")), new EventId(UUID.randomUUID()),
                         new EventType("bla"), "{ \"hello\": \"wo£rld\" }", null);
