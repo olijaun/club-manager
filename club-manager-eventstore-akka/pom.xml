@@ -11,6 +11,10 @@
 
     <artifactId>club-manager-eventstore-akka</artifactId>
 
+    <properties>
+        <akka.version>2.5.19</akka.version>
+    </properties>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -29,7 +33,6 @@
             <artifactId>club-manager-commons-projection</artifactId>
         </dependency>
 
-
         <!-- 3rd party -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,47 +42,48 @@
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-remote_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster-sharding_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster-tools_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-persistence_2.11</artifactId>
-            <version>2.5.17</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dnvriend</groupId>
-            <artifactId>akka-persistence-jdbc_2.11</artifactId>
-            <version>3.4.0</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-persistence-query_2.11</artifactId>
-            <version>2.5.17</version>
+            <version>${akka.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.dnvriend</groupId>
+            <artifactId>akka-persistence-jdbc_2.11</artifactId>
+            <version>3.4.0</version>
         </dependency>
 
         <dependency>
@@ -103,14 +107,35 @@
         </dependency>
 
         <!-- testing stuff -->
+
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-eventstore-iface</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-testkit_2.11</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.dnvriend</groupId>
+            <artifactId>akka-persistence-inmemory_2.11</artifactId>
+            <version>2.5.1.1</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

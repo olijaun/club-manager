@@ -57,10 +57,6 @@ public class Csv2CsvConverter {
                 continue;
             }
 
-            if (inputRecord.get("vorname").equals("Gunnar")) {
-                System.out.println("-----------------------> h");
-            }
-
             if (StringUtils.isBlank(bezbisString)
                     || (!bezbisString.equals("31.08.2018") && (ausweisNr < 9 || ausweisNr > 20))) {
                 continue;

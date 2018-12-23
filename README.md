@@ -28,3 +28,6 @@ sudo -u postgres psql postgres
 Ctrl-d
 
 sudo -u postgres createdb eventdb
+
+# TODO
+

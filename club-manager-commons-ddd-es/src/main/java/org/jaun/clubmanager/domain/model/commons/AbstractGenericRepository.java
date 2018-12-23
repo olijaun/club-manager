@@ -76,7 +76,10 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
 
         try {
 
-            return new EventData(event.getEventId(), getNameByEvent(event), gson.toJson(event), null);
+            return EventData.builder()
+                    .eventId(event.getEventId())
+                    .eventType(getNameByEvent(event))
+                    .payload(gson.toJson(event)).build();
 
         } catch (RuntimeException e) {
             throw new IllegalStateException("could not serialize event to string: " + event, e);

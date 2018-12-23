@@ -20,21 +20,22 @@ public class EventData implements Serializable {
     private final String payload;
     private final String metadata;
 
-    /**
-     * @param eventId
-     * @param payload
-     *         The actual event serialized into a string (could be a JSON).
-     * @param metadata
-     */
-    public EventData(EventId eventId, EventType eventType, String payload, String metadata) {
-        this.eventId = requireNonNull(eventId);
-        this.eventType = requireNonNull(eventType);
-        this.payload = requireNonNull(payload);
-        this.metadata = metadata;
+    private EventData(Builder builder) {
+        this.eventId = requireNonNull(builder.eventId);
+        this.eventType = requireNonNull(builder.eventType);
+        this.payload = requireNonNull(builder.payload);
+        this.metadata = builder.metadata;
     }
 
     public EventData(EventData eventData) {
         this(eventData.getEventId(), eventData.getEventType(), eventData.getPayload(), eventData.getMetadata().orElse(null));
+    }
+
+    protected EventData(EventId eventId, EventType eventType, String payload, String metadata) {
+        this.eventId = requireNonNull(eventId);
+        this.eventType = requireNonNull(eventType);
+        this.payload = requireNonNull(payload);
+        this.metadata = metadata;
     }
 
     public EventId getEventId() {
@@ -77,5 +78,41 @@ public class EventData implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(eventId);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private EventId eventId;
+        private EventType eventType;
+        private String payload;
+        private String metadata;
+
+        public EventData build() {
+            return new EventData(this);
+        }
+
+        public Builder eventId(EventId eventId) {
+            this.eventId = eventId;
+            return this;
+        }
+
+        public Builder eventType(EventType eventType) {
+            this.eventType = eventType;
+            return this;
+        }
+
+        public Builder payload(String payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public Builder metadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
     }
 }

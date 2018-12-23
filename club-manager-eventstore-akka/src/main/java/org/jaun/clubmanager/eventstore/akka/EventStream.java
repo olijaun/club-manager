@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.jaun.clubmanager.eventstore.ConcurrencyException;
 import org.jaun.clubmanager.eventstore.EventData;
 import org.jaun.clubmanager.eventstore.StreamId;
 import org.jaun.clubmanager.eventstore.StreamRevision;
@@ -33,11 +34,9 @@ public class EventStream extends AbstractPersistentActor {
         return receiveBuilder().match(Append.class, append -> {
 
             if (!append.getExpectedVersion().equals(StreamRevision.UNSPECIFIED) //
-                && append.getExpectedVersion().getValue() != (events.size() - 1)) {
+                    && append.getExpectedVersion().getValue() != (events.size() - 1)) {
 
-                getSender().tell(new RuntimeException(
-                        "expected version " + append.getExpectedVersion().getValue() + " does not match current stream version " + (
-                                events.size() - 1)), getSelf());
+                getSender().tell(new ConcurrencyException(append.getExpectedVersion().getValue(), (events.size() - 1)), getSelf());
                 return;
             }
 

@@ -10,13 +10,15 @@ import org.jaun.clubmanager.eventstore.StreamRevision;
 
 import com.google.common.collect.ImmutableList;
 
+import static java.util.Objects.requireNonNull;
+
 public class Append implements Serializable {
     private final List<EventData> events;
     private final StreamRevision expectedVersion;
 
     public Append(List<EventData> events, StreamRevision expectedVersion) {
         this.events = ImmutableList.copyOf(events);
-        this.expectedVersion = Objects.requireNonNull(expectedVersion);
+        this.expectedVersion = requireNonNull(expectedVersion);
     }
 
     public List<EventData> getEvents() {

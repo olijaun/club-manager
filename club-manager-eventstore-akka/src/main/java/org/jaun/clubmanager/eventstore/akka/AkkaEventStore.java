@@ -1,29 +1,17 @@
 package org.jaun.clubmanager.eventstore.akka;
 
-import static java.util.Collections.singletonList;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import org.jaun.clubmanager.domain.model.commons.EventId;
-import org.jaun.clubmanager.eventstore.ConcurrencyException;
-import org.jaun.clubmanager.eventstore.EventData;
-import org.jaun.clubmanager.eventstore.EventStoreClient;
-import org.jaun.clubmanager.eventstore.EventType;
-import org.jaun.clubmanager.eventstore.StoredEventData;
-import org.jaun.clubmanager.eventstore.StoredEvents;
-import org.jaun.clubmanager.eventstore.StreamId;
-import org.jaun.clubmanager.eventstore.StreamNotFoundException;
-import org.jaun.clubmanager.eventstore.StreamRevision;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.pattern.PatternsCS;
+import org.jaun.clubmanager.eventstore.*;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class AkkaEventStore implements EventStoreClient {
 
@@ -64,7 +52,7 @@ public class AkkaEventStore implements EventStoreClient {
             response = PatternsCS.ask(eventStream, new Append(evenDataList, expectedVersion), Duration.ofSeconds(5))
                     .toCompletableFuture()
                     .get();
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
 
