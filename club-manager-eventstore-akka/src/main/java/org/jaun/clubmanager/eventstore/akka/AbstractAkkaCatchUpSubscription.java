@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiConsumer;
 
+import akka.persistence.query.javadsl.EventsByTagQuery;
+import akka.persistence.query.javadsl.ReadJournal;
 import org.jaun.clubmanager.domain.model.commons.EventMapping;
 import org.jaun.clubmanager.eventstore.CatchUpSubscription;
 import org.jaun.clubmanager.eventstore.CatchUpSubscriptionListener;
@@ -39,13 +41,15 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
     private Map<EventType, BiConsumer<Long, StoredEventData>> map = new HashMap<>();
     private final List<String> categories;
     private final Gson gson = new Gson();
+    private final EventsByTagQuery readJournal;
 
     private final ActorMaterializer actorMaterializer;
 
-    public AbstractAkkaCatchUpSubscription(ActorSystem actorSystem, ActorMaterializer actorMaterializer, String... categories) {
+    public AbstractAkkaCatchUpSubscription(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery readJournal, String... categories) {
         this.categories = Arrays.asList(categories);
         this.actorSystem = actorSystem;
         this.actorMaterializer = actorMaterializer;
+        this.readJournal = readJournal;
     }
 
     protected void registerMapping(EventMapping eventMapping, BiConsumer<Long, StoredEventData> event) {
@@ -58,8 +62,6 @@ public abstract class AbstractAkkaCatchUpSubscription implements CatchUpSubscrip
 
     @Override
     public void start() {
-        JdbcReadJournal readJournal =
-                PersistenceQuery.get(actorSystem).getReadJournalFor(JdbcReadJournal.class, JdbcReadJournal.Identifier());
 
         for (String category : categories) {
             System.out.println("eventByTag by category: " + category);

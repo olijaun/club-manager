@@ -4,6 +4,9 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import akka.persistence.jdbc.query.javadsl.JdbcReadJournal;
+import akka.persistence.query.PersistenceQuery;
+import akka.persistence.query.javadsl.EventsByTagQuery;
 import org.jaun.clubmanager.eventstore.CatchUpSubscription;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
@@ -11,6 +14,7 @@ import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -135,6 +139,13 @@ public class MemberApplication {
         join.getMulticastConfig().setEnabled(false);
 
         return Hazelcast.newHazelcastInstance(config);
+    }
+
+    @Bean
+    public EventsByTagQuery eventsByTagQuery(ActorSystem actorSystem) {
+        JdbcReadJournal readJournal =
+                PersistenceQuery.get(actorSystem).getReadJournalFor(JdbcReadJournal.class, JdbcReadJournal.Identifier());
+        return readJournal;
     }
 
 //    @Bean

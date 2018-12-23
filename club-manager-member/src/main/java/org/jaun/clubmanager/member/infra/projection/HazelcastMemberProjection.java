@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import akka.persistence.query.javadsl.EventsByTagQuery;
 import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
 import org.jaun.clubmanager.member.application.resource.MemberDTO;
@@ -52,10 +53,10 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer,
+    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer, @Autowired EventsByTagQuery eventsByTagQuery,
             @Autowired HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, actorMaterializer, "person", "subscriptionperiod", "member", "membershiptype");
+        super(actorSystem, actorMaterializer, eventsByTagQuery,"person", "subscriptionperiod", "member", "membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
