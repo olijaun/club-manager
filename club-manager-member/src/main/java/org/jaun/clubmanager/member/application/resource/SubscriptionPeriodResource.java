@@ -1,19 +1,5 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import java.util.Collection;
-import java.util.Currency;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
@@ -23,20 +9,24 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionP
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Collection;
+import java.util.Currency;
+
 @Path("/subscription-periods")
 public class SubscriptionPeriodResource {
 
-    @Autowired
+    @Inject
     private MembershipTypeRepository membershipTypeRepository;
 
-    @Autowired
+    @Inject
     private SubscriptionPeriodRepository subscriptionPeriodRepository;
 
-    @Autowired
+    @Inject
     private HazelcastMemberProjection projection;
 
     @PUT

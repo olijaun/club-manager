@@ -1,7 +1,5 @@
 package org.jaun.clubmanager;
 
-import java.net.InetAddress;
-
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.stereotype.Component;

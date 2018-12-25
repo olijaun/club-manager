@@ -8,14 +8,11 @@ import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeEvent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class MembershipTypeRepositoryImpl extends
         AbstractGenericRepository<MembershipType, MembershipTypeId, MembershipTypeEvent> implements MembershipTypeRepository {
 
-    public MembershipTypeRepositoryImpl(@Autowired EventStoreClient eventStoreClient) {
+    public MembershipTypeRepositoryImpl(EventStoreClient eventStoreClient) {
         super(eventStoreClient);
     }
 

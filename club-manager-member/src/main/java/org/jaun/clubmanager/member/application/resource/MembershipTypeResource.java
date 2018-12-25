@@ -1,31 +1,24 @@
 package org.jaun.clubmanager.member.application.resource;
 
-import java.util.Collection;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Collection;
+
 @Path("/membership-types")
 public class MembershipTypeResource {
 
-    @Autowired
+    @Inject
     private MembershipTypeRepository membershipTypeRepository;
 
-    @Autowired
+    @Inject
     private HazelcastMemberProjection projection;
 
     @PUT

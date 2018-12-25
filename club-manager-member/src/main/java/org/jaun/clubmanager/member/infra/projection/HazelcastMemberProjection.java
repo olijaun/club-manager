@@ -33,8 +33,6 @@ import org.jaun.clubmanager.member.infra.projection.event.person.StreetAddressCh
 import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.google.common.base.Joiner;
 import com.hazelcast.core.HazelcastInstance;
@@ -46,17 +44,16 @@ import com.hazelcast.query.Predicates;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 
-@Service
 public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
 
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer, @Autowired EventsByTagQuery eventsByTagQuery,
-            @Autowired HazelcastInstance hazelcastInstance) {
+    public HazelcastMemberProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery,
+                                     HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, actorMaterializer, eventsByTagQuery,"person", "subscriptionperiod", "member", "membershiptype");
+        super(actorSystem, actorMaterializer, eventsByTagQuery, "person", "subscriptionperiod", "member", "membershiptype");
 
         registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
@@ -244,7 +241,7 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
     }
 
     public Optional<SubscriptionTypeDTO> getSubscriptionType(SubscriptionPeriodId subscriptionPeriodId,
-            SubscriptionTypeId subscriptionTypeId) {
+                                                             SubscriptionTypeId subscriptionTypeId) {
 
         return getAllSubscriptionPeriodTypes(subscriptionPeriodId).stream()
                 .filter(t -> t.getId().equals(subscriptionTypeId.getValue()))
@@ -264,7 +261,7 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
 
             SubscriptionPeriodDTO subscriptionPeriodDTO =
                     subscriptionPeriodMap.get(new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId()));
-            if(subscriptionType.isPresent() && subscriptionPeriodDTO != null) {
+            if (subscriptionType.isPresent() && subscriptionPeriodDTO != null) {
                 String info = subscriptionPeriodDTO.getName() + " / " + subscriptionType.get().getName();
                 subscriptionDTO.setSubscriptionDisplayInfo(info);
             }

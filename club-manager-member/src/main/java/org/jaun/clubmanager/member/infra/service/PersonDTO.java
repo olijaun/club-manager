@@ -1,8 +1,5 @@
 package org.jaun.clubmanager.member.infra.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonDTO {
     private String id;
     private String type;

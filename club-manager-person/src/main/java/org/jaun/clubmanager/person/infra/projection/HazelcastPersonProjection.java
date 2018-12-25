@@ -7,7 +7,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
 import org.jaun.clubmanager.person.application.resource.*;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
@@ -19,19 +18,16 @@ import org.jaun.clubmanager.person.domain.model.person.event.ContactDataChangedE
 import org.jaun.clubmanager.person.domain.model.person.event.PersonCreatedEvent;
 import org.jaun.clubmanager.person.domain.model.person.event.StreetAddressChangedEvent;
 import org.jaun.clubmanager.person.infra.repository.PersonEventMapping;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Service
 public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
 
     private IMap<String, PersonDTO> personMap;
 
-    public HazelcastPersonProjection(@Autowired ActorSystem actorSystem, @Autowired ActorMaterializer actorMaterializer, @Autowired EventStoreClient eventStore,
-                                     @Autowired EventsByTagQuery eventsByTagQuery, @Autowired HazelcastInstance hazelcastInstance) {
+    public HazelcastPersonProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer,
+                                     EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
 
         super(actorSystem, actorMaterializer, eventsByTagQuery, "person");
 

@@ -8,15 +8,12 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionP
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodEvent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SubscriptionPeriodRepositoryImpl extends
         AbstractGenericRepository<SubscriptionPeriod, SubscriptionPeriodId, SubscriptionPeriodEvent> implements
         SubscriptionPeriodRepository {
 
-    public SubscriptionPeriodRepositoryImpl(@Autowired EventStoreClient eventStoreClient) {
+    public SubscriptionPeriodRepositoryImpl(EventStoreClient eventStoreClient) {
         super(eventStoreClient);
     }
 

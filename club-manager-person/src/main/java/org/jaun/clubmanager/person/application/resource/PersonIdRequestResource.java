@@ -2,6 +2,7 @@ package org.jaun.clubmanager.person.application.resource;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -15,22 +16,15 @@ import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistry;
 import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistryId;
 import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistryRepository;
 import org.jaun.clubmanager.person.domain.model.person.PersonIdRequestId;
-import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 @Path("/person-id-requests")
 public class PersonIdRequestResource {
 
     public static final PersonIdRegistryId PERSON_ID_REGISTRY_ID = new PersonIdRegistryId("default");
     public static final int START_ID_FROM = 1000;
 
-    @Autowired
+    @Inject
     private PersonIdRegistryRepository personIdRegistryRepository;
-
-    @Autowired
-    private HazelcastPersonProjection projection;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)

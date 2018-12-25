@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -31,7 +31,6 @@ import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.member.Subscription;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
-import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.person.Person;
 import org.jaun.clubmanager.member.domain.model.person.PersonId;
 import org.jaun.clubmanager.member.domain.model.person.PersonService;
@@ -41,26 +40,20 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionP
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 @Path("/members")
 public class MemberResource {
 
-    @Autowired
+    @Inject
     private MemberRepository memberRepository;
 
-    @Autowired
-    private MembershipTypeRepository membershipTypeRepository;
-
-    @Autowired
+    @Inject
     private SubscriptionPeriodRepository subscriptionPeriodRepository;
 
-    @Autowired
+    @Inject
     private HazelcastMemberProjection projection;
 
-    @Autowired
+    @Inject
     private PersonService personService;
 
     @GET

@@ -10,12 +10,12 @@ import java.io.IOException;
 
 public class BearerTokenFilter implements ClientRequestFilter {
 
-    private final AccessTokenManager accessTokenManager;
+    //private final AccessTokenManager accessTokenManager;
 
-    public BearerTokenFilter(AccessTokenManager accessTokenManager) {
-        // TODO: actually no needed anymore because we propagete the callers bearer token and not a machine to machine token
-        this.accessTokenManager = accessTokenManager;
-    }
+//    public BearerTokenFilter(AccessTokenManager accessTokenManager) {
+//        // TODO: actually no needed anymore because we propagete the callers bearer token and not a machine to machine token
+//        this.accessTokenManager = accessTokenManager;
+//    }
 
     @Override
     public void filter(ClientRequestContext ctx) throws IOException {

@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 public class JerseyConfig extends ResourceConfig {
 
     public JerseyConfig() {
-//        register(EventStoreResource.class);
-//        register(StaticResources.class);
+
+        register(JerseyObjectMapperProvider.class);
 
         // custom writer
         register(PersonsDTOCsvWriter.class);

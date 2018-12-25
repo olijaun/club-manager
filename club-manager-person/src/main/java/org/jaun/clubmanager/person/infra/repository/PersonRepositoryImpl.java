@@ -8,13 +8,10 @@ import org.jaun.clubmanager.domain.model.commons.AbstractGenericRepository;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.eventstore.EventType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class PersonRepositoryImpl extends AbstractGenericRepository<Person, PersonId, PersonEvent> implements PersonRepository {
 
-    public PersonRepositoryImpl(@Autowired EventStoreClient eventStoreClient) {
+    public PersonRepositoryImpl(EventStoreClient eventStoreClient) {
         super(eventStoreClient);
     }
 

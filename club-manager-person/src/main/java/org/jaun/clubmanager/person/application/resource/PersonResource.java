@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,20 +38,17 @@ import org.jaun.clubmanager.person.domain.model.person.PersonRepository;
 import org.jaun.clubmanager.person.domain.model.person.PhoneNumber;
 import org.jaun.clubmanager.person.domain.model.person.StreetAddress;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 @Path("/")
 public class PersonResource {
 
-    @Autowired
+    @Inject
     private PersonIdRegistryRepository personIdRegistryRepository;
 
-    @Autowired
+    @Inject
     private PersonRepository personRepository;
 
-    @Autowired
+    @Inject
     private HazelcastPersonProjection projection;
 
     @GET

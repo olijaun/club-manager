@@ -1,11 +1,11 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
 
 import org.jaun.clubmanager.member.domain.model.person.PersonId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MemberIdTest {
 

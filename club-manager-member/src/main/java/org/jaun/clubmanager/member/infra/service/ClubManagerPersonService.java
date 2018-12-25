@@ -1,21 +1,18 @@
 package org.jaun.clubmanager.member.infra.service;
 
+import org.jaun.clubmanager.member.domain.model.person.Person;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
+import org.jaun.clubmanager.member.domain.model.person.PersonService;
+
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
-import org.jaun.clubmanager.member.domain.model.person.Person;
-import org.jaun.clubmanager.member.domain.model.person.PersonId;
-import org.jaun.clubmanager.member.domain.model.person.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-@Service
 public class ClubManagerPersonService implements PersonService {
 
     private final WebTarget target;
 
-    public ClubManagerPersonService(@Autowired WebTarget target) {
+    public ClubManagerPersonService(WebTarget target) {
         this.target = target;
     }
 
@@ -27,6 +24,8 @@ public class ClubManagerPersonService implements PersonService {
 
         } catch (NotFoundException e) {
             return null;
+        } catch(Exception e) {
+            throw new IllegalStateException("failed to call person service", e);
         }
     }
 }

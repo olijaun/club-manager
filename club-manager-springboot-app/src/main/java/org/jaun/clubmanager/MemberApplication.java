@@ -1,47 +1,51 @@
 package org.jaun.clubmanager;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-
+import akka.actor.ActorSystem;
 import akka.persistence.jdbc.query.javadsl.JdbcReadJournal;
 import akka.persistence.query.PersistenceQuery;
 import akka.persistence.query.javadsl.EventsByTagQuery;
-import org.jaun.clubmanager.eventstore.CatchUpSubscription;
+import akka.stream.ActorMaterializer;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
+import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
+import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.jaun.clubmanager.member.infra.repository.MemberRepositoryImpl;
+import org.jaun.clubmanager.member.infra.repository.MembershipTypeRepositoryImpl;
+import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodRepositoryImpl;
+import org.jaun.clubmanager.member.infra.service.ClubManagerPersonService;
 import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
+import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistryRepository;
+import org.jaun.clubmanager.person.domain.model.person.PersonRepository;
 import org.jaun.clubmanager.person.infra.projection.HazelcastPersonProjection;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jaun.clubmanager.person.infra.repository.PersonIdRegistryRepositoryImpl;
+import org.jaun.clubmanager.person.infra.repository.PersonRepositoryImpl;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
-//@EnableAutoConfiguration
 public class MemberApplication {
 
     @Value("${machine2machine.url}")
@@ -76,53 +80,10 @@ public class MemberApplication {
         System.out.println("Context Start Event received.");
     }
 
-    // https://www.leveluplunch.com/java/tutorials/011-add-servlet-mapping-to-dispatcherservlet-spring-boot/
-//    @Bean
-//    public DispatcherServlet dispatcherServlet() {
-//        return new DispatcherServlet();
-//    }
-//
-//    @Bean
-//    public DispatcherServletPath dispatcherServletPath() {
-//        return new DispatcherServletPath() {
-//            @Override
-//            public String getPath() {
-//                return "/bla";
-//            }
-//        };
-//    }
-//
-//    @Bean
-//    public ServletRegistrationBean dispatcherServlet(@Autowired WebApplicationContext context) {
-//
-//        ServletRegistrationBean registration = new ServletRegistrationBean(new DispatcherServlet(context), "/bla/*");
-//        registration.setLoadOnStartup(0);
-//        registration.setName(
-//                DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME);
-//        return registration;
-//    }
-
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 
-        CatchUpSubscription membershipProjection = ctx.getBean(HazelcastMemberProjection.class);
-
-        String database_url = System.getenv("DATABASE_URL");
-        System.out.println("------------------------------------" + database_url);
-
-        CatchUpSubscription personProjection = ctx.getBean(HazelcastPersonProjection.class);
-
-        //RedisEventStore redisEventStore = ctx.getBean(RedisEventStore.class);
-
         return args -> {
-
-//            System.out.println("Let's inspect the beans provided by Spring Boot:");
-//
-//            String[] beanNames = ctx.getBeanDefinitionNames();
-//            Arrays.sort(beanNames);
-//            for (String beanName : beanNames) {
-//                System.out.println(beanName);
-//            }
         };
     }
 
@@ -148,22 +109,6 @@ public class MemberApplication {
         return readJournal;
     }
 
-//    @Bean
-//    public EventStore eventStore() {
-//        return EventStoreBuilder.newBuilder().singleNodeAddress("127.0.0.1", 1113).userCredentials("admin", "changeit").build();
-//    }
-
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public AccessTokenManager accessTokenManager() {
-        return new AccessTokenManager(url, clientId, clientSecret, audience, grantType, scope);
-    }
-
-//    public EventStoreClient myEventStoreClient(AccessTokenManager accessTokenManager) {
-//        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-//        return new JaxRsRestEventStoreClient(client, "http://localhost:8080");
-//    }
-
     @Bean
     public EventStoreClient myEventStoreClient(ActorSystem actorSystem) {
         return new AkkaEventStore(actorSystem);
@@ -180,18 +125,49 @@ public class MemberApplication {
     }
 
 //    @Bean
-//    public EventStore myEventStore() {
-//        return new RedisEventStore("club-manager-event-store");
+//    public Client jaxRsClient() {
+//        return ClientBuilder.newClient();
 //    }
 
     @Bean
-    public Client jaxRsClient() {
-        return ClientBuilder.newClient();
+    public ClubManagerPersonService clubManagerPersonService() {
+        Client client = ClientBuilder.newClient().register(new BearerTokenFilter());
+        WebTarget target = client.target(personServiceUrl);
+        return new ClubManagerPersonService(target);
     }
 
     @Bean
-    public WebTarget clubManagerPersonServiceTarget(AccessTokenManager accessTokenManager) {
-        Client client = ClientBuilder.newClient().register(new BearerTokenFilter(accessTokenManager));
-        return client.target(personServiceUrl);
+    public PersonIdRegistryRepository personIdRegistryRepository(EventStoreClient eventStoreClient) {
+        return new PersonIdRegistryRepositoryImpl(eventStoreClient);
+    }
+
+    @Bean
+    public PersonRepository personRepository(EventStoreClient eventStoreClient) {
+        return new PersonRepositoryImpl(eventStoreClient);
+    }
+
+    @Bean
+    public MemberRepository memberRepository(EventStoreClient eventStoreClient) {
+        return new MemberRepositoryImpl(eventStoreClient);
+    }
+
+    @Bean
+    public MembershipTypeRepository membershipTypeRepository(EventStoreClient eventStoreClient) {
+        return new MembershipTypeRepositoryImpl(eventStoreClient);
+    }
+
+    @Bean
+    public SubscriptionPeriodRepository subscriptionPeriodRepository(EventStoreClient eventStoreClient) {
+        return new SubscriptionPeriodRepositoryImpl(eventStoreClient);
+    }
+
+    @Bean
+    public HazelcastPersonProjection hazelcastPersonProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
+        return new HazelcastPersonProjection(actorSystem, actorMaterializer, eventsByTagQuery, hazelcastInstance);
+    }
+
+    @Bean
+    public HazelcastMemberProjection hazelcastMemberProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
+        return new HazelcastMemberProjection(actorSystem, actorMaterializer, eventsByTagQuery, hazelcastInstance);
     }
 }
