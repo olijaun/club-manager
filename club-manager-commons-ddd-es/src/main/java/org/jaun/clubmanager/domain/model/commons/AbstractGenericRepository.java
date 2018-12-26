@@ -1,6 +1,5 @@
 package org.jaun.clubmanager.domain.model.commons;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +30,12 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
 
     public void save(A m) throws ConcurrencyException {
 
-        Long expectedVersion = (long) m.getVersion() - m.getChanges().size();
-
         StreamId streamId = new StreamId(m.getId(), new Category(getAggregateName()));
 
         if (m.hasChanges()) {
+
+            Long expectedVersion = (long) m.getVersion() - m.getChanges().size();
+
             try {
                 eventStoreClient.append(streamId, toEventData(m.getChanges()), StreamRevision.from(expectedVersion));
             } catch (org.jaun.clubmanager.eventstore.ConcurrencyException e) {
@@ -66,16 +66,14 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
         return toAggregate(new EventStream<E>(streamId, domainEventList));
     }
 
-
     private List<EventData> toEventData(List<E> events) {
         return events.stream().map(this::toEventData).collect(Collectors.toList());
     }
 
-
     private EventData toEventData(E event) {
 
         try {
-
+            System.out.println(gson.toJson(event));
             return EventData.builder()
                     .eventId(event.getEventId())
                     .eventType(getNameByEvent(event))
@@ -90,7 +88,6 @@ public abstract class AbstractGenericRepository<A extends EventSourcingAggregate
 
         try {
             return gson.fromJson(resolvedEvent.getPayload(), getClassByName(resolvedEvent.getEventType()));
-            // getEventClass(resolvedEvent.event.eventType));
         } catch (RuntimeException e) {
             throw new IllegalStateException(
                     "could not deserialize event string to object: " + resolvedEvent.getEventType().getValue(), e);
