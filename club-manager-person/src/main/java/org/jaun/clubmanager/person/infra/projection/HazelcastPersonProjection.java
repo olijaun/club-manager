@@ -1,13 +1,11 @@
 package org.jaun.clubmanager.person.infra.projection;
 
-import akka.actor.ActorSystem;
-import akka.persistence.query.javadsl.EventsByTagQuery;
-import akka.stream.ActorMaterializer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
-import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
+import org.jaun.clubmanager.eventstore.AbstractMappingCatchUpSubscriptionListener;
+import org.jaun.clubmanager.eventstore.Category;
 import org.jaun.clubmanager.person.application.resource.*;
 import org.jaun.clubmanager.person.domain.model.person.EmailAddress;
 import org.jaun.clubmanager.person.domain.model.person.Gender;
@@ -21,22 +19,24 @@ import org.jaun.clubmanager.person.infra.repository.PersonEventMapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
-public class HazelcastPersonProjection extends AbstractAkkaCatchUpSubscription {
+public class HazelcastPersonProjection extends AbstractMappingCatchUpSubscriptionListener {
 
     private IMap<String, PersonDTO> personMap;
 
-    public HazelcastPersonProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer,
-                                     EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
+    public HazelcastPersonProjection(HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, actorMaterializer, eventsByTagQuery, "person");
-
-        registerMapping(PersonEventMapping.PERSON_CREATED, (v, r) -> update(toObject(r, PersonCreatedEvent.class)));
-        registerMapping(PersonEventMapping.BASIC_DATA_CHANGED, (v, r) -> update(toObject(r, BasicDataChangedEvent.class)));
-        registerMapping(PersonEventMapping.STREE_ADDRESS_CHANGED, (v, r) -> update(toObject(r, StreetAddressChangedEvent.class)));
-        registerMapping(PersonEventMapping.CONTACT_DATA_CHANGED, (v, r) -> update(toObject(r, ContactDataChangedEvent.class)));
+        registerMapping(PersonEventMapping.PERSON_CREATED.getEventType(), (v, r) -> update(toObject(r, PersonCreatedEvent.class)));
+        registerMapping(PersonEventMapping.BASIC_DATA_CHANGED.getEventType(), (v, r) -> update(toObject(r, BasicDataChangedEvent.class)));
+        registerMapping(PersonEventMapping.STREE_ADDRESS_CHANGED.getEventType(), (v, r) -> update(toObject(r, StreetAddressChangedEvent.class)));
+        registerMapping(PersonEventMapping.CONTACT_DATA_CHANGED.getEventType(), (v, r) -> update(toObject(r, ContactDataChangedEvent.class)));
 
         personMap = hazelcastInstance.getMap("persons");
+    }
+
+    public Collection<Category> categories() {
+        return Collections.singleton(new Category("person"));
     }
 
     protected void update(PersonCreatedEvent personCreatedEvent) {

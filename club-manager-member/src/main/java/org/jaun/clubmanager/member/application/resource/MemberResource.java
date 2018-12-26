@@ -1,5 +1,20 @@
 package org.jaun.clubmanager.member.application.resource;
 
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
+import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
+import org.jaun.clubmanager.member.domain.model.member.*;
+import org.jaun.clubmanager.member.domain.model.person.Person;
+import org.jaun.clubmanager.member.domain.model.person.PersonId;
+import org.jaun.clubmanager.member.domain.model.person.PersonService;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.*;
+import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -7,39 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.StringUtils;
-import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
-import org.jaun.clubmanager.member.domain.model.member.Member;
-import org.jaun.clubmanager.member.domain.model.member.MemberId;
-import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
-import org.jaun.clubmanager.member.domain.model.member.Subscription;
-import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
-import org.jaun.clubmanager.member.domain.model.person.Person;
-import org.jaun.clubmanager.member.domain.model.person.PersonId;
-import org.jaun.clubmanager.member.domain.model.person.PersonService;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
-import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 
 @Path("/members")
 public class MemberResource {
@@ -60,8 +42,8 @@ public class MemberResource {
     @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("/")
     public Response getMembers(@QueryParam("searchString") String searchString,
-            @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
-            @QueryParam("sortAscending") String sortAscending) {
+                               @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
+                               @QueryParam("sortAscending") String sortAscending) {
 
         if (StringUtils.isBlank(searchString)) {
             searchString = null;
@@ -89,7 +71,9 @@ public class MemberResource {
 
         MemberId memberId = new MemberId(memberIdAsString);
 
-        return Response.ok(projection.getMember(memberId)).build();
+        MemberDTO memberDTO = projection.getMember(memberId).orElseThrow(() -> new NotFoundException());
+
+        return Response.ok(memberDTO).build();
     }
 
     @PUT

@@ -59,11 +59,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jaun.club-manager</groupId>
-                <artifactId>club-manager-commons-projection</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jaun.club-manager</groupId>
                 <artifactId>club-manager-eventstore-akka</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -288,11 +283,10 @@
         <module>club-manager-commons-ddd</module>
         <module>club-manager-eventstore-iface</module>
         <module>club-manager-commons-ddd-es</module>
-        <module>club-manager-eventstore-akka</module>
-        <module>club-manager-commons-projection</module>
         <module>club-manager-identity</module>
         <module>club-manager-person</module>
         <module>club-manager-member</module>
+        <module>club-manager-eventstore-akka</module>
         <module>club-manager-springboot-app</module>
     </modules>
 

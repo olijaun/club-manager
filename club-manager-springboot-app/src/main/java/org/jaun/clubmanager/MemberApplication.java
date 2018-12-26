@@ -11,7 +11,9 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
+import org.jaun.clubmanager.eventstore.StreamReader;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
+import org.jaun.clubmanager.eventstore.akka.AkkaStreamReader;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
@@ -20,7 +22,6 @@ import org.jaun.clubmanager.member.infra.repository.MemberRepositoryImpl;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeRepositoryImpl;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodRepositoryImpl;
 import org.jaun.clubmanager.member.infra.service.ClubManagerPersonService;
-import org.jaun.clubmanager.oauth.AccessTokenManager;
 import org.jaun.clubmanager.oauth.BearerTokenFilter;
 import org.jaun.clubmanager.person.domain.model.person.PersonIdRegistryRepository;
 import org.jaun.clubmanager.person.domain.model.person.PersonRepository;
@@ -67,12 +68,16 @@ public class MemberApplication {
     @Value("${akkaEventStore.actorSystemName}")
     private String actorSystemName;
 
-
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(MemberApplication.class, args);
 
-        context.getBean(HazelcastMemberProjection.class).start();
-        context.getBean(HazelcastPersonProjection.class).start();
+        StreamReader streamReader = context.getBean(StreamReader.class);
+
+        HazelcastMemberProjection hazelcastMemberProjection = context.getBean(HazelcastMemberProjection.class);
+        HazelcastPersonProjection hazelcastPersonProjection = context.getBean(HazelcastPersonProjection.class);
+
+        streamReader.subscribeFrom(0, hazelcastMemberProjection);
+        streamReader.subscribeFrom(0, hazelcastPersonProjection);
     }
 
     @EventListener
@@ -124,11 +129,6 @@ public class MemberApplication {
         return ActorMaterializer.create(actorSystem);
     }
 
-//    @Bean
-//    public Client jaxRsClient() {
-//        return ClientBuilder.newClient();
-//    }
-
     @Bean
     public ClubManagerPersonService clubManagerPersonService() {
         Client client = ClientBuilder.newClient().register(new BearerTokenFilter());
@@ -162,12 +162,17 @@ public class MemberApplication {
     }
 
     @Bean
-    public HazelcastPersonProjection hazelcastPersonProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
-        return new HazelcastPersonProjection(actorSystem, actorMaterializer, eventsByTagQuery, hazelcastInstance);
+    public StreamReader streamReader(ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery) {
+        return new AkkaStreamReader(actorMaterializer, eventsByTagQuery);
     }
 
     @Bean
-    public HazelcastMemberProjection hazelcastMemberProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery, HazelcastInstance hazelcastInstance) {
-        return new HazelcastMemberProjection(actorSystem, actorMaterializer, eventsByTagQuery, hazelcastInstance);
+    public HazelcastPersonProjection hazelcastPersonProjection(StreamReader streamReader, HazelcastInstance hazelcastInstance) {
+        return new HazelcastPersonProjection(hazelcastInstance);
+    }
+
+    @Bean
+    public HazelcastMemberProjection hazelcastMemberProjection(StreamReader streamReader, HazelcastInstance hazelcastInstance) {
+        return new HazelcastMemberProjection(hazelcastInstance);
     }
 }

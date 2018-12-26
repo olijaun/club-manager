@@ -1,20 +1,17 @@
 package org.jaun.clubmanager.member.infra.projection;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import akka.persistence.query.javadsl.EventsByTagQuery;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.query.PagingPredicate;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
+import org.jaun.clubmanager.eventstore.AbstractMappingCatchUpSubscriptionListener;
+import org.jaun.clubmanager.eventstore.Category;
 import org.jaun.clubmanager.eventstore.EventType;
-import org.jaun.clubmanager.eventstore.akka.AbstractAkkaCatchUpSubscription;
-import org.jaun.clubmanager.member.application.resource.MemberDTO;
-import org.jaun.clubmanager.member.application.resource.MembershipTypeDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionPeriodDTO;
-import org.jaun.clubmanager.member.application.resource.SubscriptionTypeDTO;
+import org.jaun.clubmanager.eventstore.StreamReader;
+import org.jaun.clubmanager.member.application.resource.*;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
@@ -34,42 +31,36 @@ import org.jaun.clubmanager.member.infra.repository.MemberEventMapping;
 import org.jaun.clubmanager.member.infra.repository.MembershipTypeEventMapping;
 import org.jaun.clubmanager.member.infra.repository.SubscriptionPeriodEventMapping;
 
-import com.google.common.base.Joiner;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.query.PagingPredicate;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.Predicates;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
-
-public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
+public class HazelcastMemberProjection extends AbstractMappingCatchUpSubscriptionListener {
 
     private final IMap<SubscriptionPeriodId, SubscriptionPeriodDTO> subscriptionPeriodMap;
     private final IMap<MembershipTypeId, MembershipTypeDTO> membershipTypeMap;
     private final IMap<MemberId, MemberDTO> memberMap;
 
-    public HazelcastMemberProjection(ActorSystem actorSystem, ActorMaterializer actorMaterializer, EventsByTagQuery eventsByTagQuery,
-                                     HazelcastInstance hazelcastInstance) {
+    public HazelcastMemberProjection(HazelcastInstance hazelcastInstance) {
 
-        super(actorSystem, actorMaterializer, eventsByTagQuery, "person", "subscriptionperiod", "member", "membershiptype");
-
-        registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED,
+        registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_TYPE_ADDED.getEventType(),
                 (v, r) -> update(v, toObject(r, SubscriptionTypeAddedEvent.class)));
 
-        registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_PERIOD_CREATED,
+        registerMapping(SubscriptionPeriodEventMapping.SUBSCRIPTION_PERIOD_CREATED.getEventType(),
                 (v, r) -> update(v, toObject(r, SubscriptionPeriodCreatedEvent.class)));
-        registerMapping(SubscriptionPeriodEventMapping.METADATA_CHANGED,
+        registerMapping(SubscriptionPeriodEventMapping.METADATA_CHANGED.getEventType(),
                 (v, r) -> update(v, toObject(r, MetadataChangedEvent.class)));
 
-        registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED, (v, r) -> update(v, toObject(r, SubscriptionCreatedEvent.class)));
-        registerMapping(MemberEventMapping.MEMBER_CREATED, (v, r) -> update(v, toObject(r, MemberCreatedEvent.class)));
+        registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED.getEventType(), (v, r) -> update(v, toObject(r, SubscriptionCreatedEvent.class)));
+        registerMapping(MemberEventMapping.MEMBER_CREATED.getEventType(), (v, r) -> update(v, toObject(r, MemberCreatedEvent.class)));
 
 
-        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_CREATED,
+        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_CREATED.getEventType(),
                 (v, r) -> update(v, toObject(r, MembershipTypeCreatedEvent.class)));
-        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_METADATA_CHANGED,
+        registerMapping(MembershipTypeEventMapping.MEMBERSHIPTYPE_METADATA_CHANGED.getEventType(),
                 (v, r) -> update(v, toObject(r, MembershipTypeMetadataChangedEvent.class)));
 
         registerMapping(new EventType("PersonCreated"), (v, r) -> update(v, toObject(r, PersonCreatedEvent.class)));
@@ -79,6 +70,14 @@ public class HazelcastMemberProjection extends AbstractAkkaCatchUpSubscription {
         subscriptionPeriodMap = hazelcastInstance.getMap("subscription-periods");
         membershipTypeMap = hazelcastInstance.getMap("membership-type-map");
         memberMap = hazelcastInstance.getMap("members");
+    }
+
+    public Collection<Category> categories() {
+        return ImmutableList.of(
+                new Category("person"), //
+                new Category("subscriptionperiod"), //
+                new Category("member"), //
+                new Category("membershiptype"));
     }
 
     private void update(Long version, MembershipTypeCreatedEvent t) {
