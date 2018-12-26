@@ -76,8 +76,8 @@ public class MemberApplication {
         HazelcastMemberProjection hazelcastMemberProjection = context.getBean(HazelcastMemberProjection.class);
         HazelcastPersonProjection hazelcastPersonProjection = context.getBean(HazelcastPersonProjection.class);
 
-        streamReader.subscribeFrom(0, hazelcastMemberProjection);
-        streamReader.subscribeFrom(0, hazelcastPersonProjection);
+        streamReader.subscribe(hazelcastMemberProjection);
+        streamReader.subscribe(hazelcastPersonProjection);
     }
 
     @EventListener

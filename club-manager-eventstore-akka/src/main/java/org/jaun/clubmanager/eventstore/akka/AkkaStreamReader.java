@@ -21,7 +21,7 @@ public class AkkaStreamReader implements StreamReader {
     }
 
     @Override
-    public void subscribeFrom(int offset, CatchUpSubscriptionListener catchUpSubscriptionListener) {
+    public void subscribe(CatchUpSubscriptionListener catchUpSubscriptionListener) {
         AkkaCatchUpSubscription subscription = new AkkaCatchUpSubscription(actorMaterializer, readJournal, catchUpSubscriptionListener, catchUpSubscriptionListener.categories());
 
         akkaCatchUpSubscriptions.add(subscription);
