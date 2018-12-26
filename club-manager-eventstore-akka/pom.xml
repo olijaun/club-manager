@@ -65,17 +65,6 @@
             <artifactId>akka-persistence-query_2.11</artifactId>
             <version>${akka.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.dnvriend</groupId>
-            <artifactId>akka-persistence-jdbc_2.11</artifactId>
-            <version>3.4.0</version>
-        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
