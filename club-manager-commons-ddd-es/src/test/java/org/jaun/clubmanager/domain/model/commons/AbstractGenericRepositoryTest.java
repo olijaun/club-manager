@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import org.jaun.clubmanager.eventstore.ConcurrencyException;
 import org.jaun.clubmanager.eventstore.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -16,9 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AbstractGenericRepositoryTest {
 
-    Gson gson = new Gson();
+    private Gson gson = new Gson();
+    @Mock
+    private EventStoreClient eventStoreClient;
 
     class TestId extends Id {
 
@@ -99,7 +105,6 @@ class AbstractGenericRepositoryTest {
         // prepare
         TestId testId = new TestId("xyz");
         TestEventSourcingAggregate t = new TestEventSourcingAggregate(testId);
-        EventStoreClient eventStoreClient = mock(EventStoreClient.class);
         TestRepository repository = new TestRepository(eventStoreClient);
 
         // run
@@ -115,7 +120,6 @@ class AbstractGenericRepositoryTest {
         // prepare
         TestId testId = new TestId("xyz");
         TestEventSourcingAggregate t = new TestEventSourcingAggregate(testId);
-        EventStoreClient eventStoreClient = mock(EventStoreClient.class);
         TestRepository repository = new TestRepository(eventStoreClient);
 
         t.doSomething();
@@ -136,7 +140,6 @@ class AbstractGenericRepositoryTest {
         // prepare
         TestId testId = new TestId("xyz");
         TestEventSourcingAggregate t = new TestEventSourcingAggregate(testId);
-        EventStoreClient eventStoreClient = mock(EventStoreClient.class);
         TestRepository repository = new TestRepository(eventStoreClient);
 
         t.doSomething();
@@ -160,7 +163,6 @@ class AbstractGenericRepositoryTest {
         // prepare
         TestId testId = new TestId("xyz");
         TestEventSourcingAggregate t = new TestEventSourcingAggregate(testId);
-        EventStoreClient eventStoreClient = mock(EventStoreClient.class);
         TestRepository repository = new TestRepository(eventStoreClient);
 
         doThrow(new ConcurrencyException(0, 1)).when(eventStoreClient).append(any(), anyList(), any());
@@ -181,7 +183,6 @@ class AbstractGenericRepositoryTest {
         TestId testId = new TestId("xyz");
         StreamId streamId = StreamId.parse("test-" + testId.getValue());
 
-        EventStoreClient eventStoreClient = mock(EventStoreClient.class);
         SomethingWasDone event = new SomethingWasDone();
 
         String serializedEvent = gson.toJson(event);
