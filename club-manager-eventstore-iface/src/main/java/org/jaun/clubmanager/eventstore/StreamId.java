@@ -21,7 +21,7 @@ public class StreamId extends ValueObject implements Serializable {
         this(id.getValue(), category);
     }
 
-    private StreamId(String id) {
+    private StreamId(Id id) {
         this(id, null);
     }
 
