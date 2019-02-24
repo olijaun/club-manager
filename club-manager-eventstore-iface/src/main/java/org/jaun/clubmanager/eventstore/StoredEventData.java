@@ -1,13 +1,12 @@
 package org.jaun.clubmanager.eventstore;
 
-import java.time.Instant;
-
+import com.google.common.base.MoreObjects;
 import org.jaun.clubmanager.domain.model.commons.EventId;
 
-import com.google.common.base.MoreObjects;
+import java.time.Instant;
 
 /**
- * Event data. Containing the deserialized event.
+ * Stored Event data. Containing the deserialized event and information about the stream it is part of.
  */
 public class StoredEventData extends EventData {
 
@@ -16,20 +15,13 @@ public class StoredEventData extends EventData {
     private final StreamId streamId;
     private final long position;
 
-    /**
-     * @param eventId
-     * @param payload
-     *         The actual event serialized into a string (could be a JSON).
-     * @param metadata
-     */
-    public StoredEventData(StreamId streamId, EventId eventId, EventType eventType, String payload, String metadata,
-            StreamRevision streamRevision, Instant timestamp, long position) {
+    private StoredEventData(StoredEventData.Builder builder) {
 
-        super(eventId, eventType, payload, metadata);
-        this.streamRevision = streamRevision;
-        this.timestamp = timestamp;
-        this.streamId = streamId;
-        this.position = position;
+        super(builder.eventId, builder.eventType, builder.payload, builder.metadata);
+        this.streamRevision = builder.streamRevision;
+        this.timestamp = builder.timestamp;
+        this.streamId = builder.streamId;
+        this.position = builder.position;
     }
 
     public StreamRevision getStreamRevision() {
@@ -60,5 +52,61 @@ public class StoredEventData extends EventData {
                 .add("streamRevision", streamRevision.getValue()) //
                 .add("position", position) //
                 .toString();
+    }
+
+    public static class Builder {
+
+        private EventId eventId;
+        private EventType eventType;
+        private String payload;
+        private String metadata;
+        private StreamRevision streamRevision;
+        private Instant timestamp;
+        private StreamId streamId;
+        private long position;
+
+        public StoredEventData build() {
+            return new StoredEventData(this);
+        }
+
+        public Builder streamRevision(StreamRevision streamRevision) {
+            this.streamRevision = streamRevision;
+            return this;
+        }
+
+        public Builder timestamp(Instant timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+
+        public Builder streamId(StreamId streamId) {
+            this.streamId = streamId;
+            return this;
+        }
+
+        public Builder position(long position) {
+            this.position = position;
+            return this;
+        }
+
+        public Builder eventId(EventId eventId) {
+            this.eventId = eventId;
+            return this;
+        }
+
+        public Builder eventType(EventType eventType) {
+            this.eventType = eventType;
+            return this;
+        }
+
+        public Builder payload(String payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public Builder metadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
     }
 }

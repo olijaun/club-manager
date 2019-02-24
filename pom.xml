@@ -14,11 +14,22 @@
         <!--  lookup parent from repository  -->
     </parent>
 
+    <url>file:///${project.build.directory}</url>
+
+    <distributionManagement>
+        <site>
+            <id>some-id</id>
+            <url>${project.url}</url>
+        </site>
+    </distributionManagement>
+
     <properties>
 
         <build.profile.id>dev</build.profile.id>
-        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
-        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
+        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec
+        </jacoco.it.execution.data.file>
+        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec
+        </jacoco.ut.execution.data.file>
 
         <!-- Only unit tests are run by default. -->
         <skip.integration.tests>true</skip.integration.tests>
