@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 public class StreamRevision implements Comparable<StreamRevision>, Serializable {
 
-    /** states that this write should never conflict and should always succeed */
+    /**
+     * states that this write should never conflict and should always succeed
+     */
     public static final StreamRevision UNSPECIFIED = new StreamRevision(-2);
     public static final StreamRevision NEW_STREAM = new StreamRevision(-1);
     public static final StreamRevision INITIAL = new StreamRevision(0);
@@ -13,7 +15,7 @@ public class StreamRevision implements Comparable<StreamRevision>, Serializable 
 
     private StreamRevision(long value) {
         if (value < -2) {
-            throw new IllegalStateException("stream revision cannot be less than -2: " + value);
+            throw new IllegalArgumentException("stream revision cannot be less than -2: " + value);
         }
 
         this.value = value;
