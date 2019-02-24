@@ -1,10 +1,10 @@
 package org.jaun.clubmanager.person.domain.model.person;
 
-import static java.util.Objects.requireNonNull;
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
 
 import java.util.Optional;
 
-import org.jaun.clubmanager.domain.model.commons.ValueObject;
+import static java.util.Objects.requireNonNull;
 
 public class StreetAddress extends ValueObject {
 
@@ -15,13 +15,13 @@ public class StreetAddress extends ValueObject {
     private final Country country;
     private final String state;
 
-    public StreetAddress(String street, String houseNumber, String zip, String city, String state, Country country) {
-        this.street = requireNonNull(street);
-        this.houseNumber = houseNumber;
-        this.zip = requireNonNull(zip);
-        this.city = requireNonNull(city);
-        this.state = state;
-        this.country = requireNonNull(country);
+    private StreetAddress(Builder builder) {
+        this.street = requireNonNull(builder.street);
+        this.houseNumber = builder.houseNumber;
+        this.zip = requireNonNull(builder.zip);
+        this.city = requireNonNull(builder.city);
+        this.state = builder.state;
+        this.country = requireNonNull(builder.country);
     }
 
     public String getStreet() {
@@ -61,7 +61,7 @@ public class StreetAddress extends ValueObject {
         private Country country;
 
         public StreetAddress build() {
-            return new StreetAddress(street, houseNumber, zip, city, state, country);
+            return new StreetAddress(this);
         }
 
         public Builder street(String street) {

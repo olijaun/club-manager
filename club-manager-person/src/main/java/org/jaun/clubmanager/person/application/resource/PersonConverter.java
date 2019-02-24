@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.person.domain.model.person.Country;
@@ -25,7 +26,7 @@ public class PersonConverter {
         PersonDTO out = new PersonDTO();
         out.setId(in.getId().getValue());
         out.setBasicData(toBasicDataDTO(in));
-        out.setStreetAddress(toAddressDTO(in.getStreetAddress()));
+        out.setStreetAddress(toAddressDTO(in.getStreetAddress().orElse(null)));
         out.setContactData(toContactDataDTO(in));
 
         return out;
@@ -106,7 +107,7 @@ public class PersonConverter {
                 .build();
     }
 
-    public static Person toPerson(PersonId contractId, CreatePersonDTO in) {
+    public static Person toPerson(PersonId personId, CreatePersonDTO in) {
         if (in == null) {
             return null;
         }
@@ -115,7 +116,12 @@ public class PersonConverter {
         BasicDataDTO basicDataDTO = in.getBasicData();
         Name name = toName(basicDataDTO.getName());
         Gender gender = basicDataDTO.getGender() == null ? null : Gender.valueOf(basicDataDTO.getGender());
-        Person person = new Person(contractId, personType, name, toLocalDate(basicDataDTO.getBirthDate()), gender);
+        Person person = Person.builder()
+                .id(personId)
+                .personType(personType)
+                .name(name)
+                .birthDate(toLocalDate(basicDataDTO.getBirthDate()))
+                .gender(gender).build();
 
         person.changeStreetAddress(toStreetAddress(in.getStreetAddress()));
         person.changeBasicData(name, toLocalDate(basicDataDTO.getBirthDate()), gender);
@@ -124,7 +130,7 @@ public class PersonConverter {
             ContactDataDTO contactDataDTO = in.getContactData();
             person.changeContactData(
                     contactDataDTO.getEmailAddress() == null ? null : new EmailAddress(contactDataDTO.getEmailAddress()),
-                    contactDataDTO.getPhoneNumber() == null ? null : new PhoneNumber(contactDataDTO.getPhoneNumber()));
+                    contactDataDTO.getPhoneNumber() == null ? null : new PhoneNumber(contactDataDTO.getPhoneNumber(), Locale.getDefault()));
         }
 
         return person;
@@ -184,7 +190,7 @@ public class PersonConverter {
         if (phoneNumberAsString == null) {
             return null;
         }
-        return new PhoneNumber(phoneNumberAsString);
+        return new PhoneNumber(phoneNumberAsString, Locale.getDefault());
     }
 
     public static EmailAddress toEmailAddress(String emailAddressAsString) {

@@ -245,7 +245,11 @@ public class PersonResource {
         } else {
 
             person.changeBasicData(personNew.getName(), personNew.getBirthDate().orElse(null), personNew.getGender().orElse(null));
-            person.changeStreetAddress(personNew.getStreetAddress());
+
+            if(personNew.getStreetAddress().isPresent()) {
+                person.changeStreetAddress(personNew.getStreetAddress().get());
+            }
+
             person.changeContactData(personNew.getEmailAddress().orElse(null), personNew.getPhoneNumber().orElse(null));
 
             try {

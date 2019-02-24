@@ -12,12 +12,13 @@ import com.google.i18n.phonenumbers.Phonenumber;
 public class PhoneNumber extends ValueObject {
 
     private final String value;
+    private final Locale defaultLocale;
 
-    public PhoneNumber(String value) {
-
+    public PhoneNumber(String value, Locale defaultLocale) {
         this.value = Objects.requireNonNull(value);
+        this.defaultLocale = defaultLocale;
 
-        if (!PhoneNumberUtil.getInstance().isPossibleNumber(value, Locale.getDefault().getCountry())) {
+        if (!PhoneNumberUtil.getInstance().isPossibleNumber(value, defaultLocale.getCountry())) {
             throw new IllegalArgumentException("invalid phone number: " + value);
         }
     }
@@ -30,7 +31,7 @@ public class PhoneNumber extends ValueObject {
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
         Phonenumber.PhoneNumber phoneNumber = null;
         try {
-            phoneNumber = phoneNumberUtil.parse(value, Locale.getDefault().getCountry());
+            phoneNumber = phoneNumberUtil.parse(value, defaultLocale.getCountry());
         } catch (NumberParseException e) {
             throw new IllegalArgumentException("phone number cannot be formatted: " + value);
         }

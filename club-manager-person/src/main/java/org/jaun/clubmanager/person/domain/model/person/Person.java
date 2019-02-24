@@ -1,18 +1,14 @@
 package org.jaun.clubmanager.person.domain.model.person;
 
-import static java.util.Objects.requireNonNull;
+import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
+import org.jaun.clubmanager.eventstore.EventStream;
+import org.jaun.clubmanager.person.domain.model.person.event.*;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
-import org.jaun.clubmanager.eventstore.EventStream;
-import org.jaun.clubmanager.person.domain.model.person.event.BasicDataChangedEvent;
-import org.jaun.clubmanager.person.domain.model.person.event.ContactDataChangedEvent;
-import org.jaun.clubmanager.person.domain.model.person.event.PersonCreatedEvent;
-import org.jaun.clubmanager.person.domain.model.person.event.PersonEvent;
-import org.jaun.clubmanager.person.domain.model.person.event.StreetAddressChangedEvent;
+import static java.util.Objects.requireNonNull;
 
 public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
 
@@ -25,9 +21,9 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
     private Gender gender;
     private LocalDate birthDate;
 
-    public Person(PersonId id, PersonType personType, Name name, LocalDate birthDate, Gender gender) {
-        apply(new PersonCreatedEvent(id, personType));
-        apply(new BasicDataChangedEvent(id, name, birthDate, gender));
+    public Person(Builder builder) {
+        apply(new PersonCreatedEvent(builder.id, builder.personType));
+        apply(new BasicDataChangedEvent(builder.id, builder.name, builder.birthDate, builder.gender));
     }
 
     public Person(EventStream<PersonEvent> eventStream) {
@@ -82,7 +78,7 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
         }
 
         if (Objects.equals(newName, this.name) && Objects.equals(gender, this.gender) && Objects.equals(birthDate, this.birthDate)
-            && Objects.equals(gender, this.gender)) {
+                && Objects.equals(gender, this.gender)) {
             return;
         }
 
@@ -115,8 +111,8 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
         return name;
     }
 
-    public StreetAddress getStreetAddress() {
-        return streetAddress;
+    public Optional<StreetAddress> getStreetAddress() {
+        return Optional.of(streetAddress);
     }
 
     public Optional<PhoneNumber> getPhoneNumber() {
@@ -139,15 +135,23 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
         return Optional.ofNullable(birthDate);
     }
 
-    public static abstract class Builder {
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
         private PersonId id;
         private PersonType personType;
         private Name name;
+        private Gender gender;
         private StreetAddress streetAddress;
         private PhoneNumber phone;
         private EmailAddress emailAddress;
+        private LocalDate birthDate;
 
-        public abstract void build();
+        public Person build() {
+            return new Person(this);
+        }
 
         public Builder id(PersonId id) {
             this.id = id;
@@ -176,6 +180,21 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
 
         public Builder emailAddress(EmailAddress emailAddress) {
             this.emailAddress = emailAddress;
+            return this;
+        }
+
+        public Builder birthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
+            return this;
+        }
+
+        public Builder gender(Gender gender) {
+            this.gender = gender;
+            return this;
+        }
+
+        public Builder personType(PersonType personType) {
+            this.personType = personType;
             return this;
         }
     }

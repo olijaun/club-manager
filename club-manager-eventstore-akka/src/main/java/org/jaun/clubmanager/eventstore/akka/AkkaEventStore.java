@@ -16,30 +16,10 @@ import java.util.stream.Collectors;
 public class AkkaEventStore implements EventStoreClient {
 
     private final ActorSystem actorSystem;
-    //private final ActorMaterializer actorMaterializer = ActorMaterializer.create(actorSystem);
 
     public AkkaEventStore(ActorSystem actorSystem) {
         this.actorSystem = actorSystem;
     }
-
-//    public static void main(String[] args) throws Exception {
-//        AkkaEventStore store = new AkkaEventStore();
-//
-//        StreamId streamId = StreamId.parse("abc-1");
-//
-//        //EventData event1 = new EventData(EventId.generate(), new EventType("typeA"), "testdata1", "testmetadata1");
-//        EventData event2 = new EventData(EventId.generate(), new EventType("typeB"), "testdata2", "testmetadata2");
-//        EventData event3 = new EventData(EventId.generate(), new EventType("typeC"), "testdata3", "testmetadata3");
-//
-////        store.append(streamId, singletonList(event1), StreamRevision.NEW_STREAM);
-////        store.append(streamId, singletonList(event2), StreamRevision.from(0));
-////        store.append(streamId, singletonList(event3), StreamRevision.from(1));
-//
-//        store.append(streamId, singletonList(event2), StreamRevision.UNSPECIFIED);
-//
-//        StoredEvents storedEvents = store.read(streamId);
-//        storedEvents.forEach(storedEvent -> System.out.println("event read : " + storedEvent));
-//    }
 
     @Override
     public void append(StreamId streamId, List<EventData> evenDataList, StreamRevision expectedVersion)
