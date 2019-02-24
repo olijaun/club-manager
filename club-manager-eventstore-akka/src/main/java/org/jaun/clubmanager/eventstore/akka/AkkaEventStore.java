@@ -90,9 +90,19 @@ public class AkkaEventStore implements EventStoreClient {
 
         AtomicInteger revisionCounter = new AtomicInteger(fromRevision.getValue().intValue());
         List<StoredEventData> storedEvents = events.stream().map(e -> {
+
             StreamRevision rev = StreamRevision.from(revisionCounter.getAndIncrement());
-            return new StoredEventData(streamId, e.getEventId(), e.getEventType(), e.getPayload(), e.getMetadata().orElse(null),
-                    rev, Instant.now(), rev.getValue());
+
+            return new StoredEventData.Builder()
+                    .streamId(streamId)
+                    .eventId(e.getEventId())
+                    .eventType(e.getEventType())
+                    .payload(e.getPayload())
+                    .metadata(e.getMetadata().orElse(null))
+                    .streamRevision(rev)
+                    .timestamp(Instant.now())
+                    .position(rev.getValue()).build();
+
         }).collect(Collectors.toList());
 
         return new StoredEvents(storedEvents);

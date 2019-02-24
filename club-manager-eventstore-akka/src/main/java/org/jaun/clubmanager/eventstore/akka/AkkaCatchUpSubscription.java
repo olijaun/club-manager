@@ -56,10 +56,15 @@ class AkkaCatchUpSubscription {
 
                 EventData eventData = (EventData) envelope.event();
 
-                StoredEventData storedEventData =
-                        new StoredEventData(StreamId.parse(envelope.persistenceId()), eventData.getEventId(),
-                                eventData.getEventType(), eventData.getPayload(), eventData.getMetadata().orElse(null),
-                                StreamRevision.from(envelope.sequenceNr()), Instant.now(), envelope.sequenceNr());
+                StoredEventData storedEventData = new StoredEventData.Builder()
+                        .streamId(StreamId.parse(envelope.persistenceId()))
+                        .eventId(eventData.getEventId())
+                        .eventType(eventData.getEventType())
+                        .payload(eventData.getPayload())
+                        .metadata(eventData.getMetadata().orElse(null))
+                        .streamRevision(StreamRevision.from(envelope.sequenceNr()))
+                        .timestamp(Instant.now())
+                        .position(envelope.sequenceNr()).build();
 
                 listener.onEvent(storedEventData);
 

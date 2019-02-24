@@ -28,7 +28,7 @@ class StreamIdTest {
 
         assertThat(streamId.getValue(), equalTo(category.getName() + "-" + testId.getValue()));
         assertThat(streamId.getCategory().get(), equalTo(category));
-        assertThat(streamId.getId(), equalTo(testId));
+        assertThat(streamId.getId(), equalTo(testId.getValue()));
     }
 
     @Test

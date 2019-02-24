@@ -187,7 +187,16 @@ class AbstractGenericRepositoryTest {
 
         String serializedEvent = gson.toJson(event);
 
-        StoredEventData storedEventData = new StoredEventData(streamId, event.getEventId(), new EventType("abc"), serializedEvent, null, StreamRevision.from(0), Instant.now(), 0);
+        StoredEventData storedEventData = new StoredEventData.Builder()
+                .streamId(streamId)
+                .eventId(event.getEventId())
+                .eventType(new EventType("abc"))
+                .payload(serializedEvent)
+                .metadata(null)
+                .streamRevision(StreamRevision.from(0))
+                .timestamp(Instant.now())
+                .position(0).build();
+
         StoredEvents storedEvents = new StoredEvents(Collections.singletonList(storedEventData));
         when(eventStoreClient.read(any(), any(), any())).thenReturn(storedEvents);
 
