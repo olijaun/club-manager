@@ -40,6 +40,10 @@ public class Subscriptions implements Iterable {
                 .isPresent();
     }
 
+    public int size() {
+        return subscriptions.size();
+    }
+
     @Override
     public Iterator iterator() {
         return subscriptions.iterator();

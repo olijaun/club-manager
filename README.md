@@ -1,21 +1,23 @@
 # club-manager
+
 Management software for small clubs like our http://www.loscaracoles.ch
 
 Let's see where it leads. For now I'm using it to test some new stuff like event sourcing and springboot.
 
-# Setup
-You need an eventstore running (see http://geteventstore.com).
+## Design Goals
 
-```
-docker pull eventstore/eventstore
-docker run --name eventstore-node -it -p 2113:2113 -p 1113:1113 eventstore/eventstore
-```
+- Components are event sourced
+- Business modules can be used independently (e.g. person module may be used without member module)
+- Business modules (identity, member, person) have no code dependencies between them (only dependencies to club-manager-commons* and club-manager-eventstore-iface modules are allowed)
+- Apart from club-manager-springboot-app there must be no dependencies on springboot
 
-After that you have to run the $by_category projection. This can be done using the EventStore UI. Go to http://localhost:2113, login ('admin' / 'changeit' with the default config) and go to 'Projections'.
+## Design decisions
 
+- For the time being the REST resource classes also implement the application services
+- REST Resources use jax-rs. In the future it would be nice to allow for other implementations
+- Authentication is done using JWT Bearer Tokens
 
-extract public key from certificate pem:
-openssl x509 -pubkey -noout -in cert.pem  > pubkey.pem
+## Setup
 
 postgres:
 
@@ -29,5 +31,14 @@ Ctrl-d
 
 sudo -u postgres createdb eventdb
 
-# TODO
+## TODO
 
+- allow deletion of subscriptions
+- allow memberships (without subscriptions)
+- allow comments for subscriptions
+
+## Notes for developers
+
+### extract public key from certificate pem:
+
+openssl x509 -pubkey -noout -in cert.pem  > pubkey.pem
