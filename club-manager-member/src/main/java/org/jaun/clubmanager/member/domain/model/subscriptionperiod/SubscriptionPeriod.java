@@ -1,16 +1,13 @@
 package org.jaun.clubmanager.member.domain.model.subscriptionperiod;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.Member;
+import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.SubscriptionId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.MetadataChangedEvent;
@@ -105,7 +102,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
     }
 
     public void addSubscriptionType(SubscriptionTypeId subscriptionTypeId, MembershipTypeId membershipTypeId, String name,
-            double amount, Currency currency, int maxSubscribers) {
+                                    double amount, Currency currency, int maxSubscribers) {
 
         if (subscriptionTypes.stream()
                 .filter(subscriptionType -> subscriptionType.getId().equals(subscriptionTypeId))
@@ -119,7 +116,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
     }
 
     public SubscriptionRequest createSubscriptionRequest(SubscriptionId subscriptionId, SubscriptionTypeId subscriptionTypeId,
-            Collection<Member> additionalSubscribers) {
+                                                         Collection<Member> additionalSubscribers) {
 
         SubscriptionType option = getMembershipOptionById(subscriptionTypeId).orElseThrow(
                 () -> new IllegalStateException("option " + subscriptionTypeId + " does not exist in period " + id));
@@ -129,8 +126,13 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
                     "a maximum of " + option.getMaxSubscribers() + " is possible for this subscription type");
         }
 
-        return new SubscriptionRequest(subscriptionId, id, subscriptionTypeId,
-                additionalSubscribers.stream().map(Member::getId).collect(Collectors.toSet()));
+        Set<MemberId> additionalSubscriberMemberIds = additionalSubscribers.stream().map(Member::getId).collect(Collectors.toSet());
+
+        return new SubscriptionRequest.Builder()
+                .subscriptionId(subscriptionId)
+                .subscriptionPeriodId(id)
+                .subscriptionTypeId(subscriptionTypeId)
+                .additionalSubscriberIds(additionalSubscriberMemberIds).build();
 
     }
 }

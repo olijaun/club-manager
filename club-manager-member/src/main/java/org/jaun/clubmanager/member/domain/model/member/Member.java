@@ -7,6 +7,9 @@ import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
     private MemberId id;
     private Subscriptions subscriptions = new Subscriptions();
@@ -19,7 +22,7 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
         replayEvents(eventStream);
     }
 
-    public void subscribe(SubscriptionRequest subscriptionRequest) {
+    public void subscribe(SubscriptionRequest subscriptionRequest) throws SubscriptionOfSamePeriodAndTypeExistsException {
 
         if (subscriptions.containsId(subscriptionRequest.getSubscriptionId())) {
             return;
@@ -27,7 +30,8 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
         if (subscriptions.containsMembershipWith(subscriptionRequest.getSubscriptionPeriodId(),
                 subscriptionRequest.getSubscriptionTypeId())) {
-            throw new IllegalStateException("Cannot create a subscription for the same period and option twice.");
+
+            throw new SubscriptionOfSamePeriodAndTypeExistsException(subscriptionRequest.getSubscriptionPeriodId(), subscriptionRequest.getSubscriptionTypeId());
         }
 
         apply(new SubscriptionCreatedEvent(subscriptionRequest.getSubscriptionId(), id,
@@ -36,11 +40,11 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     }
 
-    protected void mutate(MemberCreatedEvent event) {
+    private void mutate(MemberCreatedEvent event) {
         this.id = event.getMemberId();
     }
 
-    protected void mutate(SubscriptionCreatedEvent event) {
+    private void mutate(SubscriptionCreatedEvent event) {
         Subscription subscription =
                 new Subscription(event.getSubscriptionId(), event.getSubscriptionPeriodId(), event.getSubscriptionTypeId(),
                         event.getMemberId(), event.getAdditionalSubscriberIds());

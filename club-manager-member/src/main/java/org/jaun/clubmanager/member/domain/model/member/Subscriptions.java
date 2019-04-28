@@ -1,9 +1,6 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
@@ -44,8 +41,15 @@ public class Subscriptions implements Iterable {
         return subscriptions.size();
     }
 
+    public Optional<Subscription> first() {
+        if(subscriptions.size() == 0) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(subscriptions.iterator().next());
+    }
+
     @Override
-    public Iterator iterator() {
+    public Iterator<Subscription> iterator() {
         return subscriptions.iterator();
     }
 

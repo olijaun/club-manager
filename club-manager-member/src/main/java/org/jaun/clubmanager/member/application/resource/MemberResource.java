@@ -109,7 +109,13 @@ public class MemberResource {
                     .collect(Collectors.toList()));
         }
 
-        subscriptionRequests.stream().forEach(r -> member.subscribe(r));
+        try {
+            for (SubscriptionRequest request : subscriptionRequests) {
+                member.subscribe(request);
+            }
+        } catch (SubscriptionOfSamePeriodAndTypeExistsException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
         try {
             memberRepository.save(member);
