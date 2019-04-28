@@ -4,10 +4,7 @@ import org.jaun.clubmanager.domain.model.commons.ConcurrencyException;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipType;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriod;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.*;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 
 import javax.inject.Inject;
@@ -79,15 +76,17 @@ public class SubscriptionPeriodResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{period-id}/types/{id}")
     public Response addMembershipOption(@PathParam("period-id") String subscriptionPeriodIdString,
-            @PathParam("id") String membershipOptionIdAsString, CreateSubscriptionTypeDTO subscriptionTypeDTO) {
+                                        @PathParam("id") String membershipOptionIdAsString, CreateSubscriptionTypeDTO subscriptionTypeDTO) {
 
         MembershipType membershipType = getMembershipType(new MembershipTypeId(subscriptionTypeDTO.getMembershipTypeId()));
         Currency currency = MembershipConverter.toCurrency(subscriptionTypeDTO.getCurrency());
 
+        Money price = new Money(subscriptionTypeDTO.getAmount(), currency);
+
         SubscriptionPeriod period = getForUpdate(new SubscriptionPeriodId(subscriptionPeriodIdString));
 
         period.addSubscriptionType(new SubscriptionTypeId(membershipOptionIdAsString), membershipType.getId(),
-                subscriptionTypeDTO.getName(), subscriptionTypeDTO.getAmount(), currency, subscriptionTypeDTO.getMaxSubscribers());
+                subscriptionTypeDTO.getName(), price, subscriptionTypeDTO.getMaxSubscribers());
 
         try {
             subscriptionPeriodRepository.save(period);
@@ -134,14 +133,14 @@ public class SubscriptionPeriodResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{period-id}/types/{id}")
     public Response getSubscriptionType(@PathParam("period-id") String subscriptionPeriodIdString,
-            @PathParam("id") String subscriptionTypeIdAsString) {
+                                        @PathParam("id") String subscriptionTypeIdAsString) {
 
         SubscriptionTypeDTO subscriptionTypeDTO =
                 projection.getSubscriptionType(new SubscriptionPeriodId(subscriptionPeriodIdString),
                         new SubscriptionTypeId(subscriptionTypeIdAsString))
                         .orElseThrow(() -> new NotFoundException(
                                 "could not find subscription for period " + subscriptionPeriodIdString + " and subscriptionType "
-                                + subscriptionTypeIdAsString));
+                                        + subscriptionTypeIdAsString));
 
         return Response.ok(subscriptionTypeDTO).build();
     }

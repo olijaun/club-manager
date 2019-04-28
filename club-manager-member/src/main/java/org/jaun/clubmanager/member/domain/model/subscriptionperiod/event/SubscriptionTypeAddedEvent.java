@@ -1,12 +1,11 @@
 package org.jaun.clubmanager.member.domain.model.subscriptionperiod.event;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Currency;
-
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
-import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.Money;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
+import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
+
+import static java.util.Objects.requireNonNull;
 
 public class SubscriptionTypeAddedEvent extends SubscriptionPeriodEvent {
 
@@ -14,19 +13,17 @@ public class SubscriptionTypeAddedEvent extends SubscriptionPeriodEvent {
     private final SubscriptionTypeId subscriptionTypeId;
     private final MembershipTypeId membershipTypeId;
     private final String name;
-    private final double amount;
-    private final Currency currency;
+    private final Money price;
     private final int maxSubscribers;
 
     public SubscriptionTypeAddedEvent(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId,
-            MembershipTypeId membershipTypeId, String name, double amount, Currency currency, int maxSubscribers) {
+                                      MembershipTypeId membershipTypeId, String name, Money price, int maxSubscribers) {
 
         this.subscriptionPeriodId = requireNonNull(subscriptionPeriodId);
         this.subscriptionTypeId = requireNonNull(subscriptionTypeId);
         this.membershipTypeId = requireNonNull(membershipTypeId);
         this.name = requireNonNull(name);
-        this.amount = amount;
-        this.currency = requireNonNull(currency);
+        this.price = price;
         this.maxSubscribers = maxSubscribers;
     }
 
@@ -46,12 +43,8 @@ public class SubscriptionTypeAddedEvent extends SubscriptionPeriodEvent {
         return name;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public Currency getCurrency() {
-        return currency;
+    public Money getPrice() {
+        return price;
     }
 
     public int getMaxSubscribers() {

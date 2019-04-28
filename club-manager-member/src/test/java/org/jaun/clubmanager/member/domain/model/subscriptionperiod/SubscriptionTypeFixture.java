@@ -9,16 +9,14 @@ class SubscriptionTypeFixture {
     public static SubscriptionType.Builder subscriptionType() {
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId("subTypeId1");
         MembershipTypeId membershipTypeId = new MembershipTypeId("memTyoeId1");
-        double amount = 3.;
-        Currency currency = Currency.getInstance("CHF");
+        Money price = new Money(60, Currency.getInstance("CHF"));
         int maxSubscribers = 1;
         String name = "bla";
 
         return SubscriptionType.builder()
                 .subscriptionTypeId(subscriptionTypeId)
                 .membershipTypeId(membershipTypeId)
-                .amount(amount)
-                .currency(currency)
+                .price(price)
                 .maxSubscribers(maxSubscribers)
                 .name(name);
     }

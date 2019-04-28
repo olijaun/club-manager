@@ -58,12 +58,11 @@ class SubscriptionPeriodTest {
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId("subTypeA");
         MembershipTypeId membershipTypeId = new MembershipTypeId("memTypeA");
         String name = "Sub Type A";
-        double amount = 60;
-        Currency currency = Currency.getInstance("CHF");
+        Money price = new Money(60, Currency.getInstance("CHF"));
         int maxSubscribers = 1;
 
         // run
-        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers);
+        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, price, maxSubscribers);
 
         // verify
         assertThat(subscriptionPeriod.getId(), equalTo(subscriptionPeriodId));
@@ -73,8 +72,7 @@ class SubscriptionPeriodTest {
 
         assertThat(subscriptionType.getId(), equalTo(subscriptionTypeId));
         assertThat(subscriptionType.getName(), equalTo(name));
-        assertThat(subscriptionType.getAmount(), equalTo(amount));
-        assertThat(subscriptionType.getCurrency(), equalTo(currency));
+        assertThat(subscriptionType.getPrice(), equalTo(price));
         assertThat(subscriptionType.getMaxSubscribers(), is(maxSubscribers));
 
         // verify events
@@ -83,8 +81,7 @@ class SubscriptionPeriodTest {
         SubscriptionTypeAddedEvent subscriptionTypeAddedEvent = (SubscriptionTypeAddedEvent) subscriptionPeriod.getChanges().get(0);
         assertThat(subscriptionTypeAddedEvent.getSubscriptionTypeId(), equalTo(subscriptionTypeId));
         assertThat(subscriptionTypeAddedEvent.getName(), equalTo(name));
-        assertThat(subscriptionTypeAddedEvent.getAmount(), equalTo(amount));
-        assertThat(subscriptionTypeAddedEvent.getCurrency(), equalTo(currency));
+        assertThat(subscriptionTypeAddedEvent.getPrice(), equalTo(price));
         assertThat(subscriptionTypeAddedEvent.getMaxSubscribers(), is(maxSubscribers));
     }
 
@@ -105,13 +102,12 @@ class SubscriptionPeriodTest {
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId("subTypeA");
         MembershipTypeId membershipTypeId = new MembershipTypeId("memTypeA");
         String name = "Sub Type A";
-        double amount = 60;
-        Currency currency = Currency.getInstance("CHF");
+        Money price = new Money(60, Currency.getInstance("CHF"));
         int maxSubscribers = 1;
 
         // run
-        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers);
-        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers);
+        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, price, maxSubscribers);
+        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, price, maxSubscribers);
 
         // verify
         assertThat(subscriptionPeriod.getId(), equalTo(subscriptionPeriodId));
@@ -135,11 +131,10 @@ class SubscriptionPeriodTest {
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId("subTypeA");
         MembershipTypeId membershipTypeId = new MembershipTypeId("memTypeA");
         String name = "Sub Type A";
-        double amount = 60;
-        Currency currency = Currency.getInstance("CHF");
+        Money price = new Money(60, Currency.getInstance("CHF"));
         int maxSubscribers = 1;
 
-        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers);
+        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, price, maxSubscribers);
 
         // run
         SubscriptionRequest subscriptionRequest = subscriptionPeriod.createSubscriptionRequest(subscriptionId, subscriptionTypeId, Collections.emptyList());
@@ -166,11 +161,10 @@ class SubscriptionPeriodTest {
         SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId("subTypeA");
         MembershipTypeId membershipTypeId = new MembershipTypeId("memTypeA");
         String name = "Sub Type A";
-        double amount = 60;
-        Currency currency = Currency.getInstance("CHF");
+        Money price = new Money(60, Currency.getInstance("CHF"));
         int maxSubscribers = 1;
 
-        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers);
+        subscriptionPeriod.addSubscriptionType(subscriptionTypeId, membershipTypeId, name, price, maxSubscribers);
 
 
         SubscriptionTypeId nonExistingSubscriptionTypeId = new SubscriptionTypeId("subTypeX");

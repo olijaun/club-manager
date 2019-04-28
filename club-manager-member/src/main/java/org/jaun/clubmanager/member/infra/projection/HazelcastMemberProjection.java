@@ -101,8 +101,8 @@ public class HazelcastMemberProjection extends AbstractMappingCatchUpSubscriptio
         SubscriptionTypeDTO optionDTO = new SubscriptionTypeDTO();
 
         optionDTO.setId(optionAddedEvent.getSubscriptionTypeId().getValue());
-        optionDTO.setAmount(optionAddedEvent.getAmount());
-        optionDTO.setCurrency(optionAddedEvent.getCurrency().getCurrencyCode());
+        optionDTO.setAmount(optionAddedEvent.getPrice().amount().longValue());
+        optionDTO.setCurrency(optionAddedEvent.getPrice().currency().getCurrencyCode());
         optionDTO.setMaxSubscribers(optionAddedEvent.getMaxSubscribers());
         optionDTO.setSubscriptionPeriodId(optionAddedEvent.getSubscriptionPeriodId().getValue());
         optionDTO.setName(optionAddedEvent.getName());

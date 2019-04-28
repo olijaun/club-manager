@@ -65,8 +65,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
                         .subscriptionTypeId(event.getSubscriptionTypeId())
                         .membershipTypeId(event.getMembershipTypeId())
                         .name(event.getName())
-                        .amount(event.getAmount())
-                        .currency(event.getCurrency())
+                        .price(event.getPrice())
                         .maxSubscribers(event.getMaxSubscribers()).build();
 
         subscriptionTypes.add(def);
@@ -106,7 +105,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
     }
 
     public void addSubscriptionType(SubscriptionTypeId subscriptionTypeId, MembershipTypeId membershipTypeId, String name,
-                                    double amount, Currency currency, int maxSubscribers) {
+                                    Money price, int maxSubscribers) {
 
         if (subscriptionTypes.stream()
                 .filter(subscriptionType -> subscriptionType.getId().equals(subscriptionTypeId))
@@ -115,7 +114,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
             return;
         }
 
-        apply(new SubscriptionTypeAddedEvent(id, subscriptionTypeId, membershipTypeId, name, amount, currency, maxSubscribers));
+        apply(new SubscriptionTypeAddedEvent(id, subscriptionTypeId, membershipTypeId, name, price, maxSubscribers));
 
     }
 

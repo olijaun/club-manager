@@ -6,7 +6,7 @@ public class CreateSubscriptionTypeDTO implements Serializable {
 
     private String membershipTypeId;
     private String name;
-    private double amount;
+    private long amount;
     private String currency;
     private int maxSubscribers;
 
@@ -26,11 +26,11 @@ public class CreateSubscriptionTypeDTO implements Serializable {
         this.name = name;
     }
 
-    public double getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

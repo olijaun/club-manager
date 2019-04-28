@@ -3,8 +3,6 @@ package org.jaun.clubmanager.member.domain.model.subscriptionperiod;
 import org.jaun.clubmanager.domain.model.commons.Entity;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 
-import java.util.Currency;
-
 import static java.util.Objects.requireNonNull;
 
 public class SubscriptionType extends Entity<SubscriptionTypeId> {
@@ -12,8 +10,7 @@ public class SubscriptionType extends Entity<SubscriptionTypeId> {
     private final SubscriptionTypeId subscriptionTypeId;
     private final MembershipTypeId membershipTypeId; // e.g. Gönner, Normal, Passiv
     private final String name;
-    private final double amount;
-    private final Currency currency;
+    private final Money price;
     private final int maxSubscribers;
 
     private SubscriptionType(Builder builder) {
@@ -21,8 +18,7 @@ public class SubscriptionType extends Entity<SubscriptionTypeId> {
         this.subscriptionTypeId = requireNonNull(builder.subscriptionTypeId);
         this.membershipTypeId = requireNonNull(builder.membershipTypeId);
         this.name = requireNonNull(builder.name);
-        this.amount = requireNonNull(builder.amount);
-        this.currency = requireNonNull(builder.currency);
+        this.price = requireNonNull(builder.price);
         this.maxSubscribers = requireNonNull(builder.maxSubscribers);
     }
 
@@ -38,12 +34,8 @@ public class SubscriptionType extends Entity<SubscriptionTypeId> {
         return name;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public Currency getCurrency() {
-        return currency;
+    public Money getPrice() {
+        return price;
     }
 
     public SubscriptionTypeId getId() {
@@ -62,8 +54,7 @@ public class SubscriptionType extends Entity<SubscriptionTypeId> {
         private SubscriptionTypeId subscriptionTypeId;
         private MembershipTypeId membershipTypeId; // e.g. Gönner, Normal, Passiv
         private String name;
-        private Double amount;
-        private Currency currency;
+        private Money price;
         private Integer maxSubscribers;
 
         public SubscriptionType build() {
@@ -85,13 +76,8 @@ public class SubscriptionType extends Entity<SubscriptionTypeId> {
             return this;
         }
 
-        public Builder amount(Double amount) {
-            this.amount = amount;
-            return this;
-        }
-
-        public Builder currency(Currency currency) {
-            this.currency = currency;
+        public Builder price(Money price) {
+            this.price = price;
             return this;
         }
 
