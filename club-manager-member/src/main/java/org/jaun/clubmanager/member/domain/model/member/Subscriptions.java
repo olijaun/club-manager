@@ -32,7 +32,7 @@ public class Subscriptions implements Iterable {
 
     public boolean containsMembershipWith(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
         return subscriptions.stream()
-                .filter(m -> m.matchesPeriodAndOption(subscriptionPeriodId, subscriptionTypeId))
+                .filter(m -> m.matchesPeriodAndType(subscriptionPeriodId, subscriptionTypeId))
                 .findFirst()
                 .isPresent();
     }
@@ -60,7 +60,7 @@ public class Subscriptions implements Iterable {
     public Collection<Subscription> getRemovals(List<SubscriptionRequest> subscriptionRequests) {
 
         List<SubscriptionId> requestIds =
-                subscriptionRequests.stream().map(r -> r.getSubscriptionId()).collect(Collectors.toList());
+                subscriptionRequests.stream().map(r -> r.getId()).collect(Collectors.toList());
 
         return subscriptions.stream()
                 .filter(s -> !requestIds.contains(s.getId()))

@@ -1,9 +1,6 @@
 package org.jaun.clubmanager.member.domain.model.subscriptionperiod;
 
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableList;
 import org.jaun.clubmanager.domain.model.commons.EventSourcingAggregate;
 import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.Member;
@@ -15,7 +12,9 @@ import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.Subscri
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionPeriodEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.event.SubscriptionTypeAddedEvent;
 
-import com.google.common.collect.ImmutableList;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPeriodId, SubscriptionPeriodEvent> {
 
@@ -40,7 +39,7 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
         return ImmutableList.copyOf(subscriptionTypes);
     }
 
-    public Optional<SubscriptionType> getMembershipOptionById(SubscriptionTypeId id) {
+    public Optional<SubscriptionType> getSubscriptionTypeById(SubscriptionTypeId id) {
         return subscriptionTypes.stream().filter(d -> d.getId().equals(id)).findAny();
     }
 
@@ -62,8 +61,13 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
 
     private void mutate(SubscriptionTypeAddedEvent event) {
         SubscriptionType def =
-                new SubscriptionType(event.getSubscriptionTypeId(), event.getMembershipTypeId(), event.getName(), event.getAmount(),
-                        event.getCurrency(), event.getMaxSubscribers());
+                SubscriptionType.builder()
+                        .subscriptionTypeId(event.getSubscriptionTypeId())
+                        .membershipTypeId(event.getMembershipTypeId())
+                        .name(event.getName())
+                        .amount(event.getAmount())
+                        .currency(event.getCurrency())
+                        .maxSubscribers(event.getMaxSubscribers()).build();
 
         subscriptionTypes.add(def);
     }
@@ -116,10 +120,10 @@ public class SubscriptionPeriod extends EventSourcingAggregate<SubscriptionPerio
     }
 
     public SubscriptionRequest createSubscriptionRequest(SubscriptionId subscriptionId, SubscriptionTypeId subscriptionTypeId,
-                                                         Collection<Member> additionalSubscribers) {
+                                                         Collection<Member> additionalSubscribers) throws NoSuchSubscriptionTypeForPeriod {
 
-        SubscriptionType option = getMembershipOptionById(subscriptionTypeId).orElseThrow(
-                () -> new IllegalStateException("option " + subscriptionTypeId + " does not exist in period " + id));
+        SubscriptionType option = getSubscriptionTypeById(subscriptionTypeId).orElseThrow(
+                () -> new NoSuchSubscriptionTypeForPeriod(id, subscriptionTypeId));
 
         if ((additionalSubscribers.size() + 1) > option.getMaxSubscribers()) {
             throw new IllegalStateException(

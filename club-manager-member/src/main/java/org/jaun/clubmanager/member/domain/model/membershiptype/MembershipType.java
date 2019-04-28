@@ -36,12 +36,11 @@ public class MembershipType extends EventSourcingAggregate<MembershipTypeId, Mem
         return Optional.ofNullable(description);
     }
 
-
-    public void mutate(MembershipTypeCreatedEvent event) {
+    private void mutate(MembershipTypeCreatedEvent event) {
         this.id = requireNonNull(event.getMembershipTypeId());
     }
 
-    public void mutate(MembershipTypeMetadataChangedEvent event) {
+    private void mutate(MembershipTypeMetadataChangedEvent event) {
         this.name = event.getName();
         this.description = event.getDescription().orElse(null);
     }

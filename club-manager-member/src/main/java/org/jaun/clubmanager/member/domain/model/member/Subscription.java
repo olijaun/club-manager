@@ -1,14 +1,14 @@
 package org.jaun.clubmanager.member.domain.model.member;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Collection;
-
+import com.google.common.collect.ImmutableList;
 import org.jaun.clubmanager.domain.model.commons.Entity;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodId;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionTypeId;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static java.util.Objects.requireNonNull;
 
 // http://chrislema.com/memberships-and-subscriptions/
 public class Subscription extends Entity<SubscriptionId> {
@@ -19,14 +19,13 @@ public class Subscription extends Entity<SubscriptionId> {
     private final MemberId memberId;
     private final Collection<MemberId> additionalMemberIds;
 
-    public Subscription(SubscriptionId id, SubscriptionPeriodId periodId, SubscriptionTypeId subscriptionTypeId, MemberId memberId,
-            Collection<MemberId> additionalMemberIds) {
+    private Subscription(Builder builder) {
 
-        this.id = requireNonNull(id);
-        this.subscriptionPeriodId = requireNonNull(periodId);
-        this.subscriptionTypeId = requireNonNull(subscriptionTypeId);
-        this.memberId = requireNonNull(memberId);
-        this.additionalMemberIds = ImmutableList.copyOf(requireNonNull(additionalMemberIds));
+        this.id = requireNonNull(builder.id);
+        this.subscriptionPeriodId = requireNonNull(builder.subscriptionPeriodId);
+        this.subscriptionTypeId = requireNonNull(builder.subscriptionTypeId);
+        this.memberId = requireNonNull(builder.memberId);
+        this.additionalMemberIds = ImmutableList.copyOf(requireNonNull(builder.additionalMemberIds));
     }
 
     public SubscriptionTypeId getSubscriptionTypeId() {
@@ -45,7 +44,7 @@ public class Subscription extends Entity<SubscriptionId> {
         return additionalMemberIds;
     }
 
-    public boolean matchesPeriodAndOption(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
+    public boolean matchesPeriodAndType(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
         return this.subscriptionPeriodId.equals(subscriptionPeriodId) && this.subscriptionTypeId.equals(subscriptionTypeId);
     }
 
@@ -63,10 +62,10 @@ public class Subscription extends Entity<SubscriptionId> {
         private SubscriptionTypeId subscriptionTypeId;
         private SubscriptionPeriodId subscriptionPeriodId;
         private MemberId memberId;
-        private Collection<MemberId> additionalMemberIds;
+        private ArrayList<MemberId> additionalMemberIds = new ArrayList<>();
 
         public Subscription build() {
-            return new Subscription(id, subscriptionPeriodId, subscriptionTypeId, memberId, additionalMemberIds);
+            return new Subscription(this);
         }
 
         public Builder id(SubscriptionId id) {
@@ -90,7 +89,7 @@ public class Subscription extends Entity<SubscriptionId> {
         }
 
         public Builder additionalMemberIds(Collection<MemberId> additionalMemberIds) {
-            this.additionalMemberIds = additionalMemberIds;
+            this.additionalMemberIds = new ArrayList<>(additionalMemberIds);
             return this;
         }
     }

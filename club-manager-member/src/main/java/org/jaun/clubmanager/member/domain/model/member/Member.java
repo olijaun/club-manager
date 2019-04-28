@@ -24,7 +24,7 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     public void subscribe(SubscriptionRequest subscriptionRequest) throws SubscriptionOfSamePeriodAndTypeExistsException {
 
-        if (subscriptions.containsId(subscriptionRequest.getSubscriptionId())) {
+        if (subscriptions.containsId(subscriptionRequest.getId())) {
             return;
         }
 
@@ -34,7 +34,7 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
             throw new SubscriptionOfSamePeriodAndTypeExistsException(subscriptionRequest.getSubscriptionPeriodId(), subscriptionRequest.getSubscriptionTypeId());
         }
 
-        apply(new SubscriptionCreatedEvent(subscriptionRequest.getSubscriptionId(), id,
+        apply(new SubscriptionCreatedEvent(subscriptionRequest.getId(), id,
                 subscriptionRequest.getSubscriptionPeriodId(), subscriptionRequest.getSubscriptionTypeId(),
                 subscriptionRequest.getAdditionalSubscriberIds()));
 
@@ -46,8 +46,12 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     private void mutate(SubscriptionCreatedEvent event) {
         Subscription subscription =
-                new Subscription(event.getSubscriptionId(), event.getSubscriptionPeriodId(), event.getSubscriptionTypeId(),
-                        event.getMemberId(), event.getAdditionalSubscriberIds());
+                Subscription.builder()
+                        .id(event.getSubscriptionId())
+                        .subscriptionPeriodId(event.getSubscriptionPeriodId())
+                        .subscriptionTypeId(event.getSubscriptionTypeId())
+                        .memberId(event.getMemberId())
+                        .additionalMemberIds(event.getAdditionalSubscriberIds()).build();
 
         subscriptions.add(subscription);
     }

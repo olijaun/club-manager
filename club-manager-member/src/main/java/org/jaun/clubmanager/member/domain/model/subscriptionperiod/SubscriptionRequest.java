@@ -27,10 +27,6 @@ public class SubscriptionRequest extends Entity<SubscriptionId> {
         this.additionalSubscriberIds = ImmutableList.copyOf(builder.additionalSubscriberIds);
     }
 
-    public SubscriptionId getSubscriptionId() {
-        return subscriptionId;
-    }
-
     public SubscriptionPeriodId getSubscriptionPeriodId() {
         return subscriptionPeriodId;
     }
@@ -46,6 +42,10 @@ public class SubscriptionRequest extends Entity<SubscriptionId> {
     @Override
     public SubscriptionId getId() {
         return subscriptionId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {

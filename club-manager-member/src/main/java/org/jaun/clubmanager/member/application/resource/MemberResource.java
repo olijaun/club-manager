@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -86,18 +87,24 @@ public class MemberResource {
 
         Member member = getOrCreateMember(memberId);
 
-        List<SubscriptionRequest> subscriptionRequests = createMemberDTO.getSubscriptions().stream().map(subscriptionDTO -> {
+        ArrayList<SubscriptionRequest> subscriptionRequests = new ArrayList<>(createMemberDTO.getSubscriptions().size());
 
+        for(SubscriptionDTO subscriptionDTO : createMemberDTO.getSubscriptions()) {
             SubscriptionId subscriptionId = new SubscriptionId(subscriptionDTO.getId());
             SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId());
             SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId());
 
             SubscriptionPeriod period = getSubscriptionPeriod(subscriptionPeriodId);
-            SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
-                    Collections.emptyList());// TODO: support additional subscribers
 
-            return subscriptionRequest;
-        }).collect(Collectors.toList());
+            try {
+                SubscriptionRequest subscriptionRequest = period.createSubscriptionRequest(subscriptionId, subscriptionTypeId,
+                        Collections.emptyList());// TODO: support additional subscribers
+                subscriptionRequests.add(subscriptionRequest);
+
+            } catch(NoSuchSubscriptionTypeForPeriod e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            }
+        }
 
         Collection<Subscription> removals = member.getSubscriptions().getRemovals(subscriptionRequests);
 
