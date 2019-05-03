@@ -131,7 +131,9 @@ public class MemberApplication {
 
     @Bean
     public ClubManagerPersonService clubManagerPersonService() {
-        Client client = ClientBuilder.newClient().register(new BearerTokenFilter());
+        Client client = ClientBuilder.newClient()
+                .register(JerseyObjectMapperProvider.class)
+                .register(new BearerTokenFilter());
         WebTarget target = client.target(personServiceUrl);
         return new ClubManagerPersonService(target);
     }

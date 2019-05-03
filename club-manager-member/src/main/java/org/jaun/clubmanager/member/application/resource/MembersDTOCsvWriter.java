@@ -8,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -44,28 +45,42 @@ public class MembersDTOCsvWriter implements MessageBodyWriter<MembersDTO> {
 
         membersDTO.getMembers().forEach(m -> {
 
-            m.getSubscriptions().forEach(s -> {
+            if(m.getSubscriptions().isEmpty()) {
 
-                if (membersDTO.getSubscriptionPeriodIdFilter() == null || s.getSubscriptionPeriodId()
-                        .equals(membersDTO.getSubscriptionPeriodIdFilter())) {
+                writeRecord(m, Optional.empty(), csvPrinter);
 
-                    try {
+            } else {
+                m.getSubscriptions().forEach(s -> {
 
-                        ArrayList<String> record = new ArrayList<>();
+                    if (membersDTO.getSubscriptionPeriodIdFilter() == null || s.getSubscriptionPeriodId()
+                            .equals(membersDTO.getSubscriptionPeriodIdFilter())) {
 
-                        record.addAll(Arrays.asList(m.getId(), m.getLastNameOrCompanyName(), m.getFirstName(), m.getAddress(), //
-                                s.getSubscriptionDisplayInfo(), s.getId(), s.getSubscriptionPeriodId(), s.getSubscriptionTypeId()));
-
-                        csvPrinter.printRecord(record);
-
-                    } catch (IOException e) {
-                        throw new RuntimeException("failed to generate csv for record: " + m, e);
+                        writeRecord(m, Optional.of(s), csvPrinter);
                     }
-                }
-            });
+
+                });
+            }
         });
 
         csvPrinter.flush();
         csvPrinter.close();
+    }
+
+    private void writeRecord(MemberDTO m, Optional<SubscriptionDTO> s, CSVPrinter csvPrinter) {
+        try {
+
+            ArrayList<String> record = new ArrayList<>();
+
+            record.addAll(Arrays.asList(m.getId(), m.getLastNameOrCompanyName(), m.getFirstName(), m.getAddress(), //
+                    s.map(SubscriptionDTO::getSubscriptionDisplayInfo).orElse(""),
+                    s.map(SubscriptionDTO::getId).orElse(""),
+                    s.map(SubscriptionDTO::getSubscriptionPeriodId).orElse(""),
+                    s.map(SubscriptionDTO::getSubscriptionTypeId).orElse("")));
+
+            csvPrinter.printRecord(record);
+
+        } catch (IOException e) {
+            throw new RuntimeException("failed to generate csv for record: " + m, e);
+        }
     }
 }

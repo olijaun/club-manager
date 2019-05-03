@@ -1,6 +1,6 @@
 package org.jaun.clubmanager.member.infra.service;
 
-public class PersonDTO {
+public class PeDTO {
     private String id;
     private String type;
 

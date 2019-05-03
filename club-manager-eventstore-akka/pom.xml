@@ -12,7 +12,7 @@
     <artifactId>club-manager-eventstore-akka</artifactId>
 
     <properties>
-        <akka.version>2.5.19</akka.version>
+        <akka.version>2.5.22</akka.version>
     </properties>
 
     <packaging>jar</packaging>
@@ -30,11 +30,7 @@
         </dependency>
 
         <!-- 3rd party -->
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
+        <!-- ATTENTION: Do NOT add akka-actor dependecy it should be pulled transitevely. Otherwise you might have dependency problems  -->
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-remote_2.11</artifactId>

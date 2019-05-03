@@ -22,7 +22,6 @@
         </dependency>
 
         <!-- 3rd party -->
-
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

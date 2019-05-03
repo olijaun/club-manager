@@ -19,7 +19,7 @@ public class ClubManagerPersonService implements PersonService {
     @Override
     public Person getPerson(PersonId personId) {
         try {
-            PersonDTO personDTO = target.path(personId.getValue()).request(MediaType.APPLICATION_JSON).get(PersonDTO.class);
+            PeDTO personDTO = target.path(personId.getValue()).request(MediaType.APPLICATION_JSON).get(PeDTO.class);
             return new Person(new PersonId(personDTO.getId()));
 
         } catch (NotFoundException e) {
