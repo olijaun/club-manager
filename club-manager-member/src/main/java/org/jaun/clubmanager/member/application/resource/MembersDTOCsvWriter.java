@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
 
@@ -40,7 +41,6 @@ public class MembersDTOCsvWriter implements MessageBodyWriter<MembersDTO> {
             MultivaluedMap<String, Object> httpHeaders, OutputStream out) throws IOException, WebApplicationException {
 
         Writer writer = new PrintWriter(out);
-
         CSVPrinter csvPrinter = new CSVPrinter(writer, MemberCsvFormat.FORMAT);
 
         membersDTO.getMembers().forEach(m -> {

@@ -9,11 +9,13 @@ import org.jaun.clubmanager.eventstore.EventType;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionDeletedEvent;
 
 public enum MemberEventMapping implements EventMapping {
 
     MEMBER_CREATED("MemberCreated", MemberCreatedEvent.class), //
-    SUBSCRIPTION_CREATED("SubscriptionCreated", SubscriptionCreatedEvent.class);
+    SUBSCRIPTION_CREATED("SubscriptionCreated", SubscriptionCreatedEvent.class), //
+    SUBSCRIPTION_DELETED("SubscriptionDeleted", SubscriptionDeletedEvent.class);
 
     private final EventType eventType;
     private final Class<? extends MemberEvent> eventClass;

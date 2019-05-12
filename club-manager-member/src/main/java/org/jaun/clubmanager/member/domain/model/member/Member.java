@@ -5,6 +5,7 @@ import org.jaun.clubmanager.eventstore.EventStream;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionDeletedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 
 import java.util.ArrayList;
@@ -40,6 +41,15 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
 
     }
 
+    public void deleteSubscription(SubscriptionId subscriptionId) throws SubscriptionNotFoundException {
+
+        if (!subscriptions.containsId(subscriptionId)) {
+            throw new SubscriptionNotFoundException(subscriptionId);
+        }
+
+        apply(new SubscriptionDeletedEvent(subscriptionId, this.id));
+    }
+
     private void mutate(MemberCreatedEvent event) {
         this.id = event.getMemberId();
     }
@@ -56,6 +66,10 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
         subscriptions.add(subscription);
     }
 
+    private void mutate(SubscriptionDeletedEvent event) {
+        subscriptions.remove(event.getSubscriptionId());
+    }
+
     public Subscriptions getSubscriptions() {
         return subscriptions;
     }
@@ -66,6 +80,8 @@ public class Member extends EventSourcingAggregate<MemberId, MemberEvent> {
             mutate((MemberCreatedEvent) event);
         } else if (event instanceof SubscriptionCreatedEvent) {
             mutate((SubscriptionCreatedEvent) event);
+        } else if (event instanceof SubscriptionDeletedEvent) {
+            mutate((SubscriptionDeletedEvent) event);
         }
     }
 

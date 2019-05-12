@@ -89,7 +89,7 @@ public class MemberResource {
 
         ArrayList<SubscriptionRequest> subscriptionRequests = new ArrayList<>(createMemberDTO.getSubscriptions().size());
 
-        for(SubscriptionDTO subscriptionDTO : createMemberDTO.getSubscriptions()) {
+        for (SubscriptionDTO subscriptionDTO : createMemberDTO.getSubscriptions()) {
             SubscriptionId subscriptionId = new SubscriptionId(subscriptionDTO.getId());
             SubscriptionTypeId subscriptionTypeId = new SubscriptionTypeId(subscriptionDTO.getSubscriptionTypeId());
             SubscriptionPeriodId subscriptionPeriodId = new SubscriptionPeriodId(subscriptionDTO.getSubscriptionPeriodId());
@@ -101,7 +101,7 @@ public class MemberResource {
                         Collections.emptyList());// TODO: support additional subscribers
                 subscriptionRequests.add(subscriptionRequest);
 
-            } catch(NoSuchSubscriptionTypeForPeriod e) {
+            } catch (NoSuchSubscriptionTypeForPeriod e) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
             }
         }
@@ -122,6 +122,34 @@ public class MemberResource {
             }
         } catch (SubscriptionOfSamePeriodAndTypeExistsException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            memberRepository.save(member);
+        } catch (ConcurrencyException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{member-id}/subscriptions/{subscription-id}")
+    public Response deleteSubscription(@PathParam("member-id") String memberIdAsString, @PathParam("subscription-id") String subscriptionIdAsString) {
+
+        MemberId memberId = new MemberId(memberIdAsString);
+        SubscriptionId subscriptionId = new SubscriptionId(subscriptionIdAsString);
+
+        Member member = memberRepository.get(memberId);
+        if (member == null) {
+            throw new NotFoundException("member not found: " + memberIdAsString);
+        }
+        try {
+            member.deleteSubscription(subscriptionId);
+        } catch (SubscriptionNotFoundException e) {
+            throw new NotFoundException(e);
         }
 
         try {

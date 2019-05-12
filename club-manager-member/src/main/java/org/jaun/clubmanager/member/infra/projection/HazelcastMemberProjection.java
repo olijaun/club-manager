@@ -15,6 +15,7 @@ import org.jaun.clubmanager.member.application.resource.*;
 import org.jaun.clubmanager.member.domain.model.member.MemberId;
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionDeletedEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeId;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.membershiptype.event.MembershipTypeMetadataChangedEvent;
@@ -55,6 +56,7 @@ public class HazelcastMemberProjection extends AbstractMappingCatchUpSubscriptio
                 (v, r) -> update(v, toObject(r, MetadataChangedEvent.class)));
 
         registerMapping(MemberEventMapping.SUBSCRIPTION_CREATED.getEventType(), (v, r) -> update(v, toObject(r, SubscriptionCreatedEvent.class)));
+        registerMapping(MemberEventMapping.SUBSCRIPTION_DELETED.getEventType(), (v, r) -> update(v, toObject(r, SubscriptionDeletedEvent.class)));
         registerMapping(MemberEventMapping.MEMBER_CREATED.getEventType(), (v, r) -> update(v, toObject(r, MemberCreatedEvent.class)));
 
 
@@ -148,9 +150,15 @@ public class HazelcastMemberProjection extends AbstractMappingCatchUpSubscriptio
         memberMap.put(subscriptionCreatedEvent.getMemberId(), memberDTO);
     }
 
-//    public SubscriptionViewDTO getById(SubscriptionId id) {
-//        return enrich(subscriptionMap.get(id));
-//    }
+    protected synchronized void update(Long version, SubscriptionDeletedEvent subscriptionDeletedEvent) {
+        MemberDTO memberDTO = memberMap.get(subscriptionDeletedEvent.getMemberId());
+
+        memberDTO.getSubscriptions().stream()
+                .filter(s -> s.getId().equals(subscriptionDeletedEvent.getSubscriptionId().getValue())).findFirst()
+                .ifPresent(s -> memberDTO.getSubscriptions().remove(s));
+
+        memberMap.put(subscriptionDeletedEvent.getMemberId(), memberDTO);
+    }
 
     public MemberDTO getById(MemberId id) {
         return memberMap.get(id);

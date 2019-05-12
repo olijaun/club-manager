@@ -2,6 +2,7 @@ package org.jaun.clubmanager.member.domain.model.member;
 
 import org.jaun.clubmanager.member.domain.model.member.event.MemberCreatedEvent;
 import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionCreatedEvent;
+import org.jaun.clubmanager.member.domain.model.member.event.SubscriptionDeletedEvent;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequest;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionRequestFixture;
 import org.junit.jupiter.api.Test;
@@ -129,5 +130,30 @@ class MemberTest {
 
         SubscriptionCreatedEvent subscriptionCreatedEvent = (SubscriptionCreatedEvent) member.getChanges().get(0);
         assertThat(subscriptionCreatedEvent.getSubscriptionId(), equalTo(subscriptionRequestA.getId()));
+    }
+
+    @Test
+    void deleteSubscription() throws Exception {
+
+        // prepare
+        Member member = MemberFixture.newMember();
+
+        SubscriptionRequest subscriptionRequest = SubscriptionRequestFixture.subscriptionRequest().build();
+        member.subscribe(subscriptionRequest);
+
+        member.clearChanges();
+
+        // run
+        member.deleteSubscription(subscriptionRequest.getId());
+
+        // verify values have been applied correctly to aggregate root
+        assertThat(member.getSubscriptions().size(), is(0));
+
+        // verify event has been created
+        assertThat(member.getChanges().size(), equalTo(1));
+
+        SubscriptionDeletedEvent subscriptionDeletedEvent = (SubscriptionDeletedEvent) member.getChanges().get(0);
+        assertThat(subscriptionDeletedEvent.getSubscriptionId(), equalTo(subscriptionRequest.getId()));
+        assertThat(subscriptionDeletedEvent.getMemberId(), equalTo(member.getId()));
     }
 }

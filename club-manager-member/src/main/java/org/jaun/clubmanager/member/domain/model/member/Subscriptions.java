@@ -22,12 +22,24 @@ public class Subscriptions implements Iterable {
         subscriptions.add(subscription);
     }
 
+    public boolean remove(SubscriptionId subscriptionId) {
+        return getById(subscriptionId).map(this::remove).orElse(false);
+    }
+
+    public boolean remove(Subscription subscription) {
+        return subscriptions.remove(subscription);
+    }
+
     public boolean contains(Subscription subscription) {
         return subscriptions.stream().filter(s -> s.getId().equals(subscription.getId())).findFirst().isPresent();
     }
 
     public boolean containsId(SubscriptionId subscriptionId) {
         return subscriptions.stream().map(Subscription::getId).filter(id -> subscriptionId.equals(id)).findFirst().isPresent();
+    }
+
+    public Optional<Subscription> getById(SubscriptionId subscriptionId) {
+        return subscriptions.stream().filter(s -> s.getId().equals(subscriptionId)).findFirst();
     }
 
     public boolean containsMembershipWith(SubscriptionPeriodId subscriptionPeriodId, SubscriptionTypeId subscriptionTypeId) {
