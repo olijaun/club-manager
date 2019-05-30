@@ -161,13 +161,14 @@ public class MemberApplication {
                 .register(new BearerTokenFilter());
         WebTarget target = client.target(countryServiceUrl);
 
-        return new RestCountriesService(target) {
-
-            @Cacheable(value = "countries")
-            public Collection<Country> getCountries() {
-                return super.getCountries();
-            }
-        };
+        return new RestCountriesService(target);
+//        {
+//
+//            @Cacheable(value = "countries")
+//            public Collection<Country> getCountries() {
+//                return super.getCountries();
+//            }
+//        };
     }
 
     @Bean
@@ -210,12 +211,12 @@ public class MemberApplication {
         return new HazelcastMemberProjection(hazelcastInstance);
     }
 
-    @Bean
-    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
-//        SimpleCacheManager cacheManager = new SimpleCacheManager();
-        HazelcastCacheManager cacheManager = new HazelcastCacheManager(hazelcastInstance);
-//        cacheManager.setCaches(Arrays.asList(
-//                new ConcurrentMapCache("countries")));
-        return cacheManager;
-    }
+//    @Bean
+//    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+////        SimpleCacheManager cacheManager = new SimpleCacheManager();
+//        HazelcastCacheManager cacheManager = new HazelcastCacheManager(hazelcastInstance);
+////        cacheManager.setCaches(Arrays.asList(
+////                new ConcurrentMapCache("countries")));
+//        return cacheManager;
+//    }
 }
