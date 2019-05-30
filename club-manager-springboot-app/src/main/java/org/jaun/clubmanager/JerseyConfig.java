@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 @ApplicationPath("/api")
 public class JerseyConfig extends ResourceConfig {
 
+    // cehckout https://psamsotha.github.io/jersey/2015/10/18/http-caching-with-jersey.html for some caching stuff
+
     public JerseyConfig() {
 
         register(JerseyObjectMapperProvider.class);

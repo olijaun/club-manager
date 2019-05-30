@@ -10,12 +10,10 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.spring.cache.HazelcastCacheManager;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StreamReader;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
 import org.jaun.clubmanager.eventstore.akka.AkkaStreamReader;
-import org.jaun.clubmanager.masterdata.domain.model.masterdata.Country;
 import org.jaun.clubmanager.masterdata.infra.RestCountriesService;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
@@ -35,11 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -52,8 +46,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import java.util.Arrays;
-import java.util.Collection;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
