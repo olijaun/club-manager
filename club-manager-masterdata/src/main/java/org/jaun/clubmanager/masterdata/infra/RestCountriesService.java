@@ -3,6 +3,7 @@ package org.jaun.clubmanager.masterdata.infra;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jaun.clubmanager.masterdata.domain.model.masterdata.Country;
+import org.jaun.clubmanager.masterdata.domain.model.masterdata.Iso2LetterCountryCode;
 import org.jaun.clubmanager.masterdata.domain.model.masterdata.CountryName;
 import org.jaun.clubmanager.masterdata.domain.model.masterdata.CountryService;
 
@@ -46,7 +47,7 @@ public class RestCountriesService implements CountryService {
             }
         }
 
-        return restCountryDTOS.stream().map(rc -> new Country(rc.getAlpha2Code(), rc.getNativeName(), toCountryName(rc))).collect(Collectors.toList());
+        return restCountryDTOS.stream().map(rc -> new Country(new Iso2LetterCountryCode(rc.getAlpha2Code()), rc.getNativeName(), toCountryName(rc))).collect(Collectors.toList());
     }
 
     private Collection<CountryName> toCountryName(RestCountryDTO restCountryDTO) {

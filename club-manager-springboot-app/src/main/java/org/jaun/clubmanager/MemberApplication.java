@@ -10,6 +10,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StreamReader;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
@@ -210,10 +211,11 @@ public class MemberApplication {
     }
 
     @Bean
-    public CacheManager cacheManager() {
-        SimpleCacheManager cacheManager = new SimpleCacheManager();
-        cacheManager.setCaches(Arrays.asList(
-                new ConcurrentMapCache("countries")));
+    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+//        SimpleCacheManager cacheManager = new SimpleCacheManager();
+        HazelcastCacheManager cacheManager = new HazelcastCacheManager(hazelcastInstance);
+//        cacheManager.setCaches(Arrays.asList(
+//                new ConcurrentMapCache("countries")));
         return cacheManager;
     }
 }

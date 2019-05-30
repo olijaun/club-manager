@@ -1,5 +1,8 @@
 package org.jaun.clubmanager.masterdata.domain.model.masterdata;
 
+import org.jaun.clubmanager.domain.model.commons.ValueObject;
+
+import java.io.Serializable;
 import java.util.Locale;
 
 public class CountryName {

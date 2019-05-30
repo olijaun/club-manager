@@ -13,9 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/masterdata")
 public class MasterDataResource {
@@ -45,7 +43,7 @@ public class MasterDataResource {
     private CountryDTO toCountryDTO(Country country, String lang) {
 
         CountryDTO countryDTO = new CountryDTO();
-        countryDTO.setIso2LetterCountryCode(country.getIso2LetterCountryCode());
+        countryDTO.setIso2LetterCountryCode(country.getId().getValue());
         countryDTO.setName(country.getCountryNameWithFallback(lang));
         return countryDTO;
     }
