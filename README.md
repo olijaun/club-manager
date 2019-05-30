@@ -35,7 +35,7 @@ sudo -u postgres createdb eventdb
 
 ## TODO
 
-- allow deletion of subscriptions
+- done: allow deletion of subscriptions
 - allow memberships (without subscriptions)
 - allow comments for subscriptions
 

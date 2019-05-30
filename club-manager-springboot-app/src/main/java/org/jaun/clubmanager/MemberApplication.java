@@ -14,6 +14,7 @@ import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StreamReader;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
 import org.jaun.clubmanager.eventstore.akka.AkkaStreamReader;
+import org.jaun.clubmanager.masterdata.infra.RestCountriesService;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.SubscriptionPeriodRepository;
@@ -64,6 +65,9 @@ public class MemberApplication {
 
     @Value("${webServices.personService.url}")
     private String personServiceUrl;
+
+    @Value("${webServices.countryService.url}")
+    private String countryServiceUrl;
 
     @Value("${akkaEventStore.actorSystemName}")
     private String actorSystemName;
@@ -136,6 +140,15 @@ public class MemberApplication {
                 .register(new BearerTokenFilter());
         WebTarget target = client.target(personServiceUrl);
         return new ClubManagerPersonService(target);
+    }
+
+    @Bean
+    public RestCountriesService restCountriesService() {
+        Client client = ClientBuilder.newClient()
+                .register(JerseyObjectMapperProvider.class)
+                .register(new BearerTokenFilter());
+        WebTarget target = client.target(countryServiceUrl);
+        return new RestCountriesService(target);
     }
 
     @Bean

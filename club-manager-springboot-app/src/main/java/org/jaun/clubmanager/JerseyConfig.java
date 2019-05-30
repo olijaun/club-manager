@@ -3,6 +3,7 @@ package org.jaun.clubmanager;
 import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jaun.clubmanager.masterdata.application.resource.MasterDataResource;
 import org.jaun.clubmanager.member.application.resource.MemberResource;
 import org.jaun.clubmanager.member.application.resource.MembersDTOCsvWriter;
 import org.jaun.clubmanager.member.application.resource.MembershipTypeResource;
@@ -26,6 +27,7 @@ public class JerseyConfig extends ResourceConfig {
         register(MembersDTOCsvWriter.class);
 
         // resources
+        register(MasterDataResource.class);
         register(PersonResource.class);
         register(PersonIdRequestResource.class);
         register(MembershipTypeResource.class);

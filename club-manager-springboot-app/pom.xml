@@ -19,6 +19,11 @@
 
         <dependency>
             <groupId>org.jaun.club-manager</groupId>
+            <artifactId>club-manager-masterdata</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jaun.club-manager</groupId>
             <artifactId>club-manager-person</artifactId>
         </dependency>
 
@@ -43,8 +48,8 @@
             <version>RELEASE</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-web</artifactId>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-web</artifactId>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
