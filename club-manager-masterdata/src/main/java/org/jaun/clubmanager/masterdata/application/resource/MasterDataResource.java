@@ -8,6 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -34,7 +35,11 @@ public class MasterDataResource {
         CountriesDTO countriesDTO = new CountriesDTO();
         countriesDTO.setCountries(countryDTOS);
 
-        return Response.ok(countriesDTO).build();
+        CacheControl cc = new CacheControl();
+        cc.setMaxAge(86400);
+        cc.setPrivate(true);
+
+        return Response.ok(countriesDTO).cacheControl(cc).build();
     }
 
     private CountryDTO toCountryDTO(Country country, String lang) {

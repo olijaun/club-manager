@@ -23,9 +23,7 @@ public class RestCountriesService implements CountryService {
         this.target = target;
     }
 
-    @Override
     public Collection<Country> getCountries() {
-
 
         List<RestCountryDTO> restCountryDTOS;
 

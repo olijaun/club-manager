@@ -14,6 +14,7 @@ import org.jaun.clubmanager.eventstore.EventStoreClient;
 import org.jaun.clubmanager.eventstore.StreamReader;
 import org.jaun.clubmanager.eventstore.akka.AkkaEventStore;
 import org.jaun.clubmanager.eventstore.akka.AkkaStreamReader;
+import org.jaun.clubmanager.masterdata.domain.model.masterdata.Country;
 import org.jaun.clubmanager.masterdata.infra.RestCountriesService;
 import org.jaun.clubmanager.member.domain.model.member.MemberRepository;
 import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRepository;
@@ -33,9 +34,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -44,10 +51,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import java.util.Arrays;
+import java.util.Collection;
 
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
+@Configuration
+@EnableCaching
 public class MemberApplication {
 
     @Value("${machine2machine.url}")
@@ -148,7 +159,14 @@ public class MemberApplication {
                 .register(JerseyObjectMapperProvider.class)
                 .register(new BearerTokenFilter());
         WebTarget target = client.target(countryServiceUrl);
-        return new RestCountriesService(target);
+
+        return new RestCountriesService(target) {
+
+            @Cacheable(value = "countries")
+            public Collection<Country> getCountries() {
+                return super.getCountries();
+            }
+        };
     }
 
     @Bean
@@ -189,5 +207,13 @@ public class MemberApplication {
     @Bean
     public HazelcastMemberProjection hazelcastMemberProjection(StreamReader streamReader, HazelcastInstance hazelcastInstance) {
         return new HazelcastMemberProjection(hazelcastInstance);
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        SimpleCacheManager cacheManager = new SimpleCacheManager();
+        cacheManager.setCaches(Arrays.asList(
+                new ConcurrentMapCache("countries")));
+        return cacheManager;
     }
 }
