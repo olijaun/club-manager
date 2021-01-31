@@ -309,9 +309,9 @@
                     <version>${compiler-plugin-version}</version>
                     <configuration>
                         <release>${java.version}</release>
-<!--                        <compilerArgs>-->
-<!--                            &#45;&#45;enable-preview-->
-<!--                        </compilerArgs>-->
+                        <compilerArgs>
+                            --enable-preview
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>
