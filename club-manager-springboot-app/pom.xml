@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
+            <artifactId>hazelcast-all</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -90,9 +90,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.dnvriend</groupId>
-            <artifactId>akka-persistence-jdbc_2.11</artifactId>
-            <version>3.5.0</version>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-persistence-jdbc_2.12</artifactId>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
