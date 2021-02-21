@@ -310,7 +310,6 @@
                     <configuration>
                         <release>${java.version}</release>
                         <compilerArgs>
-                            --enable-preview
                         </compilerArgs>
                     </configuration>
                 </plugin>
@@ -328,7 +327,7 @@
                     <version>3.0.0-M3</version>
                     <configuration>
                         <!-- Sets the VM argument line used when unit tests are run. -->
-                        <argLine>${surefireArgLine}</argLine>
+                        <argLine>${surefireArgLine} --enable-preview</argLine>
                         <!-- Skips unit tests if the value of skip.unit.tests property is true -->
                         <skipTests>${skip.unit.tests}</skipTests>
                         <!-- Excludes integration tests when unit tests are run. -->
@@ -500,7 +499,7 @@
         <module>club-manager-member</module>
         <module>club-manager-eventstore-akka</module>
         <module>club-manager-springboot-app</module>
-<!--        <module>club-manager-vaadin</module>-->
+        <module>club-manager-servicetest</module>
     </modules>
 
 </project>

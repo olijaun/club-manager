@@ -1,0 +1,13 @@
+<assembly>
+    <inline>
+        <dependencySets>
+            <dependencySet>
+                <includes>
+                    <include>org.jaun.club-manager:club-manager</include>
+                </includes>
+                <outputDirectory>.</outputDirectory>
+                <outputFileNameMapping>clubmanager.jar</outputFileNameMapping>
+            </dependencySet>
+        </dependencySets>
+    </inline>
+</assembly>

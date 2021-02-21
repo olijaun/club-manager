@@ -52,6 +52,12 @@ public class PersonResource {
     private HazelcastPersonProjection projection;
 
     @GET
+    @Path("readiness")
+    public Response readiness() {
+        return Response.ok().build();
+    }
+
+    @GET
     @Produces({MediaType.APPLICATION_JSON, "text/csv"})
     @Path("persons")
     public Response searchPersons(@QueryParam("firstName") String firstName,

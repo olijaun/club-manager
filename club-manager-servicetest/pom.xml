@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>club-manager</artifactId>
+        <groupId>org.jaun.club-manager</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>club-manager-servicetest</artifactId>
+
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+
+        <!-- Allows us to disable volume mounting on TeamCity. Locally we need this for hot deploy. -->
+        <deployments-host-volume-path>${project.basedir}/../clubmanager/target/shared-deployments:
+        </deployments-host-volume-path>
+        <docker.autoCreateCustomNetworks>true</docker.autoCreateCustomNetworks>
+        <service.target>http://localhost:8080</service.target>
+        <service.host>localhost</service.host>
+    </properties>
+
+    <dependencies>
+
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>servicetest</id>
+            <properties>
+                <skip.penTest>true</skip.penTest>
+            </properties>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Dfile.encoding=UTF-8 -Dservice.target=${service.target}</argLine>
+                            <includes>
+                                <!-- SVT = Servicetests -->
+                                <include>**/*SVT.java</include>
+                                <!-- CDC = Consumer driven contracts -->
+                                <include>**/*CDC.java</include>
+                            </includes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- When the container fails to start, we want to see what went wrong. Also helpful
+                             for builds on the CI server. -->
+                            <showLogs>true</showLogs>
+                            <startParallel>true</startParallel>
+                            <images>
+                                <image>
+                                    <alias>clubmanager-springboot</alias>
+                                    <name>clubmanager:${project.version}</name>
+                                    <run>
+                                        <namingStrategy>alias</namingStrategy>
+                                        <!-- Do not pull this image, because we want to use the locally built one. -->
+                                        <imagePullPolicy>Never</imagePullPolicy>
+                                        <network>
+                                            <mode>custom</mode>
+                                            <name>custom_network</name>
+                                            <alias>jboss</alias>
+                                        </network>
+                                        <dependsOn>
+<!--                                            <container>database</container>-->
+<!--                                            <container>club-manager-wiremock</container>-->
+                                        </dependsOn>
+                                        <ports>
+                                            <port>8080:8080</port>
+                                            <port>8443:8443</port>
+                                            <port>8787:8787</port>
+                                        </ports>
+                                        <envPropertyFile>${project.basedir}/src/test/docker/clubmanager.properties</envPropertyFile>
+
+                                        <volumes>
+                                            <bind>
+                                                <!-- May be used for hot deployment of the WAR.-->
+                                                <volume>${deployments-host-volume-path}/data/jboss/server/mobi/deployments</volume>
+                                            </bind>
+                                        </volumes>
+                                        <wait>
+                                            <http>
+                                                <url>${service.target}/api/readiness</url>
+                                                <method>GET</method>
+                                                <status>200..399</status>
+                                            </http>
+                                            <time>60000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+<!--                                <image>-->
+<!--                                    <alias>database</alias>-->
+<!--                                    <name>postgres:9</name>-->
+<!--                                    <run>-->
+<!--                                        <wait>-->
+<!--                                            <log>database system is ready to accept connections</log>-->
+<!--                                            <time>20000</time>-->
+<!--                                        </wait>-->
+<!--                                    </run>-->
+<!--                                </image>-->
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <!-- If the container is already started, stop it. -->
+                                    <goal>stop</goal>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
