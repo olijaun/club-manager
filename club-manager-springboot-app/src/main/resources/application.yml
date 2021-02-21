@@ -1,3 +1,8 @@
+app:
+  datasource:
+    jdbc-url: ${JDBC_DATABASE_URL}
+    pool-size: 30
+
 server:
   port: ${PORT:8080}
 

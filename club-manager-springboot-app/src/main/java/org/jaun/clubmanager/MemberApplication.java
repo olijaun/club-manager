@@ -33,16 +33,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+import javax.sql.DataSource;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -77,7 +81,10 @@ public class MemberApplication {
     private String actorSystemName;
 
     public static void main(String[] args) {
+
         ConfigurableApplicationContext context = SpringApplication.run(MemberApplication.class, args);
+
+        //context.getBean(DataSource.class);
 
         StreamReader streamReader = context.getBean(StreamReader.class);
 
@@ -91,6 +98,15 @@ public class MemberApplication {
     @EventListener
     public void handleContextRefreshEvent(ContextStartedEvent ctxStartEvt) {
         System.out.println("Context Start Event received.");
+    }
+
+    @Bean
+    @ConfigurationProperties("app.datasource")
+    @Primary
+    public DataSource dataSource() {
+        DataSource ds = DataSourceBuilder.create().build();
+        System.out.printf("created datasource: " + ds + ", " + ds.getClass());
+        return ds;
     }
 
     @Bean

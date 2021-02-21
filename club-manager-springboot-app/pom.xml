@@ -56,6 +56,10 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
         </dependency>
@@ -92,7 +96,7 @@
         <dependency>
             <groupId>com.lightbend.akka</groupId>
             <artifactId>akka-persistence-jdbc_2.12</artifactId>
-            <version>4.0.0</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -120,6 +124,12 @@
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>7.5.3</version>
         </dependency>
 
     </dependencies>
