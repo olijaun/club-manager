@@ -74,6 +74,8 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
         http.cors() //
                 .and() //
                 .authorizeRequests() //
+                .antMatchers("/**/readiness") //
+                .permitAll() //
                 .antMatchers("/**") //
                 .access("hasRole('USER')");
     }

@@ -125,6 +125,7 @@
     </dependencies>
 
     <build>
+        <finalName>clubmanager</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -133,6 +134,60 @@
                     <addResources>true</addResources>
                 </configuration>
             </plugin>
+            <plugin>
+                <!-- Definitions to build the Docker image for this application. The image we push into the
+                service registry and deploy to Kubernetes. -->
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Makes sure that we always use the latest base images. They may change in the mobi docker registy. -->
+                    <imagePullPolicy>Always</imagePullPolicy>
+                    <images>
+                        <image>
+                            <alias>clubmanager-springboot</alias>
+                            <name>clubmanager</name>
+                            <build>
+                                <dockerFileDir>${project.basedir}/src/main/docker</dockerFileDir>
+                                <tags>
+                                    <tag>${project.version}</tag>
+                                    <tag>latest</tag>
+                                </tags>
+                                <volumes>
+                                    <volume>/data/jboss/server/mobi/deployments/</volume>
+                                </volumes>
+                                <assembly>
+                                    <inline>
+                                        <fileSets>
+                                            <fileSet>
+                                                <directory>${project.build.directory}</directory>
+                                                <outputDirectory>.</outputDirectory>
+                                                <includes>
+                                                    <include>*.jar</include>
+                                                </includes>
+                                            </fileSet>
+                                        </fileSets>
+                                    </inline>
+                                </assembly>
+                                <args>
+                                    <DEPLOYABLE_FILE>/maven/${project.build.finalName}.jar</DEPLOYABLE_FILE>
+                                </args>
+                                <buildOptions>
+                                    <forcerm>1</forcerm>
+                                </buildOptions>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
