@@ -1,6 +1,6 @@
 app:
   datasource:
-    jdbc-url: ${JDBC_DATABASE_URL}
+    jdbc-url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/eventdb?user=postgres&password=password}
     pool-size: 30
 
 server:

@@ -77,7 +77,7 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
                 .antMatchers("/**/readiness") //
                 .permitAll() //
                 .antMatchers("/**") //
-                .access("hasRole('USER')");
+                .access("hasRole('USER') OR hasRole('M2M')");
     }
 
     @Bean
