@@ -11,6 +11,7 @@ public class SvtUtil {
                 runnable.run();
                 return true;
             } catch (AssertionError e) {
+                System.err.println(e);
                 return false;
             }
         });

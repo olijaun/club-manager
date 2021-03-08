@@ -1,0 +1,3 @@
+id,type,lastName,firstName,birthDate,gender,emailAddress,phoneNumber,street,houseNumber,zip,city,state,isoCountryCode
+P00000005,NATURAL,Jaun,Oliver,1979-01-22,MALE,oliver@somewhere-bla.org,078 111 11 11,Einestrasse,71,3007,Bern,,CH
+P00000006,NATURAL,Häberli,Françoise,1976-06-23,FEMALE,haeberli@somewhere-bla.org,078 222 22 22,,,,,,

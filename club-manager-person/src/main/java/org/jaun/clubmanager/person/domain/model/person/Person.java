@@ -112,7 +112,7 @@ public class Person extends EventSourcingAggregate<PersonId, PersonEvent> {
     }
 
     public Optional<StreetAddress> getStreetAddress() {
-        return Optional.of(streetAddress);
+        return Optional.ofNullable(streetAddress);
     }
 
     public Optional<PhoneNumber> getPhoneNumber() {

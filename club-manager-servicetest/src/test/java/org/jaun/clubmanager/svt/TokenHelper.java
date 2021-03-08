@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static io.restassured.RestAssured.given;
-
 public final class TokenHelper {
 
     private String token;
