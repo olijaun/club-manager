@@ -1,5 +1,7 @@
 package org.jaun.clubmanager.svt;
 
+import io.restassured.RestAssured;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -27,7 +29,7 @@ public final class TokenHelper {
             String audience = p.getProperty("audience");
             String grantType = p.getProperty("grant_type");
 
-//            token = given() //
+//            token = RestAssured.given() //
 //                    .header("content-type", "application/json") //
 //                    .body("{\"client_id\":\"" + clientId + "\",\"client_secret\":\"" + clientSecret + "\",\"audience\":\"" + audience + "\",\"grant_type\":\"" + grantType + "\"}") //
 //                    .post(tokenUrl) //

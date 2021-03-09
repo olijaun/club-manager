@@ -1,0 +1,6 @@
+id,lastName,firstName,address,subscriptionSummary,subscriptionId,subscriptionPeriodId,subscriptionTypeId
+P00000006,Häberli,Françoise,,,,,
+P00000007,Impört1,Böb,"Bobstreet 88, 3000 Bern",Vereinsjahr 2020 / Passivmitgliedschaft 2020,2,3,3
+P00000008,Impört2,Älice,,Vereinsjahr 2018 / Normalmitgliedschaft 2018,1,1,1
+P00000008,Impört2,Älice,,Vereinsjahr 2019 / Gönnermitgliedschaft 2019,2,2,2
+P00000005,Jaun,Oliver,"Einestrasse 71, 3007 Bern",,,,

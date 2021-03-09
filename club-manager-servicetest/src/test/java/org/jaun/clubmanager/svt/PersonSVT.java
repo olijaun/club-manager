@@ -1,21 +1,20 @@
 package org.jaun.clubmanager.svt;
 
-import org.hamcrest.MatcherAssert;
+import io.restassured.RestAssured;
+import io.restassured.config.DecoderConfig;
+import io.restassured.config.EncoderConfig;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.jaun.clubmanager.svt.SvtUtil.load;
 import static org.jaun.clubmanager.svt.SvtUtil.waitForAssertionTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Order(1) // has to be run before MemberSVT
 public class PersonSVT {
 
     private TokenHelper tokenHelper = new TokenHelper();
@@ -140,25 +139,69 @@ public class PersonSVT {
 
     @Test
     @Order(4)
-    void csv() {
+    void csvExport() {
 
-        String body = given() //
+        given() //
                 .header("Authorization", "Bearer " + tokenHelper.getTestToken()) //
                 .header("Accept", "text/csv") //
                 .get("/api/persons")
-                .body()
-                .print();
-
-        assertThat(body, equalTo(load("/persons.csv")));
+                .then()
+                .assertThat()
+                .body(equalTo(load("/personsExport.csv")));
     }
 
-    private String load(String resourcePath) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            getClass().getResourceAsStream(resourcePath).transferTo(bos);
-            return new String(bos.toByteArray(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new IllegalStateException("could not load test resource " + resourcePath, e);
-        }
+    @Test
+    @Order(5)
+    void csvImport() {
+        System.out.println(load("/personsImport.csv"));
+        given() //
+                // leaving this config here for documentation. either this config and/or charset=UTF-8 in the Content-Type has to be specified in order to properly load an UTF-8 encoded csv
+                .config(RestAssured.config().decoderConfig(DecoderConfig.decoderConfig().defaultContentCharset("UTF-8")).encoderConfig(EncoderConfig.encoderConfig().defaultContentCharset("UTF-8")))
+                .header("Authorization", "Bearer " + tokenHelper.getTestToken()) //
+                .header("Content-Type", "text/csv; charset=UTF-8") // charset is important
+                .body(load("/personsImport.csv"))
+                .post("/api/persons")
+                .then()
+                .assertThat()
+                .statusCode(200);
+
+        waitForAssertionTrue(() -> given() //
+                .header("Authorization", "Bearer " + tokenHelper.getTestToken()) //
+                .get("/api/persons/P00000007")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("type", equalTo("NATURAL"))
+                .body("basicData.name.lastNameOrCompanyName", equalTo("Impört1"))
+                .body("basicData.name.firstName", equalTo("Böb"))
+                .body("basicData.birthDate", equalTo("1982-03-03"))
+                .body("basicData.gender", equalTo("MALE"))
+                .body("streetAddress.street", equalTo("Bobstreet"))
+                .body("streetAddress.houseNumber", equalTo("88"))
+                .body("streetAddress.zip", equalTo("3000"))
+                .body("streetAddress.city", equalTo("Bern"))
+                .body("streetAddress.isoCountryCode", equalTo("CH"))
+                .body("streetAddress.state", nullValue())
+                .body("contactData.phoneNumber", equalTo("078 333 33 33"))
+                .body("contactData.emailAddress", equalTo("bob@somewhere-bla.org"))
+        );
+
+        waitForAssertionTrue(() -> given() //
+                .header("Authorization", "Bearer " + tokenHelper.getTestToken()) //
+                .get("/api/persons/P00000008")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("type", equalTo("NATURAL"))
+                .body("basicData.name.lastNameOrCompanyName", equalTo("Impört2"))
+                .body("basicData.name.firstName", equalTo("Älice"))
+                .body("basicData.birthDate", equalTo("1972-05-07"))
+                .body("basicData.gender", equalTo("FEMALE"))
+                .body("streetAddress", nullValue())
+                .body("contactData.phoneNumber", equalTo("078 444 44 44"))
+                .body("contactData.emailAddress", equalTo("alice@somewhere-bla.org"))
+        );
     }
+
+
 }

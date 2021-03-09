@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.jaun.clubmanager.svt.SvtUtil.waitForAssertionTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Order(2) // has to be run after PersonSVT
 public class MemberSVT {
 
     private TokenHelper tokenHelper = new TokenHelper();

@@ -20,6 +20,7 @@
         <service.target>http://localhost:8080</service.target>
         <service.host>localhost</service.host>
 
+        <!-- attention: strange problems with 4.3 versions -->
         <rest.assured.version>4.2.0</rest.assured.version>
     </properties>
 
@@ -27,6 +28,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <version>5.8.0-M1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
