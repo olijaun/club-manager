@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,7 +39,7 @@ public class PersonsDTOCsvWriter implements MessageBodyWriter<PersonsDTO> {
     public void writeTo(PersonsDTO personsDTO, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream out) throws IOException, WebApplicationException {
 
-        Writer writer = new PrintWriter(out);
+        Writer writer = new PrintWriter(out, true, StandardCharsets.UTF_8);
 
         CSVPrinter csvPrinter = new CSVPrinter(writer, PersonCsvFormat.FORMAT);
 

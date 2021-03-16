@@ -3,6 +3,7 @@ package org.jaun.clubmanager.person.application.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +96,7 @@ public class PersonResource {
             }
         }
 
-        InputStreamReader reader = new InputStreamReader(inputStream);
+        InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         CSVParser csvParser;
         try {
             csvParser = new CSVParser(reader, PersonCsvFormat.FORMAT.withNullString(""));
@@ -215,7 +216,7 @@ public class PersonResource {
                     personIdRequestId = new PersonIdRequestId(UUID.fromString(personIdRequestIdAsString));
                 } catch (NullPointerException | IllegalArgumentException e) {
                     return Response.status(Response.Status.BAD_REQUEST)
-                            .entity("person id is not valid: " + personIdRequestIdAsString)
+                            .entity("person-id-request-id is not valid: " + personIdRequestIdAsString)
                             .build();
                 }
                 PersonIdRegistry registry = personIdRegistryRepository.get(PersonIdRequestResource.PERSON_ID_REGISTRY_ID);

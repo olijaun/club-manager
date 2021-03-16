@@ -80,7 +80,7 @@ public class PersonSVT {
 
     @Test
     @Order(2)
-    void loadPersonWithoutAddress() {
+    void savePersonWithoutAddress() {
 
         given() //
                 .header("Authorization", "Bearer " + tokenHelper.getTestToken()) //

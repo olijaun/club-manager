@@ -121,7 +121,7 @@ public class MemberResource {
                 member.subscribe(request);
             }
         } catch (SubscriptionOfSamePeriodAndTypeExistsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
 
         try {
