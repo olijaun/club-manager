@@ -7,6 +7,8 @@ import org.jaun.clubmanager.member.domain.model.membershiptype.MembershipTypeRep
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.*;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,6 +17,7 @@ import java.util.Collection;
 import java.util.Currency;
 
 @Path("/subscription-periods")
+@DenyAll
 public class SubscriptionPeriodResource {
 
     @Inject

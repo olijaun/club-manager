@@ -10,7 +10,12 @@ import org.jaun.clubmanager.member.domain.model.person.PersonId;
 import org.jaun.clubmanager.member.domain.model.person.PersonService;
 import org.jaun.clubmanager.member.domain.model.subscriptionperiod.*;
 import org.jaun.clubmanager.member.infra.projection.HazelcastMemberProjection;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/members")
+@DenyAll
 public class MemberResource {
 
     @Inject
@@ -45,6 +51,8 @@ public class MemberResource {
     public Response getMembers(@QueryParam("searchString") String searchString,
                                @QueryParam("subscriptionPeriodId") String subscriptionPeriodIdAsString, @QueryParam("sortBy") String sortyBy,
                                @QueryParam("sortAscending") String sortAscending) {
+
+        System.out.println("======================================================================================");
 
         if (StringUtils.isBlank(searchString)) {
             searchString = null;
@@ -165,6 +173,7 @@ public class MemberResource {
     @Consumes("text/csv")
     @Produces(MediaType.APPLICATION_JSON)
     @Path("")
+    @RolesAllowed("bla")
     public Response importMembers(InputStream inputStream) {
 
         InputStreamReader reader = new InputStreamReader(inputStream);

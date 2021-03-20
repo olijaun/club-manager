@@ -44,6 +44,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import javax.sql.DataSource;
@@ -51,12 +52,16 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+@Configuration
 @SpringBootApplication(scanBasePackages = {"org.jaun.clubmanager"})
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
-@Configuration
-@EnableCaching
-public class MemberApplication {
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true)
+// https://www.baeldung.com/spring-security-method-security
+//@EnableCaching
+public class MemberApplication {//extends GlobalMethodSecurityConfiguration {
 
     @Value("${machine2machine.url}")
     private String url;

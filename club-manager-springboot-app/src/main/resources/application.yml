@@ -6,6 +6,10 @@ app:
 server:
   port: ${PORT:8080}
 
+server.servlet-path: /
+spring.jersey.application-path: /api
+jersey.application-path: /api
+
 security:
   oauth2:
     client:
